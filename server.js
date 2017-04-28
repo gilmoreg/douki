@@ -1,3 +1,125 @@
+/* import express from 'express';
+import cors from 'cors';
+import compression from 'compression'; */
+const fetch = require('node-fetch');
+const xml2js = require('xml2js');
+const btoa = require('btoa');
+require('dotenv').config();
+
+const parser = new xml2js.Parser();
+
+/*
+const app = express();
+let server;
+
+app.use(compression({ level: 9, threshold: 0 }));
+app.use(cors({
+  origin: 'http://localhost:3000',
+  optionsSuccessStatus: 200,
+  methods: ['GET', 'POST', 'OPTIONS'],
+  allowedHeaders: 'Accept, Origin, Content-Type, Referer',
+  credentials: true,
+}));
+
+app.get('/', (req, res) => {
+  res.status(200).json({ message: 'ok' });
+});
+
+app.listen(4000); */
+/*
+const request = (host, path) =>
+  new Promise((resolve, reject) => {
+    const auth = btoa('solevul:#3Mal7g#');
+    console.log('auth', auth);
+    const req = https.request({
+      host,
+      path,
+      method: 'get',
+      headers: {
+        'Authorization': `Basic ${auth}`,
+      },
+    }, (response) => {
+      const body = [];
+      response.on('data', chunk => body.push(chunk));
+      response.on('end', () => resolve(body.join('')));
+    });
+    req.on('error', err => reject(err));
+    req.end();
+  });
+*/
+
+fetch('https://ytjv79nzl4.execute-api.us-east-1.amazonaws.com/dev/token')
+.then(res => res.json())
+.then((res) => {
+  const token = JSON.parse(res).access_token;
+  fetch(`https://anilist.co/api/user/solitethos/animelist?access_token=${token}`)
+  .then(aniRes => aniRes.json())
+  .then((aniRes) => {
+    // console.log(Object.keys(aniRes.lists));
+    // [ 'completed', 'plan_to_watch', 'dropped', 'on_hold', 'watching' ]
+    const animeList = [
+      ...aniRes.lists.completed,
+      ...aniRes.lists.plan_to_watch,
+      ...aniRes.lists.dropped,
+      ...aniRes.lists.on_hold,
+      ...aniRes.lists.watching,
+    ];
+
+    for (let i = 0; i < 10; i += 1) {
+      const anime = animeList[i];
+      const title = encodeURIComponent(anime.anime.title_romaji);
+      const auth = btoa(`${process.env.MAL_USER}:${process.env.MAL_PW}`);
+
+      fetch(`https://myanimelist.net/api/anime/search.xml?q=${title}`, {
+        method: 'GET',
+        headers: {
+          Authorization: `Basic ${auth}`,
+        },
+        compress: true,
+      })
+      .then(mal => mal.text())
+      .then((mal) => {
+        parser.parseString(mal, (err, data) => {
+          const aniYear = anime.anime.start_date_fuzzy.toString().substring(0, 4);
+          data.anime.entry.forEach((result) => {
+            const malYear = result.start_date[0].substring(0, 4);
+            if (aniYear === malYear) {
+              console.log('match', result.title);
+            }
+            // console.log(aniYear, malYear);
+          });
+          // console.log(data.anime.entry.map(entry => entry.title));
+          // First 4 digits of start_date_fuzzy is the year, matching those might help
+        });
+      })
+      .catch(err => console.log('err', err));
+    }
+  });
+});
+    /* animeList.forEach((anime) => {
+      const title = anime.anime.title_romaji;
+      fetch(`https://solevul:F1ALf5uocYku@myanimelist.net/api/anime/search.xml?q="${title}"`)
+      .then(malRes => JSON.parse(parseString(malRes)))
+      .then((malRes) => {
+        console.log('malRes', malRes.body);
+      });
+    });
+    const anime = animeList[0];
+    const title = encodeURIComponent(anime.anime.title_romaji);
+    const username = 'solevul';
+    const password = '#3Mal7g#';  */
+/*
+    const options = {
+      host: 'myanimelist.net',
+      // path: `api/anime/search.xml?q=naruto`,
+      path: 'api/account/verify_credentials.xml',
+    };
+    request(options.host, options.path)
+    .then(response => console.log(response))
+    .catch(err => console.log(err));
+  });
+})
+.catch(err => console.log(err));
 // https://github.com/cory2067/anisync/blob/master/app/periodic/update.rb
 
 /*

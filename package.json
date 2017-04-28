@@ -4,6 +4,8 @@
   "description": "Sync your Anilist anime list to MyAnimeList",
   "main": "server.js",
   "scripts": {
+    "start": "babel-watch server.js",
+    "exec": "node server.js --exec babel-node --presets es2015,stage-2",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -17,8 +19,28 @@
   },
   "homepage": "https://github.com/gilmoreg/anlist-to-mal#readme",
   "devDependencies": {
+    "babel-cli": "^6.24.1",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-stage-2": "^6.24.1",
+    "babel-watch": "^2.0.6",
     "eslint": "^3.19.0",
     "eslint-config-airbnb-base": "^11.1.3",
     "eslint-plugin-import": "^2.2.0"
+  },
+  "dependencies": {
+    "btoa": "^1.1.2",
+    "compression": "^1.6.2",
+    "cors": "^2.8.3",
+    "dotenv": "^4.0.0",
+    "express": "^4.15.2",
+    "koa": "^2.2.0",
+    "node-fetch": "^1.6.3",
+    "xml2js": "^0.4.17"
+  },
+  "babel": {
+    "presets": [
+      "es2015",
+      "stage-2"
+    ]
   }
 }
