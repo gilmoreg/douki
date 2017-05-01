@@ -1,5 +1,16 @@
 /* eslint-disable no-undef */
 /* eslint-disable no-unused-vars */
+const requests = [];
+
+setInterval(() => {
+  if (requests.length > 0) {
+    const request = requests.pop();
+    if (typeof request === 'function') {
+      request();
+    }
+  }
+}, 250);
+
 const Anilist = (() => {
   const fetchToken = () =>
     fetch('https://ytjv79nzl4.execute-api.us-east-1.amazonaws.com/dev/token')
@@ -33,26 +44,25 @@ const Anilist = (() => {
 })();
 
 const Mal = (() => {
-  let credentials = {
-    username: '',
-    password: '',
-  };
-
-  const search = title =>
-    fetch('localhost:4000/mal/search')
-    .then((res) => {
-      
+  const search = (username, password, title) =>
+    fetch(`http://localhost:4000/mal/search/${title}`, {
+      method: 'post',
+      body: JSON.stringify({ username, password }),
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
     })
+    .then(res => res.json())
     .catch(err => console.log('MAL err', err));
 
   const match = (anilist, mal) => {
-    const aniYear = anilist.start_date_fuzzy.toString().substring(0, 4);
-    const entries = mal.anime.entry;
-    for (let i = 0; i < entries.length; i += 1) {
-      const malYear = entries[i].start_date[0].substring(0, 4);
+    const aniYear = anilist.anime.start_date_fuzzy.toString().substring(0, 4);
+    for (let i = 0; i < mal.entry.length; i += 1) {
+      const malYear = mal.entry[i].start_date[0].substring(0, 4);
       // Since titles can be similar, matching years can help with false positives
       if (aniYear === malYear) {
-        return entries[i];
+        return mal.entry[i];
       }
     }
     return null;
@@ -71,7 +81,7 @@ const Mal = (() => {
     }
   };
 
-  const makeXml = (a) => {
+  const makeXML = (a) => {
     const xml = `
       <?xml version="1.0" encoding="UTF-8"?>
       <entry>
@@ -95,18 +105,35 @@ const Mal = (() => {
   };
 
   return {
-    setCredentials: (creds) => {
-      credentials = creds;
+    sync: (user, pass, list) => {
+      const failures = [];
+      // list.forEach((item) => {
+      item = list[0];
+      search(user, pass, item.anime.title_romaji)
+      .then((res) => {
+        const m = match(item, res.anime);
+        if (m) {
+          console.log('match', makeXML(m));
+        } else {
+          console.log('no match');
+          failures.push({
+            aniTitle: item.anime.title_romaji,
+            aniId: item.record_id,
+            malTitles: res.anime.entry.map(item => item.title),
+            malIDs: es.anime.entry.map(item => item.id),
+          });
+        }
+      });
     },
-    getCredentials: () => credentials,
   };
 })();
 
 const sync = (event) => {
   event.preventDefault();
-  Mal.setCredentials($('#mal-username').val().trim(), $('#mal-password').val().trim());
+  const malUser = $('#mal-username').val().trim();
+  const malPass = $('#mal-password').val().trim();
   Anilist.getList($('#anilist-username').val().trim())
-  .then(list => Mal.sync(list));
+  .then(list => Mal.sync(malUser, malPass, list));
 };
 
 

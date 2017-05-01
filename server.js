@@ -8,7 +8,7 @@ const app = express();
 
 app.use(compression({ level: 9, threshold: 0 }));
 app.use(cors({
-  origin: 'http://localhost/',
+  origin: '*',
   optionsSuccessStatus: 200,
   methods: ['GET', 'POST', 'OPTIONS'],
   allowedHeaders: 'Accept, Origin, Content-Type, Referer',
@@ -16,6 +16,11 @@ app.use(cors({
 }));
 
 app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.url} ${req.body ? JSON.stringify(req.body) : ''}`);
+  next();
+});
 app.use(router);
 
 app.listen(4000);

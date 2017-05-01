@@ -13,6 +13,7 @@ router.post('/mal/search/:title', (req, res) => {
     req.params.title,
   )
   .then((results) => {
+    console.log('/mal/search/:title', results);
     res.status(200).json(results);
   })
   .catch(err => res.status(200).json({ error: err }));

@@ -22,6 +22,7 @@ module.exports = {
       .then((res) => {
         parser.parseString(res, (err, data) => {
           if (err) reject(err);
+          console.log('mal search', data);
           resolve(data);
         });
       })
