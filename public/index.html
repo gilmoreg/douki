@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="eng-US">
+  <head>
+    <meta charset="utf-8">
+    <title>Anilist-To-MAL</title>
+    <meta name="description" content="Sync your Anilist.co anime list to MAL">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/4.2.0/normalize.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <nav>
+      <h1>Anilist-To-MAL</h1>
+    </nav>
+    <main>
+      <div class="credentials-form">
+        <form id="credentials">
+          <h2>Enter your Anilist.co username:</h2>
+          <label for="anilist-username">Username</label>
+          <input type="text" id="anilist-username" />
+          <h2>Enter your MyAnimeList credentials:</h2>
+          <p>These will never be stored.</p>
+          <label for="mal-username">Username</label>
+          <input type="text" id="mal-username" />
+          <label for="mal-password">Password</label>
+          <input type="password" id="mal-password" />
+          <button type="submit">Submit</button>
+        </form>
+      </div>
+    </main>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.1.0.js"></script>
+    <script type="text/javascript" src="app.js"></script>
+  </body>
+</html>
