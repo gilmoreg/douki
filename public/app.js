@@ -28,49 +28,35 @@ const Anilist = (() => {
       fetchToken()
         .then(token => fetchList(username, token))
         .then(res => buildList(res))
-        .catch(err => console.log('err', err)),
+        .catch(err => console.log('Anilist err', err)),
   };
 })();
 
 const Mal = (() => {
-  let username = '';
-  let password = '';
+  let credentials = {
+    username: '',
+    password: '',
+  };
 
-  const malSearch = title =>
-  new Promise((resolve, reject) => {
-    const uriTitle = encodeURIComponent(title);
-    const auth = btoa(`${process.env.MAL_USER}:${process.env.MAL_PW}`);
-    fetch(`https://myanimelist.net/api/anime/search.xml?q=${uriTitle}`, {
-      method: 'GET',
-      headers: {
-        Authorization: `Basic ${auth}`,
-      },
-      compress: true,
-    })
-    .then(mal => mal.text())
+  const search = title =>
+    fetch('localhost:4000/mal/search')
     .then((res) => {
-      parser.parseString(res, (err, data) => {
-        if (err) reject(err);
-        resolve(data);
-      });
+      
     })
-    .catch(err => reject(err));
-  });
+    .catch(err => console.log('MAL err', err));
 
-  const malUpdate = (id, xml) =>
-  new Promise((resolve, reject) => {
-    const auth = btoa(`${username}:${password}`);
-    fetch(`https://myanimelist.net/api/animelist/add/${id}.xml?data=${xml}`, {
-      method: 'GET',
-      headers: {
-        Authorization: `Basic ${auth}`,
-      },
-      compress: true,
-    })
-    .then(mal => mal.text())
-    .then(res => resolve(res))
-    .catch(err => reject(err));
-  });
+  const match = (anilist, mal) => {
+    const aniYear = anilist.start_date_fuzzy.toString().substring(0, 4);
+    const entries = mal.anime.entry;
+    for (let i = 0; i < entries.length; i += 1) {
+      const malYear = entries[i].start_date[0].substring(0, 4);
+      // Since titles can be similar, matching years can help with false positives
+      if (aniYear === malYear) {
+        return entries[i];
+      }
+    }
+    return null;
+  };
 
   const getStatus = (status) => {
   // 'completed', 'plan_to_watch', 'dropped', 'on_hold', 'watching'
@@ -109,13 +95,10 @@ const Mal = (() => {
   };
 
   return {
-    setCredentials: (user, pass) => {
-      username = user;
-      password = pass;
+    setCredentials: (creds) => {
+      credentials = creds;
     },
-    sync: (list) => {
-
-    },
+    getCredentials: () => credentials,
   };
 })();
 
@@ -123,9 +106,7 @@ const sync = (event) => {
   event.preventDefault();
   Mal.setCredentials($('#mal-username').val().trim(), $('#mal-password').val().trim());
   Anilist.getList($('#anilist-username').val().trim())
-  .then((list) => {
-    console.log(list[0]);
-  });
+  .then(list => Mal.sync(list));
 };
 
 
