@@ -1,16 +1,5 @@
 /* eslint-disable no-undef */
 /* eslint-disable no-unused-vars */
-const requests = [];
-
-setInterval(() => {
-  if (requests.length > 0) {
-    const request = requests.pop();
-    if (typeof request === 'function') {
-      request();
-    }
-  }
-}, 250);
-
 const Anilist = (() => {
   const fetchToken = () =>
     fetch('https://ytjv79nzl4.execute-api.us-east-1.amazonaws.com/dev/token')
@@ -39,13 +28,17 @@ const Anilist = (() => {
       fetchToken()
         .then(token => fetchList(username, token))
         .then(res => buildList(res))
-        .catch(err => console.log('Anilist err', err)),
+        .catch(err => $('#status').append(`<li>Unable to fetch Anilist.co list: ${err}</li>`)),
   };
 })();
 
 const Mal = (() => {
-  const search = (username, password, title) =>
-    fetch(`http://localhost:4000/mal/search/${title}`, {
+  let username = '';
+  let password = '';
+  let errors = 0;
+
+  const malSearch = title =>
+    fetch(`http://localhost:4000/mal/search/${encodeURIComponent(title)}`, {
       method: 'post',
       body: JSON.stringify({ username, password }),
       headers: {
@@ -54,30 +47,38 @@ const Mal = (() => {
       },
     })
     .then(res => res.json())
-    .catch(err => console.log('MAL err', err));
+    .catch(err => console.log('MAL search err', err));
 
-  const match = (anilist, mal) => {
-    const aniYear = anilist.anime.start_date_fuzzy.toString().substring(0, 4);
-    for (let i = 0; i < mal.entry.length; i += 1) {
-      const malYear = mal.entry[i].start_date[0].substring(0, 4);
-      // Since titles can be similar, matching years can help with false positives
-      if (aniYear === malYear) {
-        return mal.entry[i];
-      }
-    }
-    return null;
-  };
+  const malUpdate = (id, xml) =>
+    fetch('http://localhost:4000/mal/add/', {
+      method: 'post',
+      body: JSON.stringify({ username, password, id, xml }),
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+    })
+    .then(res => res.json())
+    .catch(err => console.log('MAL add err', err));
 
   const getStatus = (status) => {
   // 'completed', 'plan_to_watch', 'dropped', 'on_hold', 'watching'
   // status. 1/watching, 2/completed, 3/onhold, 4/dropped, 6/plantowatch
-    switch (status) {
+    switch (status.trim()) {
       case 'watching': return 1;
       case 'completed': return 2;
+      case 'on-hold':
+      case 'on hold':
+      case 'onhold':
       case 'on_hold': return 3;
       case 'dropped': return 4;
-      case 'plan_to_watch': return 6;
-      default: return '';
+      case 'plan to watch':
+      case 'plan_to_watch':
+      case 'plantowatch': return 6;
+      default: {
+        console.log(`unknown status "${status}"`);
+        return '';
+      }
     }
   };
 
@@ -104,26 +105,85 @@ const Mal = (() => {
     return encodeURIComponent(xml);
   };
 
-  return {
-    sync: (user, pass, list) => {
-      const failures = [];
-      // list.forEach((item) => {
-      item = list[0];
-      search(user, pass, item.anime.title_romaji)
+  const notFound = title =>
+    `${title}. <a target="_blank" href="https://www.google.com/search?q=${encodeURIComponent(title)}+site%3Amyanimelist.net">Please try adding it manually</a>.`;
+
+  const fail = (title) => {
+    $('#errors').append(`<li>Could not match ${title}</li>`);
+    errors += 1;
+    $('#error-count').html(`${errors}`);
+  };
+
+  const add = (anilist, mal) => {
+    $('#results').append(`<li id="${mal.id}">Matched ${mal.title}</li>`);
+    malUpdate(mal.id, makeXML(anilist))
       .then((res) => {
-        const m = match(item, res.anime);
-        if (m) {
-          console.log('match', makeXML(m));
+        if (res === 'Created' || res.match(/The anime \(id: \d+\) is already in the list./g)) {
+          $(`#${mal.id}`).addClass('added');
         } else {
-          console.log('no match');
-          failures.push({
-            aniTitle: item.anime.title_romaji,
-            aniId: item.record_id,
-            malTitles: res.anime.entry.map(item => item.title),
-            malIDs: es.anime.entry.map(item => item.id),
+          $(`#${mal.id}`).addClass('error');
+          fail(`Error: ${mal.title} - ${res}`);
+        }
+      });
+  };
+
+  const findMatch = (anilist, mal) => {
+    try {
+      const aniDate = anilist.anime.start_date_fuzzy || anilist.anime.start_date;
+      const aniYear = aniDate ? aniDate.toString().substring(0, 4) : null;
+      for (let i = 0; i < mal.entry.length; i += 1) {
+        const malYear = mal.entry[i].start_date[0].substring(0, 4);
+        // Since titles can be similar, matching years can help with false positives
+        if (!aniYear || (aniYear === malYear)) {
+          return add(anilist, mal.entry[i]);
+        }
+      }
+    } catch (err) {
+      console.log(
+        'findMatch error',
+        anilist ? JSON.stringify(anilist) : null,
+        mal ? JSON.stringify(mal) : null,
+        err);
+      return err;
+    }
+    // No match found
+    fail(notFound(anilist.anime.title_romaji));
+    return null;
+  };
+
+  const search = (list) => {
+    if (list.length > 0) {
+      $('#current').html(`${list.length - 1}`);
+      const newList = list.slice();
+      const item = newList.shift();
+      malSearch(item.anime.title_romaji)
+      .then((res) => {
+        if (res) {
+          findMatch(item, res.anime);
+          search(newList);
+        } else {
+          // Romaji title didn't match, try english
+          malSearch(item.anime.title_english)
+          .then((resE) => {
+            if (resE) {
+              findMatch(item, resE.anime);
+              search(newList);
+            } else {
+              fail(notFound(item.anime.title_romaji));
+              search(newList);
+            }
           });
         }
       });
+    }
+  };
+
+  return {
+    sync: (user, pass, list) => {
+      username = user;
+      password = pass;
+      $('#status').html(`Items remaining: <span id="current">${list.length}</span>. Errors: <span id="error-count">0</span>.`);
+      search(list);
     },
   };
 })();

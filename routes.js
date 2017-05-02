@@ -16,7 +16,7 @@ router.post('/mal/search/:title', (req, res) => {
     console.log('/mal/search/:title', results);
     res.status(200).json(results);
   })
-  .catch(err => res.status(200).json({ error: err }));
+  .catch(err => res.status(400).json({ error: err }));
 });
 
 router.post('/mal/add', (req, res) => {
@@ -28,7 +28,7 @@ router.post('/mal/add', (req, res) => {
   .then((results) => {
     res.status(200).json(results);
   })
-  .catch(err => res.status(200).json({ error: err }));
+  .catch(err => res.status(400).json({ error: err }));
 });
 
 module.exports = router;
