@@ -37,6 +37,18 @@ const Mal = (() => {
   let password = '';
   let errors = 0;
 
+  const malCheck = (user, pass) =>
+    fetch('http://localhost:4000/mal/check', {
+      method: 'post',
+      body: JSON.stringify({ username: user, password: pass }),
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+    })
+    .then(res => res.json())
+    .catch(err => console.log('MAL check err', err));
+
   const malSearch = title =>
     fetch(`http://localhost:4000/mal/search/${encodeURIComponent(title)}`, {
       method: 'post',
@@ -105,8 +117,8 @@ const Mal = (() => {
     return encodeURIComponent(xml);
   };
 
-  const notFound = title =>
-    `${title}. <a target="_blank" href="https://www.google.com/search?q=${encodeURIComponent(title)}+site%3Amyanimelist.net">Please try adding it manually</a>.`;
+  const notFound = a =>
+    `${a.anime.title_romaji}. <a target="_blank" href="https://www.google.com/search?q=${encodeURIComponent(a.anime.title_romaji)}+site%3Amyanimelist.net">Please try adding it manually</a>. Status: ${a.list_status}. Score: ${a.score}, Eps Watched: ${a.episodes_watched}.`;
 
   const fail = (title) => {
     $('#errors').append(`<li>Could not match ${title}</li>`);
@@ -115,14 +127,14 @@ const Mal = (() => {
   };
 
   const add = (anilist, mal) => {
-    $('#results').append(`<li id="${mal.id}">Matched ${mal.title}</li>`);
-    malUpdate(mal.id, makeXML(anilist))
+    $('#results').append(`<li id="${mal}">Matched ${anilist.anime.title_romaji}</li>`);
+    malUpdate(mal, makeXML(anilist))
       .then((res) => {
         if (res === 'Created' || res.match(/The anime \(id: \d+\) is already in the list./g)) {
-          $(`#${mal.id}`).addClass('added');
+          $(`#${mal}`).addClass('added');
         } else {
-          $(`#${mal.id}`).addClass('error');
-          fail(`Error: ${mal.title} - ${res}`);
+          $(`#${mal}`).addClass('error');
+          fail(`Error: ${anilist.anime.title_romaji} - ${res}`);
         }
       });
   };
@@ -135,7 +147,7 @@ const Mal = (() => {
         const malYear = mal.entry[i].start_date[0].substring(0, 4);
         // Since titles can be similar, matching years can help with false positives
         if (!aniYear || (aniYear === malYear)) {
-          return add(anilist, mal.entry[i]);
+          return add(anilist, mal.entry[i].id);
         }
       }
     } catch (err) {
@@ -147,7 +159,7 @@ const Mal = (() => {
       return err;
     }
     // No match found
-    fail(notFound(anilist.anime.title_romaji));
+    fail(notFound(anilist));
     return null;
   };
 
@@ -169,7 +181,7 @@ const Mal = (() => {
               findMatch(item, resE.anime);
               search(newList);
             } else {
-              fail(notFound(item.anime.title_romaji));
+              fail(notFound(item));
               search(newList);
             }
           });
@@ -179,12 +191,21 @@ const Mal = (() => {
   };
 
   return {
-    sync: (user, pass, list) => {
-      username = user;
-      password = pass;
+    sync: (list) => {
       $('#status').html(`Items remaining: <span id="current">${list.length}</span>. Errors: <span id="error-count">0</span>.`);
       search(list);
     },
+    check: (user, pass) =>
+      malCheck(user, pass)
+      .then((res) => {
+        if (res !== 'Invalid credentials') {
+          username = user;
+          password = pass;
+          return true;
+        }
+        $('#status').html('Invalid MAL credentials');
+        return false;
+      }),
   };
 })();
 
@@ -192,8 +213,15 @@ const sync = (event) => {
   event.preventDefault();
   const malUser = $('#mal-username').val().trim();
   const malPass = $('#mal-password').val().trim();
-  Anilist.getList($('#anilist-username').val().trim())
-  .then(list => Mal.sync(malUser, malPass, list));
+  Mal.check(malUser, malPass)
+  .then((res) => {
+    if (res) {
+      Anilist.getList($('#anilist-username').val().trim())
+      .then((list) => {
+        if (list) Mal.sync(list);
+      });
+    }
+  });
 };
 
 

@@ -3,6 +3,8 @@ const fetch = require('node-fetch');
 const btoa = require('btoa');
 const xml2js = require('xml2js');
 
+require('dotenv').config();
+
 const parser = new xml2js.Parser();
 
 module.exports = {
@@ -32,6 +34,21 @@ module.exports = {
     new Promise((resolve, reject) => {
       const auth = btoa(`${credentials.username}:${credentials.password}`);
       fetch(`https://myanimelist.net/api/animelist/add/${id}.xml?data=${xml}`, {
+        method: 'GET',
+        mode: 'no-cors',
+        headers: {
+          Authorization: `Basic ${auth}`,
+        },
+        compress: true,
+      })
+      .then(mal => mal.text())
+      .then(res => resolve(res))
+      .catch(err => reject(err));
+    }),
+  check: credentials =>
+    new Promise((resolve, reject) => {
+      const auth = btoa(`${credentials.username}:${credentials.password}`);
+      fetch('https://myanimelist.net/api/account/verify_credentials.xml', {
         method: 'GET',
         mode: 'no-cors',
         headers: {

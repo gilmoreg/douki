@@ -7,6 +7,26 @@ router.get('/', (req, res) => {
   res.status(200).json({ message: 'ok' });
 });
 
+router.post('/mal/add', (req, res) => {
+  Mal.add(
+    { username: req.body.username, password: req.body.password },
+    req.body.id,
+    req.body.xml,
+  )
+  .then((results) => {
+    res.status(200).json(results);
+  })
+  .catch(err => res.status(400).json({ error: err }));
+});
+
+router.post('/mal/check', (req, res) => {
+  Mal.check({ username: req.body.username, password: req.body.password })
+  .then((results) => {
+    res.status(200).json(results);
+  })
+  .catch(err => res.status(400).json({ error: err }));
+});
+
 router.post('/mal/search/:title', (req, res) => {
   Mal.search(
     { username: req.body.username, password: req.body.password },
@@ -19,16 +39,6 @@ router.post('/mal/search/:title', (req, res) => {
   .catch(err => res.status(400).json({ error: err }));
 });
 
-router.post('/mal/add', (req, res) => {
-  Mal.add(
-    { username: req.body.username, password: req.body.password },
-    req.body.id,
-    req.body.xml,
-  )
-  .then((results) => {
-    res.status(200).json(results);
-  })
-  .catch(err => res.status(400).json({ error: err }));
-});
+
 
 module.exports = router;
