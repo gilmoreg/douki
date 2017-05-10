@@ -58,34 +58,40 @@ const checkMalCredentials = auth =>
     .catch(err => reject(err));
   });
 
-const searchMal = (auth, titles) => {
-  console.log('searchMal', titles);
+const searchMal = (auth, titles) =>
   // See if we have this match stored
-  return new Promise(async (resolve, reject) => {
+  new Promise(async (resolve, reject) => {
     // First item must always be Romaji, which is what the DB stores
     let malID = await getDBmalID(titles[0]);
     if (malID) resolve(malID);
     else {
-      console.log('Nothing found. Try searching MAL');
       // Nothing in the DB. Try searching MAL
       // Romaji
       malID = await malAPISearch(auth, titles[0]);
-      if (malID) resolve(malID);
+      if (malID) {
+        setDBmalID(titles[0], malID);
+        resolve(malID);
+      }
       // English
       if (titles.length > 1) {
         malID = await malAPISearch(auth, titles[1]);
-        if (malID) resolve(malID);
+        if (malID) {
+          setDBmalID(titles[0], malID);
+          resolve(malID);
+        }
       }
       // Japanese
       if (titles.length > 2) {
         malID = await malAPISearch(auth, titles[2]);
-        if (malID) resolve(malID);
+        if (malID) {
+          setDBmalID(titles[0], malID);
+          resolve(malID);
+        }
       }
       // Nothing found
-      reject(`${titles[0]} not found on MAL.`);
+      resolve(`${titles[0]} not found on MAL.`);
     }
   });
-};
 
 module.exports = {
   search: async (req, res) => {
@@ -93,6 +99,8 @@ module.exports = {
     if (result) {
       console.log('/mal/search', result);
       res.status(200).json(result);
+    } else {
+      res.status(500).json({ message: 'Not found on MAL.' });
     }
   },
   add: (req, res) => {
