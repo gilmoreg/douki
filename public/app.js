@@ -33,14 +33,13 @@ const Anilist = (() => {
 })();
 
 const Mal = (() => {
-  let username = '';
-  let password = '';
+  let auth = '';
   let errors = 0;
 
   const malCheck = (user, pass) =>
     fetch('http://localhost:4000/mal/check', {
       method: 'post',
-      body: JSON.stringify({ username: user, password: pass }),
+      body: JSON.stringify({ auth: btoa(`${user}:${pass}`) }),
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
@@ -49,10 +48,10 @@ const Mal = (() => {
     .then(res => res.json())
     .catch(err => console.log('MAL check err', err));
 
-  const malSearch = title =>
+  const malSearch = titles =>
     fetch(`http://localhost:4000/mal/search/${encodeURIComponent(title)}`, {
       method: 'post',
-      body: JSON.stringify({ username, password }),
+      body: JSON.stringify({ auth, titles }),
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
@@ -168,23 +167,14 @@ const Mal = (() => {
       $('#current').html(`${list.length - 1}`);
       const newList = list.slice();
       const item = newList.shift();
-      malSearch(item.anime.title_romaji)
+      malSearch([item.anime.title_romaji, item.anime.title_english, item.anime.title_japanese])
       .then((res) => {
         if (res) {
           findMatch(item, res.anime);
           search(newList);
         } else {
-          // Romaji title didn't match, try english
-          malSearch(item.anime.title_english)
-          .then((resE) => {
-            if (resE) {
-              findMatch(item, resE.anime);
-              search(newList);
-            } else {
-              fail(notFound(item));
-              search(newList);
-            }
-          });
+          fail(notFound(item));
+          search(newList);
         }
       });
     }
@@ -199,8 +189,7 @@ const Mal = (() => {
       malCheck(user, pass)
       .then((res) => {
         if (res !== 'Invalid credentials') {
-          username = user;
-          password = pass;
+          auth = btoa(`${user}:${pass}`);
           return true;
         }
         $('#status').html('Invalid MAL credentials');

@@ -1,11 +1,11 @@
 const mongoose = require('mongoose');
 
 const IDHashSchema = new mongoose.Schema({
-  malID: {
-    type: Number,
+  aniTitle: {
+    type: String,
     required: true,
   },
-  aniID: {
+  malID: {
     type: Number,
     required: true,
   },

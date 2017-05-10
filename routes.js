@@ -17,6 +17,6 @@ router.post('/mal/add', catchErrors(malController.add));
 // Check MAL credentials
 router.post('/mal/check', catchErrors(malController.check));
 // Search for a title on MAL
-router.post('/mal/search/:title', catchErrors(malController.search));
+router.post('/mal/search', catchErrors(malController.search));
 
 module.exports = router;
