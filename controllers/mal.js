@@ -79,6 +79,7 @@ const searchMal = (auth, titles) =>
   // See if we have this match stored
   new Promise(async (resolve, reject) => {
     // First item must always be Romaji, which is what the DB stores
+    // This matches Anilist.co's standard
     let malID = await getDBmalID(titles[0]);
     if (malID) resolve(malID);
     else {
