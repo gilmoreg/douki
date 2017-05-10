@@ -96,25 +96,14 @@ const searchMal = (auth, titles) =>
 module.exports = {
   search: async (req, res) => {
     const result = await searchMal(req.body.auth, req.body.titles);
-    if (result) {
-      console.log('/mal/search', result);
-      res.status(200).json(result);
-    } else {
-      res.status(500).json({ message: 'Not found on MAL.' });
-    }
+    res.status(200).json(result);
   },
-  add: (req, res) => {
-    addToMal(
-      { username: req.body.username, password: req.body.password },
-      req.body.id,
-      req.body.xml)
-    .then((results) => {
-      res.status(200).json(results);
-    })
-    .catch(err => res.status(400).json({ error: err }));
+  add: async (req, res) => {
+    const result = await addToMal(req.body.auth, req.body.id, req.body.xml);
+    res.status(200).json(result);
   },
   check: async (req, res) => {
     const results = await checkMalCredentials(req.body.auth);
-    if (results) res.status(200).json(results);
+    res.status(200).json(results);
   },
 };
