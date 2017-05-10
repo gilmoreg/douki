@@ -6,16 +6,23 @@ const IDHash = require('../models/IDHash');
 // require('dotenv').config();
 const parser = new xml2js.Parser();
 
+const parseMalID = (malRes) => {
+  if (malRes && malRes.anime && malRes.anime.entry) {
+    return malRes.anime.entry[0].id;
+  }
+  return null;
+};
+
 const getDBmalID = aniTitle =>
   new Promise((resolve, reject) => {
-    IDHash.findOne({ aniTitle }, { malID: true })
+    IDHash.findOne({ aniTitle }, { malID: true, _id: false })
     .then(res => resolve(res))
     .catch(err => reject(err));
   });
 
 const setDBmalID = (aniTitle, malID) =>
   new Promise((resolve, reject) => {
-    IDHash.create({ aniTitle, malID })
+    IDHash.create({ aniTitle, malID: parseInt(malID, 10) })
     .then(res => resolve(res))
     .catch(err => reject(err));
   });
@@ -36,10 +43,20 @@ const malAPISearch = (auth, title) =>
       if (res) {
         parser.parseString(res, (err, data) => {
           if (err) reject(err);
-          resolve(data);
+          const malID = parseMalID(data);
+          if (malID) {
+            // Add this title/id hash to database
+            setDBmalID(title, malID);
+            // Return MAL ID
+            resolve(malID);
+          }
+          // Got a response but incorrectly formatted
+          // Treat it as no results
+          resolve(null);
         });
       }
-      resolve();
+      // Got no response - MAL's response on no results
+      resolve(null);
     })
     .catch(err => reject(err));
   });
@@ -68,25 +85,16 @@ const searchMal = (auth, titles) =>
       // Nothing in the DB. Try searching MAL
       // Romaji
       malID = await malAPISearch(auth, titles[0]);
-      if (malID) {
-        setDBmalID(titles[0], malID);
-        resolve(malID);
-      }
+      if (malID) resolve(malID);
       // English
       if (titles.length > 1) {
         malID = await malAPISearch(auth, titles[1]);
-        if (malID) {
-          setDBmalID(titles[0], malID);
-          resolve(malID);
-        }
+        if (malID) resolve(malID);
       }
       // Japanese
       if (titles.length > 2) {
         malID = await malAPISearch(auth, titles[2]);
-        if (malID) {
-          setDBmalID(titles[0], malID);
-          resolve(malID);
-        }
+        if (malID) resolve(malID);
       }
       // Nothing found
       resolve(`${titles[0]} not found on MAL.`);
