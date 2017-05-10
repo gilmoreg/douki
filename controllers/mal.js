@@ -8,7 +8,7 @@ const parser = new xml2js.Parser();
 
 const parseMalID = (malRes) => {
   if (malRes && malRes.anime && malRes.anime.entry) {
-    return malRes.anime.entry[0].id;
+    return malRes.anime.entry[0].id[0];
   }
   return null;
 };
@@ -48,7 +48,8 @@ const malAPISearch = (auth, title) =>
             // Add this title/id hash to database
             setDBmalID(title, malID);
             // Return MAL ID
-            resolve(malID);
+            console.log('MAL ID', malID);
+            resolve({ malID });
           }
           // Got a response but incorrectly formatted
           // Treat it as no results
@@ -80,11 +81,13 @@ const searchMal = (auth, titles) =>
   new Promise(async (resolve, reject) => {
     // First item must always be Romaji, which is what the DB stores
     let malID = await getDBmalID(titles[0]);
+    console.log('dbMalID', malID);
     if (malID) resolve(malID);
     else {
       // Nothing in the DB. Try searching MAL
       // Romaji
       malID = await malAPISearch(auth, titles[0]);
+      console.log('romaji', malID);
       if (malID) resolve(malID);
       // English
       if (titles.length > 1) {
