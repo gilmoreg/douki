@@ -12,4 +12,6 @@ html
             input(type='hidden' name='malID' value=val.malID)
             button.btn.btn-primary(type='submit') commit
           form(method='POST' action='/match/delete')
+            input(type='hidden' name='aniTitle' value=val.aniTitle)
+            input(type='hidden' name='malID' value=val.malID)
             button.btn.btn-primary(type='submit') delete
