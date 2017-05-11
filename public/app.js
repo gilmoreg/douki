@@ -49,7 +49,7 @@ const Mal = (() => {
     .catch(err => console.log('MAL check err', err));
 
   const malSearch = titles =>
-    fetch(`http://localhost:4000/mal/search/${encodeURIComponent(title)}`, {
+    fetch('http://localhost:4000/mal/search', {
       method: 'post',
       body: JSON.stringify({ auth, titles }),
       headers: {
@@ -63,7 +63,7 @@ const Mal = (() => {
   const malUpdate = (id, xml) =>
     fetch('http://localhost:4000/mal/add/', {
       method: 'post',
-      body: JSON.stringify({ username, password, id, xml }),
+      body: JSON.stringify({ auth, id, xml }),
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
@@ -125,42 +125,21 @@ const Mal = (() => {
     $('#error-count').html(`${errors}`);
   };
 
-  const add = (anilist, mal) => {
-    $('#results').append(`<li id="${mal}">Matched ${anilist.anime.title_romaji}</li>`);
-    malUpdate(mal, makeXML(anilist))
+  const add = (anilist, mal) =>
+    new Promise((resolve) => {
+      $('#results').append(`<li id="${mal}">Matched ${anilist.anime.title_romaji}</li>`);
+      malUpdate(mal, makeXML(anilist))
       .then((res) => {
         if (res === 'Created' || res.match(/The anime \(id: \d+\) is already in the list./g)) {
           $(`#${mal}`).addClass('added');
+          resolve();
         } else {
           $(`#${mal}`).addClass('error');
           fail(`Error: ${anilist.anime.title_romaji} - ${res}`);
+          resolve();
         }
       });
-  };
-
-  const findMatch = (anilist, mal) => {
-    try {
-      const aniDate = anilist.anime.start_date_fuzzy || anilist.anime.start_date;
-      const aniYear = aniDate ? aniDate.toString().substring(0, 4) : null;
-      for (let i = 0; i < mal.entry.length; i += 1) {
-        const malYear = mal.entry[i].start_date[0].substring(0, 4);
-        // Since titles can be similar, matching years can help with false positives
-        if (!aniYear || (aniYear === malYear)) {
-          return add(anilist, mal.entry[i].id);
-        }
-      }
-    } catch (err) {
-      console.log(
-        'findMatch error',
-        anilist ? JSON.stringify(anilist) : null,
-        mal ? JSON.stringify(mal) : null,
-        err);
-      return err;
-    }
-    // No match found
-    fail(notFound(anilist));
-    return null;
-  };
+    });
 
   const search = (list) => {
     if (list.length > 0) {
@@ -169,8 +148,8 @@ const Mal = (() => {
       const item = newList.shift();
       malSearch([item.anime.title_romaji, item.anime.title_english, item.anime.title_japanese])
       .then((res) => {
-        if (res) {
-          findMatch(item, res.anime);
+        if (res && res.malID) {
+          add(item, res.malID);
           search(newList);
         } else {
           fail(notFound(item));

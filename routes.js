@@ -1,5 +1,6 @@
 const express = require('express');
 const malController = require('./controllers/mal');
+const matchController = require('./controllers/match');
 
 const router = express.Router();
 
@@ -18,5 +19,11 @@ router.post('/mal/add', catchErrors(malController.add));
 router.post('/mal/check', catchErrors(malController.check));
 // Search for a title on MAL
 router.post('/mal/search', catchErrors(malController.search));
+// Add a match candidate for review
+router.post('/match/add', catchErrors(matchController.add));
+// Commit a match to database
+router.post('/match/commit', catchErrors(matchController.commit));
+// Delete a match
+router.post('/match/delete', catchErrors(matchController.delete));
 
 module.exports = router;
