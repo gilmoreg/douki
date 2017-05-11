@@ -11,12 +11,9 @@ const createMatch = (aniTitle, malID, malTitle) =>
 const commitMatch = (aniTitle, malID) =>
   new Promise(async (resolve) => {
     const match = await ToMatch.findOne({ aniTitle, malID });
-    console.log('commit match', match);
     if (match) {
       const hash = await IDHash.create({ aniTitle: match.aniTitle, malID: match.malID });
-      console.log('commit created', match);
       if (hash) {
-        console.log('removing match', match._id);
         await ToMatch.findByIdAndRemove(match._id);
         resolve(hash);
       }
