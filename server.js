@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const compression = require('compression');
+const pug = require('pug');
 const router = require('./routes');
 require('dotenv').config();
 
@@ -32,6 +33,7 @@ app.use((req, res, next) => {
   next();
 });
 app.use(express.static('public'));
+app.set('view engine', 'pug');
 app.use(router);
 
 // Handle errors

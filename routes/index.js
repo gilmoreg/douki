@@ -28,7 +28,7 @@ router.post('/login',
   (req, res) => {
     // If this function gets called, authentication was successful.
     // `req.user` contains the authenticated user.
-    res.status(200).json({ message: 'Login successful', user: req.user.username });
+    res.redirect('/admin');
   });
 
 router.get('/logout', isAuthenticated, (req, res) => {
@@ -48,7 +48,13 @@ router.post('/match/add', catchErrors(matchController.add));
 router.post('/match/commit', isAuthenticated, catchErrors(matchController.commit));
 // Delete a match
 router.post('/match/delete', isAuthenticated, catchErrors(matchController.delete));
-// Get current matches for review
-router.get('/match', isAuthenticated, catchErrors(matchController.get));
+// Render admin console
+router.get('/admin', (req, res) => {
+  if (req.isAuthenticated()) {
+    matchController.get().then((data) => {
+      res.render('admin', { data });
+    });
+  } else res.render('login');
+});
 
 module.exports = router;

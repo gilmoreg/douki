@@ -30,7 +30,8 @@ const deleteMatch = (aniTitle, malID) =>
 
 const getMatches = () =>
   new Promise(async (resolve) => {
-    const results = await ToMatch.find();
+    const results = await ToMatch.find({},
+    { aniTitle: true, malID: true, malTitle: true, _id: false });
     resolve(results);
   });
 
@@ -40,15 +41,12 @@ module.exports = {
     res.status(200).json(match);
   },
   commit: async (req, res) => {
-    const match = await commitMatch(req.body.aniTitle, req.body.malID);
-    res.status(200).json(match);
+    await commitMatch(req.body.aniTitle, req.body.malID);
+    res.redirect('/admin');
   },
   delete: async (req, res) => {
-    const match = await deleteMatch(req.body.aniTitle, req.body.malID);
-    res.status(200).json(match);
+    await deleteMatch(req.body.aniTitle, req.body.malID);
+    res.redirect('/admin');
   },
-  get: async (res) => {
-    const results = await getMatches();
-    res.status(200).json(results);
-  },
+  get: async () => getMatches(),
 };
