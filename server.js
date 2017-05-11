@@ -41,7 +41,7 @@ app.use((err, req, res) => {
   const errorDetails = {
     message: err.message,
     status: err.status,
-    stackHighlighted: stack.replace(/[a-z_-\d]+.js:\d+:\d+/gi, '<mark>$&</mark>')
+    stackHighlighted: stack.replace(/[a-z_-\d]+.js:\d+:\d+/gi, '<mark>$&</mark>'),
   };
   res.status(err.status || 500);
   res.format({

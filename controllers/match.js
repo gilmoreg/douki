@@ -28,6 +28,12 @@ const deleteMatch = (aniTitle, malID) =>
     resolve(match);
   });
 
+const getMatches = () =>
+  new Promise(async (resolve) => {
+    const results = await ToMatch.find();
+    resolve(results);
+  });
+
 module.exports = {
   add: async (req, res) => {
     const match = await createMatch(req.body.aniTitle, req.body.malID, req.body.malTitle);
@@ -40,5 +46,9 @@ module.exports = {
   delete: async (req, res) => {
     const match = await deleteMatch(req.body.aniTitle, req.body.malID);
     res.status(200).json(match);
+  },
+  get: async (res) => {
+    const results = await getMatches();
+    res.status(200).json(results);
   },
 };
