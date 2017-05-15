@@ -16,11 +16,11 @@ const Anilist = (() => {
     // console.log(Object.keys(res.lists));
     // [ 'completed', 'plan_to_watch', 'dropped', 'on_hold', 'watching' ]
     [
-      ...res.lists.completed,
-      ...res.lists.plan_to_watch,
-      ...res.lists.dropped,
-      ...res.lists.on_hold,
-      ...res.lists.watching,
+      ...res.lists.completed || [],
+      ...res.lists.plan_to_watch || [],
+      ...res.lists.dropped || [],
+      ...res.lists.on_hold || [],
+      ...res.lists.watching || [],
     ];
 
   return {
@@ -28,7 +28,11 @@ const Anilist = (() => {
       fetchToken()
         .then(token => fetchList(username, token))
         .then(res => buildList(res))
-        .catch(err => $('#status').append(`<li>Unable to fetch Anilist.co list: ${err}</li>`)),
+        .catch((err) => {
+          $('#status').append(`<li>Unable to fetch Anilist.co list: ${err}</li>`);
+          console.log(err);
+          return err;
+        }),
   };
 })();
 
@@ -184,12 +188,16 @@ const sync = (event) => {
   Mal.check(malUser, malPass)
   .then((res) => {
     if (res) {
-      Anilist.getList($('#anilist-username').val().trim())
+      const aniUser = $('#anilist-username').val().trim();
+      Anilist.getList(aniUser)
       .then((list) => {
+        console.log('Mal list', list);
         if (list) Mal.sync(list);
-      });
+      })
+      .catch(err => console.log('err', err));
     }
-  });
+  })
+  .catch(err => console.log('err', err));
 };
 
 

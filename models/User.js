@@ -1,35 +1,22 @@
-const bcrypt = require('bcryptjs');
 const mongoose = require('mongoose');
+const validator = require('validator');
+const mongodbErrorHandler = require('mongoose-mongodb-errors');
+const passportLocalMongoose = require('passport-local-mongoose');
+
+mongoose.Promise = global.Promise;
 
 const UserSchema = mongoose.Schema({
-  username: {
+  email: {
     type: String,
-    required: true,
     unique: true,
-  },
-  fullname: String,
-  password: {
-    type: String,
-    required: true,
+    lowercase: true,
+    trim: true,
+    validate: [validator.isEmail, 'Invalid Email Address'],
+    required: 'Please Supply an email address',
   },
 });
 
-UserSchema.methods.validatePassword = (password, modelPassword, cb) => {
-  bcrypt.compare(password, modelPassword, (err, res) => {
-    if (err) {
-      cb(err, false);
-    }
-    if (res) {
-      cb(null, true);
-    } else {
-      cb(err, false);
-    }
-  });
-};
+UserSchema.plugin(passportLocalMongoose, { usernameField: 'email' });
+UserSchema.plugin(mongodbErrorHandler);
 
-UserSchema.statics.hashPassword = password =>
-  bcrypt.hash(password, 10);
-
-const User = mongoose.model('User', UserSchema);
-
-module.exports = User;
+module.exports = mongoose.model('User', UserSchema);

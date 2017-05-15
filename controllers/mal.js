@@ -97,6 +97,16 @@ const searchMal = (auth, titles) =>
         malID = await malAPISearch(auth, titles[2]);
         if (malID) resolve(malID);
       }
+      // Last resort - try screen scraping
+      let html = await fetch(`https://myanimelist.net/anime.php?q=${encodeURIComponent(titles[0])}`);
+      try {
+        html = await html.text();
+        malID = html.split('<a class="hoverinfo_trigger')[1].split('https://myanimelist.net/anime/')[1].split('/')[0];
+        resolve(malID);
+      } catch (err) {
+        console.log('scraping failed.', err);
+        resolve(`${titles[0]} not found on MAL.`);
+      }
       // Nothing found
       resolve(`${titles[0]} not found on MAL.`);
     }

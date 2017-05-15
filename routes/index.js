@@ -4,7 +4,6 @@ const malController = require('../controllers/mal');
 const matchController = require('../controllers/match');
 
 const router = express.Router();
-router.use(require('./passport'));
 
 // Wrapper to catch errors for async/await middlewares
 const catchErrors = fn =>

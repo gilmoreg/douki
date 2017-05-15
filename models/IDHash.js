@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 
+mongoose.Promise = global.Promise;
+
 const IDHashSchema = new mongoose.Schema({
   aniTitle: {
     type: String,

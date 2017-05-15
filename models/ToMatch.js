@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 
+mongoose.Promise = global.Promise;
+
 const ToMatchSchema = new mongoose.Schema({
   aniTitle: {
     type: String,
