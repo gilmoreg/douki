@@ -56,4 +56,6 @@ router.get('/admin', (req, res) => {
   } else res.render('login');
 });
 
+router.post('/mal/test', catchErrors(malController.test));
+
 module.exports = router;

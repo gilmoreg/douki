@@ -82,14 +82,16 @@ app.use((err, req, res) => {
     status: err.status,
     stackHighlighted: stack.replace(/[a-z_-\d]+.js:\d+:\d+/gi, '<mark>$&</mark>'),
   };
-  res.status(err.status || 500);
-  res.format({
-    // Based on the `Accept` http header
-    'text/html': () => {
-      res.json({ error: errorDetails });
-    }, // Form Submit, Reload the page
-    'application/json': () => res.json(errorDetails), // Ajax call, send JSON back
-  });
+  if (res) {
+    res.status(err.status || 500);
+    res.format({
+      // Based on the `Accept` http header
+      'text/html': () => {
+        res.json({ error: errorDetails });
+      }, // Form Submit, Reload the page
+      'application/json': () => res.json(errorDetails), // Ajax call, send JSON back
+    });
+  }
 });
 
 const server = app.listen(process.env.PORT || 4000, () => {

@@ -121,7 +121,13 @@ const Mal = (() => {
   };
 
   const notFound = a =>
-    `${a.anime.title_romaji}. <a target="_blank" href="https://www.google.com/search?q=${encodeURIComponent(a.anime.title_romaji)}+site%3Amyanimelist.net">Please try adding it manually</a>. Status: ${a.list_status}. Score: ${a.score}, Eps Watched: ${a.episodes_watched}.`;
+    `${a.anime.title_romaji}.
+    <a target="_blank" href="https://www.google.com/search?q=${encodeURIComponent(a.anime.title_romaji)}+site%3Amyanimelist.net">
+    Please find the MAL ID</a> and enter it here:
+    <label for="malID-${a.anime.id}">MAL ID</label>
+    <input type="text" id="malID-${a.anime.id}" name="malID">
+    <input type="hidden" name="aniTitle" value="${a.anime.title_romaji}">
+    `;
 
   const fail = (title) => {
     $('#errors').append(`<li>Could not match ${title}</li>`);
@@ -180,6 +186,23 @@ const Mal = (() => {
       }),
   };
 })();
+
+const addMatch = (e) => {
+  e.preventDefault();
+  // TODO sanitize this stuff
+  const aniTitle = $('').val().trim();
+  const malID = $('').val().trim();   // convert to Int
+  fetch('http://localhost:4000/mal/check', {
+    method: 'post',
+    body: JSON.stringify({ aniTitle, malID }),
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+    },
+  })
+  .then(res => res.json())
+  .catch(err => console.log('Add match error', err));
+};
 
 const sync = (event) => {
   event.preventDefault();

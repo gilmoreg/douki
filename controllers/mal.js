@@ -6,6 +6,10 @@ const IDHash = require('../models/IDHash');
 // require('dotenv').config();
 const parser = new xml2js.Parser();
 
+const RateLimiter = require('limiter').RateLimiter;
+
+const limiter = new RateLimiter(1, 50);
+
 const parseMalID = (malRes) => {
   if (malRes && malRes.anime && malRes.anime.entry) {
     return malRes.anime.entry[0].id[0];
@@ -28,13 +32,19 @@ const setDBmalID = (aniTitle, malID) =>
   });
 
 const malAPICall = (auth, url) =>
-  fetch(url, {
-    method: 'GET',
-    headers: {
-      Authorization: `Basic ${auth}`,
-    },
-  })
-  .then(mal => mal.text());
+  // Use rate limiter on all MAL calls. Max one call every 50ms.
+  new Promise((resolve, reject) => {
+    limiter.removeTokens(1, () => {
+      fetch(url, {
+        method: 'GET',
+        headers: {
+          Authorization: `Basic ${auth}`,
+        },
+      })
+      .then(mal => resolve(mal.text()))
+      .catch(err => reject(err));
+    });
+  });
 
 const malAPISearch = (auth, title) =>
   new Promise((resolve, reject) => {

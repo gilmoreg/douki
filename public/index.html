@@ -14,22 +14,30 @@
       <h1>Anilist-To-MAL</h1>
     </nav>
     <main>
-      <div class="credentials-form">
-        <form id="credentials">
-          <h2>Enter your Anilist.co username:</h2>
-          <label for="anilist-username">Username</label>
-          <input type="text" id="anilist-username" />
-          <h2>Enter your MyAnimeList credentials:</h2>
-          <p>These will never be stored.</p>
-          <label for="mal-username">Username</label>
-          <input type="text" id="mal-username" />
-          <label for="mal-password">Password</label>
-          <input type="password" id="mal-password" />
-          <button type="submit">Submit</button>
-        </form>
+      <div class="row">
+        <div class="credentials-form">
+          <form id="credentials">
+            <h4>Enter your Anilist.co username:</h4>
+            <label for="anilist-username">Username</label>
+            <input type="text" id="anilist-username" />
+            <h4>Enter your MyAnimeList credentials:</h4>
+            <p>These will never be stored.</p>
+            <label for="mal-username">Username</label>
+            <input type="text" id="mal-username" />
+            <label for="mal-password">Password</label>
+            <input type="password" id="mal-password" />
+            <button type="submit">Submit</button>
+          </form>
+        </div>
+        <div class="info">
+          <div id="status">Status</div>
+          <ol id="results" class="outline"></ol>
+        </div>
       </div>
-      <div class="status" id="status"></div>
-      <ol class="results" id="results"></ol>
+      <form class="hidden" id="matches" action="/match/add">
+        <div id="matchlist"></div>
+        <button type="submit">Submit Matches</button>
+      </form>
       <ol class="errors" id="errors"></ol>
     </main>
     <script type="text/javascript" src="https://code.jquery.com/jquery-3.1.0.js"></script>
