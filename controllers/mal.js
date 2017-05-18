@@ -26,7 +26,10 @@ const getDBmalID = aniTitle =>
 
 const setDBmalID = (aniTitle, malID) =>
   new Promise((resolve, reject) => {
-    IDHash.create({ aniTitle, malID: parseInt(malID, 10) })
+    IDHash.findOneAndUpdate(
+      { aniTitle, malID: parseInt(malID, 10) },
+      { aniTitle, malID: parseInt(malID, 10) },
+      { upsert: true, new: true, runValidators: true })
     .then(res => resolve(res))
     .catch(err => reject(err));
   });
@@ -51,12 +54,13 @@ const malAPISearch = (auth, title) =>
     malAPICall(auth, `https://myanimelist.net/api/anime/search.xml?q=${encodeURIComponent(title)}`)
     .then((res) => {
       if (res) {
-        parser.parseString(res, (err, data) => {
+        parser.parseString(res, async (err, data) => {
           if (err) reject(err);
           const malID = parseMalID(data);
           if (malID) {
             // Add this title/id hash to database
-            setDBmalID(title, malID);
+            const set = await setDBmalID(title, malID);
+            console.log(set);
             // Return MAL ID
             resolve({ malID });
           }
@@ -85,50 +89,89 @@ const checkMalCredentials = auth =>
     .catch(err => reject(err));
   });
 
-const searchMal = (auth, titles) =>
-  // See if we have this match stored
+const getMalID = (auth, title) =>
   new Promise(async (resolve, reject) => {
-    // First item must always be Romaji, which is what the DB stores
-    // This matches Anilist.co's standard
-    let malID = await getDBmalID(titles[0]);
+    let malID = await getDBmalID(title);
     if (malID) resolve(malID);
     else {
       // Nothing in the DB. Try searching MAL
-      // Romaji
-      malID = await malAPISearch(auth, titles[0]);
+      malID = await malAPISearch(auth, title);
       if (malID) resolve(malID);
-      // English
-      if (titles.length > 1) {
-        malID = await malAPISearch(auth, titles[1]);
-        if (malID) resolve(malID);
-      }
-      // Japanese
-      if (titles.length > 2) {
-        malID = await malAPISearch(auth, titles[2]);
-        if (malID) resolve(malID);
-      }
       // Last resort - try screen scraping
-      let html = await fetch(`https://myanimelist.net/anime.php?q=${encodeURIComponent(titles[0])}`);
+      let html = await fetch(`https://myanimelist.net/anime.php?q=${encodeURIComponent(title)}`);
       try {
         html = await html.text();
         malID = html.split('<a class="hoverinfo_trigger')[1].split('https://myanimelist.net/anime/')[1].split('/')[0];
-        resolve(malID);
+        resolve(parseInt(malID, 10));
       } catch (err) {
         console.log('scraping failed.', err);
-        resolve(`${titles[0]} not found on MAL.`);
       }
       // Nothing found
-      resolve(`${titles[0]} not found on MAL.`);
+      reject();
+    }
+  });
+
+const getStatus = (status) => {
+// 'completed', 'plan_to_watch', 'dropped', 'on_hold', 'watching'
+// status. 1/watching, 2/completed, 3/onhold, 4/dropped, 6/plantowatch
+  switch (status.trim()) {
+    case 'watching': return 1;
+    case 'completed': return 2;
+    case 'on-hold':
+    case 'on hold':
+    case 'onhold':
+    case 'on_hold': return 3;
+    case 'dropped': return 4;
+    case 'plan to watch':
+    case 'plan_to_watch':
+    case 'plantowatch': return 6;
+    default: {
+      console.log(`unknown status "${status}"`);
+      return '';
+    }
+  }
+};
+
+const makeXML = a =>
+  encodeURIComponent(`
+    <?xml version="1.0" encoding="UTF-8"?>
+    <entry>
+      <episode>${a.episodes_watched || ''}</episode>
+      <status>${getStatus(a.list_status)}</status>
+      <score>${a.score || ''}</score>
+      <storage_type></storage_type>
+      <storage_value></storage_value>
+      <times_rewatched></times_rewatched>
+      <rewatch_value></rewatch_value>
+      <date_start>${''}</date_start>
+      <date_finish>${''}</date_finish>
+      <priority>${a.priority || ''}</priority>
+      <enable_discussion></enable_discussion>
+      <enable_rewatching></enable_rewatching>
+      <comments>${a.notes || ''}</comments>
+      <tags></tags>
+    </entry>
+    `.trim().replace(/(\r\n|\n|\r)/gm, ''));
+
+const sync = ({ auth, anilist }) =>
+  new Promise(async (resolve, reject) => {
+    const mal = await getMalID(auth, anilist.anime.title_romaji);
+    if (mal) {
+      const xml = makeXML(anilist);
+      const malResponse = await addToMal(auth, mal.malID, xml);
+      if (malResponse) {
+        resolve({
+          message: malResponse,
+          title: anilist.anime.title_romaji,
+          malID: mal.malID,
+        });
+      } else reject();
     }
   });
 
 module.exports = {
-  search: async (req, res) => {
-    const result = await searchMal(req.body.auth, req.body.titles);
-    res.status(200).json(result);
-  },
   add: async (req, res) => {
-    const result = await addToMal(req.body.auth, req.body.id, req.body.xml);
+    const result = await sync(req.body);
     res.status(200).json(result);
   },
   check: async (req, res) => {

@@ -39,8 +39,6 @@ router.get('/logout', isAuthenticated, (req, res) => {
 router.post('/mal/add', catchErrors(malController.add));
 // Check MAL credentials
 router.post('/mal/check', catchErrors(malController.check));
-// Search for a title on MAL
-router.post('/mal/search', catchErrors(malController.search));
 // Add a match candidate for review
 router.post('/match/add', catchErrors(matchController.add));
 // Commit a match to database

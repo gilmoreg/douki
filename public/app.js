@@ -52,10 +52,10 @@ const Mal = (() => {
     .then(res => res.json())
     .catch(err => console.log('MAL check err', err));
 
-  const malSearch = titles =>
-    fetch('http://localhost:4000/mal/search', {
+  const malSearch = (titles, anilist) =>
+    fetch('http://localhost:4000/mal/add', {
       method: 'post',
-      body: JSON.stringify({ auth, titles }),
+      body: JSON.stringify({ auth, anilist }),
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
@@ -63,62 +63,6 @@ const Mal = (() => {
     })
     .then(res => res.json())
     .catch(err => console.log('MAL search err', err));
-
-  const malUpdate = (id, xml) =>
-    fetch('http://localhost:4000/mal/add/', {
-      method: 'post',
-      body: JSON.stringify({ auth, id, xml }),
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-    })
-    .then(res => res.json())
-    .catch(err => console.log('MAL add err', err));
-
-  const getStatus = (status) => {
-  // 'completed', 'plan_to_watch', 'dropped', 'on_hold', 'watching'
-  // status. 1/watching, 2/completed, 3/onhold, 4/dropped, 6/plantowatch
-    switch (status.trim()) {
-      case 'watching': return 1;
-      case 'completed': return 2;
-      case 'on-hold':
-      case 'on hold':
-      case 'onhold':
-      case 'on_hold': return 3;
-      case 'dropped': return 4;
-      case 'plan to watch':
-      case 'plan_to_watch':
-      case 'plantowatch': return 6;
-      default: {
-        console.log(`unknown status "${status}"`);
-        return '';
-      }
-    }
-  };
-
-  const makeXML = (a) => {
-    const xml = `
-      <?xml version="1.0" encoding="UTF-8"?>
-      <entry>
-        <episode>${a.episodes_watched || ''}</episode>
-        <status>${getStatus(a.list_status)}</status>
-        <score>${a.score || ''}</score>
-        <storage_type></storage_type>
-        <storage_value></storage_value>
-        <times_rewatched></times_rewatched>
-        <rewatch_value></rewatch_value>
-        <date_start>${''}</date_start>
-        <date_finish>${''}</date_finish>
-        <priority>${a.priority || ''}</priority>
-        <enable_discussion></enable_discussion>
-        <enable_rewatching></enable_rewatching>
-        <comments>${a.notes || ''}</comments>
-        <tags></tags>
-      </entry>
-      `.trim().replace(/(\r\n|\n|\r)/gm, '');
-    return encodeURIComponent(xml);
-  };
 
   const notFound = a =>
     `${a.anime.title_romaji}.
@@ -135,10 +79,10 @@ const Mal = (() => {
     $('#error-count').html(`${errors}`);
   };
 
-  const add = (anilist, mal) =>
-    new Promise((resolve) => {
-      $('#results').append(`<li id="${mal}">Matched ${anilist.anime.title_romaji}</li>`);
-      malUpdate(mal, makeXML(anilist))
+  const display = (res) => {
+    console.log('display', res);
+  };
+    /* $('#results').append(`<li id="${mal}">Matched ${anilist.anime.title_romaji}</li>`);
       .then((res) => {
         if (res === 'Created' || res.match(/The anime \(id: \d+\) is already in the list./g)) {
           $(`#${mal}`).addClass('added');
@@ -148,23 +92,24 @@ const Mal = (() => {
           fail(`Error: ${anilist.anime.title_romaji} - ${res}`);
           resolve();
         }
-      });
-    });
+      });*/
 
   const search = (list) => {
     if (list.length > 0) {
       $('#current').html(`${list.length - 1}`);
       const newList = list.slice();
       const item = newList.shift();
-      malSearch([item.anime.title_romaji, item.anime.title_english, item.anime.title_japanese])
+      malSearch(auth, item)
       .then((res) => {
-        if (res && res.malID) {
+        display(res);
+        search(newList);
+        /* if (res && res.malID) {
           add(item, res.malID);
           search(newList);
         } else {
           fail(notFound(item));
           search(newList);
-        }
+        } */
       });
     }
   };

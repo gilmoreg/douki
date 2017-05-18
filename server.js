@@ -75,7 +75,7 @@ app.use(router);
 
 // Handle errors
 app.use((err, req, res) => {
-  console.log('Error handler', err);
+  // console.log('Error handler', err);
   const stack = err.stack || '';
   const errorDetails = {
     message: err.message,
