@@ -1,5 +1,7 @@
 /* eslint-disable no-undef */
 /* eslint-disable no-unused-vars */
+require('./bling.js');
+
 const Anilist = (() => {
   const fetchToken = () =>
     fetch('https://ytjv79nzl4.execute-api.us-east-1.amazonaws.com/dev/token')
