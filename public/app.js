@@ -23,11 +23,21 @@ const Anilist = (() => {
       ...res.lists.watching || [],
     ];
 
+  const sanitize = item => ({
+    episodes_watched: item.episodes_watched,
+    list_status: item.list_status,
+    score: item.score,
+    priority: item.priority,
+    notes: item.notes,
+    title: item.anime.title_romaji,
+  });
+
   return {
     getList: username =>
       fetchToken()
         .then(token => fetchList(username, token))
         .then(res => buildList(res))
+        .then(res => res.map(item => sanitize(item)))
         .catch((err) => {
           $('#status').append(`<li>Unable to fetch Anilist.co list: ${err}</li>`);
           console.log(err);
@@ -65,18 +75,18 @@ const Mal = (() => {
     .catch(err => console.log('MAL search err', err));
 
   const notFound = a =>
-    `${a.anime.title_romaji}.
-    <a target="_blank" href="https://www.google.com/search?q=${encodeURIComponent(a.anime.title_romaji)}+site%3Amyanimelist.net">
+    `${a.title}.
+    <a target="_blank" href="https://www.google.com/search?q=${encodeURIComponent(a.title)}+site%3Amyanimelist.net">
     Please find the MAL ID</a> and enter it here:
     <label for="malID-${a.anime.id}">MAL ID</label>
     <input type="text" id="malID-${a.anime.id}" name="malID">
-    <input type="hidden" name="aniTitle" value="${a.anime.title_romaji}">
+    <input type="hidden" name="aniTitle" value="${a.title}">
     `;
 
   const fail = (title) => {
-    $('#errors').append(`<li>Could not match ${title}</li>`);
+    $('#errors').innerHTML += `<li>Could not match ${title}</li>`;
     errors += 1;
-    $('#error-count').html(`${errors}`);
+    $('#error-count').innerHTML = `${errors}`;
   };
 
   const display = (res) => {
@@ -96,7 +106,7 @@ const Mal = (() => {
 
   const search = (list) => {
     if (list.length > 0) {
-      $('#current').html(`${list.length - 1}`);
+      $('#current').innerHTML = `${list.length - 1}`;
       const newList = list.slice();
       const item = newList.shift();
       malSearch(auth, item)
@@ -131,23 +141,6 @@ const Mal = (() => {
       }),
   };
 })();
-
-const addMatch = (e) => {
-  e.preventDefault();
-  // TODO sanitize this stuff
-  const aniTitle = $('').val().trim();
-  const malID = $('').val().trim();   // convert to Int
-  fetch('http://localhost:4000/mal/check', {
-    method: 'post',
-    body: JSON.stringify({ aniTitle, malID }),
-    headers: {
-      Accept: 'application/json',
-      'Content-Type': 'application/json',
-    },
-  })
-  .then(res => res.json())
-  .catch(err => console.log('Add match error', err));
-};
 
 const sync = (event) => {
   event.preventDefault();

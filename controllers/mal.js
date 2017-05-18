@@ -155,14 +155,14 @@ const makeXML = a =>
 
 const sync = ({ auth, anilist }) =>
   new Promise(async (resolve, reject) => {
-    const mal = await getMalID(auth, anilist.anime.title_romaji);
+    const mal = await getMalID(auth, anilist.title);
     if (mal) {
       const xml = makeXML(anilist);
       const malResponse = await addToMal(auth, mal.malID, xml);
       if (malResponse) {
         resolve({
           message: malResponse,
-          title: anilist.anime.title_romaji,
+          title: anilist.title,
           malID: mal.malID,
         });
       } else reject();
