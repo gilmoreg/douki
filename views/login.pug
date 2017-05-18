@@ -1,7 +1,6 @@
-html
-  head
-    title= title
-  body
+extends layout
+
+  block content
     form(method='POST' action='/login')
         div.form-group
           label(for='username') Username

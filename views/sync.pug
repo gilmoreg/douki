@@ -1,0 +1,21 @@
+extends layout
+
+block content
+  main
+    .row
+      .credentials-form
+        form(id='credentials')
+          h4 Enter your Anilist.co username:
+          input(type='text' id='anilist-username' placeholder='anilist username')
+          h4 Enter your MyAnimeList credentials:
+          p These will never be stored.
+          input(type='text' id='mal-username' placeholder='mal username')
+          input(type='password' id='mal-password' placeholder='mal password')
+          button(type='submit') submit
+  .info
+    #status status
+    ol#results.outline
+  form#matches.hidden(action='/match/add')
+    #matchlist
+    button(type='submit') Submit matches
+  ol#errors.errors

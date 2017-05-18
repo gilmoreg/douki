@@ -18,9 +18,7 @@ const isAuthenticated = (req, res, next) => {
   res.json({ message: 'Not authenticated.' }).end();
 };
 
-router.get('/', (req, res) => {
-  res.status(200).json({ message: 'ok' });
-});
+router.get('/', (req, res) => res.render('sync'));
 
 router.post('/login',
   passport.authenticate('local'),
@@ -32,7 +30,7 @@ router.post('/login',
 
 router.get('/logout', isAuthenticated, (req, res) => {
   req.logout();
-  res.json({ logoutSuccess: true }); // .redirect('/nowhere');
+  res.redirect('/');
 });
 
 // Add an anime to MAL account

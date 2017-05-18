@@ -116,7 +116,7 @@ const Mal = (() => {
 
   return {
     sync: (list) => {
-      $('#status').html(`Items remaining: <span id="current">${list.length}</span>. Errors: <span id="error-count">0</span>.`);
+      $('#status').innerHTML = `Items remaining: <span id="current">${list.length}</span>. Errors: <span id="error-count">0</span>.`;
       search(list);
     },
     check: (user, pass) =>
@@ -126,7 +126,7 @@ const Mal = (() => {
           auth = btoa(`${user}:${pass}`);
           return true;
         }
-        $('#status').html('Invalid MAL credentials');
+        $('#status').innerHTML = 'Invalid MAL credentials';
         return false;
       }),
   };
@@ -151,12 +151,12 @@ const addMatch = (e) => {
 
 const sync = (event) => {
   event.preventDefault();
-  const malUser = $('#mal-username').val().trim();
-  const malPass = $('#mal-password').val().trim();
+  const malUser = $('#mal-username').value.trim();
+  const malPass = $('#mal-password').value.trim();
   Mal.check(malUser, malPass)
   .then((res) => {
     if (res) {
-      const aniUser = $('#anilist-username').val().trim();
+      const aniUser = $('#anilist-username').value.trim();
       Anilist.getList(aniUser)
       .then((list) => {
         console.log('Mal list', list);

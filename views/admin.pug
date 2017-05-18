@@ -1,7 +1,6 @@
-html
-  head
-    title Admin
-  body
+extends layout
+
+  block content
     ul
       each val in data
         - const link = `https://myanimelist.net/anime/${val.malID}/`

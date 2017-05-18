@@ -9,6 +9,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const compression = require('compression');
 const router = require('./routes');
+const errorHandlers = require('./handlers/errors');
 require('dotenv').config();
 require('./handlers/passport');
 
@@ -74,25 +75,9 @@ app.use((req, res, next) => {
 app.use(router);
 
 // Handle errors
-app.use((err, req, res) => {
-  // console.log('Error handler', err);
-  const stack = err.stack || '';
-  const errorDetails = {
-    message: err.message,
-    status: err.status,
-    stackHighlighted: stack.replace(/[a-z_-\d]+.js:\d+:\d+/gi, '<mark>$&</mark>'),
-  };
-  if (res) {
-    res.status(err.status || 500);
-    res.format({
-      // Based on the `Accept` http header
-      'text/html': () => {
-        res.json({ error: errorDetails });
-      }, // Form Submit, Reload the page
-      'application/json': () => res.json(errorDetails), // Ajax call, send JSON back
-    });
-  }
-});
+app.use(errorHandlers.notFound);
+if (process.env.NODE_ENV === 'development') app.use(errorHandlers.developmentErrors);
+app.use(errorHandlers.productionErrors);
 
 const server = app.listen(process.env.PORT || 4000, () => {
   console.log(`Server now listening on port ${server.address().port}`);
