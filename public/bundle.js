@@ -1,2 +1,344 @@
-!function(t){function n(o){if(e[o])return e[o].exports;var r=e[o]={i:o,l:!1,exports:{}};return t[o].call(r.exports,r,r.exports,n),r.l=!0,r.exports}var e={};n.m=t,n.c=e,n.i=function(t){return t},n.d=function(t,e,o){n.o(t,e)||Object.defineProperty(t,e,{configurable:!1,enumerable:!0,get:o})},n.n=function(t){var e=t&&t.__esModule?function(){return t.default}:function(){return t};return n.d(e,"a",e),e},n.o=function(t,n){return Object.prototype.hasOwnProperty.call(t,n)},n.p="",n(n.s=1)}([function(t,n,e){"use strict";window.$=document.querySelector.bind(document),window.$$=document.querySelectorAll.bind(document),Node.prototype.on=window.on=function(t,n){this.addEventListener(t,n)},NodeList.prototype.__proto__=Array.prototype,NodeList.prototype.on=NodeList.prototype.addEventListener=function(t,n){this.forEach(function(e,o){e.on(t,n)})}},function(t,n,e){"use strict";function o(t){if(Array.isArray(t)){for(var n=0,e=Array(t.length);n<t.length;n++)e[n]=t[n];return e}return Array.from(t)}e(0);var r=function(){var t=function(){return fetch("https://ytjv79nzl4.execute-api.us-east-1.amazonaws.com/dev/token").then(function(t){return t.json()}).then(function(t){return JSON.parse(t).access_token}).catch(function(t){return console.log("err",t)})},n=function(t,n){return fetch("https://anilist.co/api/user/"+t+"/animelist?access_token="+n).then(function(t){return t.json()}).catch(function(t){return console.log("err",t)})},e=function(t){return[].concat(o(t.lists.completed||[]),o(t.lists.plan_to_watch||[]),o(t.lists.dropped||[]),o(t.lists.on_hold||[]),o(t.lists.watching||[]))},r=function(t){return{episodes_watched:t.episodes_watched,list_status:t.list_status,score:t.score,priority:t.priority,notes:t.notes,title:t.anime.title_romaji}};return{getList:function(o){return t().then(function(t){return n(o,t)}).then(function(t){return e(t)}).then(function(t){return t.map(function(t){return r(t)})}).catch(function(t){return $("#status").append("<li>Unable to fetch Anilist.co list: "+t+"</li>"),console.log(t),t})}}}(),i=function(){var t="",n=function(t,n){return fetch("http://localhost:4000/mal/check",{method:"post",body:JSON.stringify({auth:btoa(t+":"+n)}),headers:{Accept:"application/json","Content-Type":"application/json"}}).then(function(t){return t.json()}).catch(function(t){return console.log("MAL check err",t)})},e=function(n,e){return fetch("http://localhost:4000/mal/add",{method:"post",body:JSON.stringify({auth:t,anilist:e}),headers:{Accept:"application/json","Content-Type":"application/json"}}).then(function(t){return t.json()}).catch(function(t){return console.log("MAL search err",t)})},o=function(t){console.log("display",t)},r=function t(n){if(n.length>0){$("#current").innerHTML=""+(n.length-1);var r=n.slice(),i=r.shift();e(0,i).then(function(n){o(n),t(r)})}};return{sync:function(t){$("#status").innerHTML='Items remaining: <span id="current">'+t.length+'</span>. Errors: <span id="error-count">0</span>.',r(t)},check:function(e,o){return n(e,o).then(function(n){return"Invalid credentials"!==n?(t=btoa(e+":"+o),!0):($("#status").innerHTML="Invalid MAL credentials",!1)})}}}(),c=function(t){t.preventDefault();var n=$("#mal-username").value.trim(),e=$("#mal-password").value.trim();i.check(n,e).then(function(t){if(t){var n=$("#anilist-username").value.trim();r.getList(n).then(function(t){console.log("Mal list",t),t&&i.sync(t)}).catch(function(t){return console.log("err",t)})}}).catch(function(t){return console.log("err",t)})};!function(){$("#credentials").on("submit",c)}()}]);
+/******/ (function(modules) { // webpackBootstrap
+/******/ 	// The module cache
+/******/ 	var installedModules = {};
+/******/
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/
+/******/ 		// Check if module is in cache
+/******/ 		if(installedModules[moduleId]) {
+/******/ 			return installedModules[moduleId].exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = installedModules[moduleId] = {
+/******/ 			i: moduleId,
+/******/ 			l: false,
+/******/ 			exports: {}
+/******/ 		};
+/******/
+/******/ 		// Execute the module function
+/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+/******/
+/******/ 		// Flag the module as loaded
+/******/ 		module.l = true;
+/******/
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/
+/******/
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = modules;
+/******/
+/******/ 	// expose the module cache
+/******/ 	__webpack_require__.c = installedModules;
+/******/
+/******/ 	// identity function for calling harmony imports with the correct context
+/******/ 	__webpack_require__.i = function(value) { return value; };
+/******/
+/******/ 	// define getter function for harmony exports
+/******/ 	__webpack_require__.d = function(exports, name, getter) {
+/******/ 		if(!__webpack_require__.o(exports, name)) {
+/******/ 			Object.defineProperty(exports, name, {
+/******/ 				configurable: false,
+/******/ 				enumerable: true,
+/******/ 				get: getter
+/******/ 			});
+/******/ 		}
+/******/ 	};
+/******/
+/******/ 	// getDefaultExport function for compatibility with non-harmony modules
+/******/ 	__webpack_require__.n = function(module) {
+/******/ 		var getter = module && module.__esModule ?
+/******/ 			function getDefault() { return module['default']; } :
+/******/ 			function getModuleExports() { return module; };
+/******/ 		__webpack_require__.d(getter, 'a', getter);
+/******/ 		return getter;
+/******/ 	};
+/******/
+/******/ 	// Object.prototype.hasOwnProperty.call
+/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
+/******/
+/******/ 	// __webpack_public_path__
+/******/ 	__webpack_require__.p = "";
+/******/
+/******/ 	// Load entry module and return exports
+/******/ 	return __webpack_require__(__webpack_require__.s = 4);
+/******/ })
+/************************************************************************/
+/******/ ([
+/* 0 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+module.exports = {
+  ANILIST_TOKEN_URL: 'https://ytjv79nzl4.execute-api.us-east-1.amazonaws.com/dev/token',
+  ENDPOINT: 'http://localhost:4000'
+};
+
+/***/ }),
+/* 1 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+var config = __webpack_require__(0);
+
+var Anilist = function () {
+  var fetchToken = function fetchToken() {
+    return fetch(config.ANILIST_TOKEN_URL).then(function (res) {
+      return res.json();
+    }).then(function (res) {
+      return JSON.parse(res).access_token;
+    }).catch(function (err) {
+      return Error(err);
+    });
+  };
+
+  var fetchList = function fetchList(username, token) {
+    return fetch('https://anilist.co/api/user/' + username + '/animelist?access_token=' + token).then(function (res) {
+      return res.json();
+    }).catch(function (err) {
+      return Error(err);
+    });
+  };
+
+  var buildList = function buildList(res) {
+    return (
+      // console.log(Object.keys(res.lists));
+      // [ 'completed', 'plan_to_watch', 'dropped', 'on_hold', 'watching' ]
+      [].concat(_toConsumableArray(res.lists.completed || []), _toConsumableArray(res.lists.plan_to_watch || []), _toConsumableArray(res.lists.dropped || []), _toConsumableArray(res.lists.on_hold || []), _toConsumableArray(res.lists.watching || []))
+    );
+  };
+
+  var sanitize = function sanitize(item) {
+    return {
+      episodes_watched: item.episodes_watched,
+      list_status: item.list_status,
+      score: item.score,
+      priority: item.priority,
+      notes: item.notes,
+      title: item.anime.title_romaji,
+      alID: item.id
+    };
+  };
+
+  return {
+    getList: function getList(username) {
+      return fetchToken().then(function (token) {
+        return fetchList(username, token);
+      }).then(function (res) {
+        return buildList(res);
+      }).then(function (res) {
+        return res.map(function (item) {
+          return sanitize(item);
+        });
+      }).catch(function (err) {
+        return Error(err);
+      });
+    }
+  };
+}();
+
+module.exports = Anilist;
+
+/***/ }),
+/* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+/* bling.js */
+
+// Modified to make $ querySelector and $$ qSA
+window.$ = document.querySelector.bind(document);
+window.$$ = document.querySelectorAll.bind(document);
+Node.prototype.on = window.on = function (name, fn) {
+  this.addEventListener(name, fn);
+};
+NodeList.prototype.__proto__ = Array.prototype;
+NodeList.prototype.on = NodeList.prototype.addEventListener = function (name, fn) {
+  this.forEach(function (elem, i) {
+    elem.on(name, fn);
+  });
+};
+
+/***/ }),
+/* 3 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var config = __webpack_require__(0);
+
+var Mal = function () {
+  var auth = '';
+
+  return {
+    check: function check(user, pass) {
+      return fetch(config.ENDPOINT + '/mal/check', {
+        method: 'post',
+        body: JSON.stringify({ auth: btoa(user + ':' + pass) }),
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json'
+        }
+      }).then(function (res) {
+        return res.json();
+      }).then(function (res) {
+        if (res !== 'Invalid credentials') {
+          auth = btoa(user + ':' + pass);
+          return true;
+        }
+        return false;
+      }).catch(function (err) {
+        return Error(err);
+      });
+    },
+
+    add: function add(anilist) {
+      return fetch(config.ENDPOINT + '/mal/add', {
+        method: 'post',
+        body: JSON.stringify({ auth: auth, anilist: anilist }),
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json'
+        }
+      }).then(function (res) {
+        return res.json();
+      }).catch(function (err) {
+        return Error(err);
+      });
+    }
+  };
+}();
+
+module.exports = Mal;
+
+/***/ }),
+/* 4 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+/* eslint-disable no-unused-vars */
+/* globals $, $$ */
+__webpack_require__(2);
+var Anilist = __webpack_require__(1);
+var Mal = __webpack_require__(3);
+
+var Ani2Sync = function () {
+  var total = 0;
+  var errors = 0;
+
+  // For errors related to bad credentials, API errors etc.
+  var error = function error(msg) {
+    console.error(msg);
+    // TODO display something in the DOM
+  };
+
+  var notFound = function notFound(a) {
+    $('#errors').innerHTML += '\n      <li><a target="_blank" href="https://www.google.com/search?q=' + encodeURIComponent(a.title) + '+site%3Amyanimelist.net">\n      Please try adding it manually</a>.</li>\n    ';
+  };
+
+  // For errors reported by MAL (not found, not approved yet, etc.)
+  var malError = function malError(title) {
+    $('#errors').innerHTML += '<li>Could not match ' + title + '</li>';
+    errors += 1;
+  };
+
+  /* const display = (res) => {
+      $(`#${mal}`).classList.add('added');
+    } else return null;
+  }; */
+
+  var listAnime = function listAnime(a) {
+    $('#results').innerHTML += '<li ' + a.id + '>' + a.title + '</li>';
+  };
+
+  var markSuccess = function markSuccess(id) {
+    $('' + id).classList.add('added');
+  };
+
+  var markFail = function markFail(id) {
+    $('' + id).classList.add('error');
+  };
+
+  var showProgress = function showProgress(count) {
+    // TODO progress bar
+    console.log('Progress: ' + count + '/' + total + ' ' + Math.floor(count / total));
+    $('#current').innerHTML = '' + (count - 1);
+    $('#error-count').innerHTML = '' + errors;
+  };
+
+  var add = function add(list) {
+    showProgress(list.length);
+    // Base case for recursion
+    if (list.length <= 0) return;
+
+    var newList = list.slice();
+    var item = newList.shift();
+    // add anime to results to be marked success/fail later
+    listAnime(item);
+
+    Mal.add(item).then(function (res) {
+      // this is the response from MAL - not found/blank or Alreday in list or Created
+      if (res) {
+        if (res === 'Created' || res.match(/The anime \(id: \d+\) is already in the list./g)) {
+          markSuccess(item.id);
+        } else {
+          markFail(item.id);
+          malError(res);
+        }
+      } else {
+        // Empty response from MAL means item not found
+        notFound(item);
+      }
+
+      // Recursively call until list is empty
+      add(newList);
+    }).catch(function (err) {
+      return error(err);
+    });
+  };
+
+  return {
+    sync: function sync(event) {
+      event.preventDefault();
+      var malUser = $('#mal-username').value.trim();
+      var malPass = $('#mal-password').value.trim();
+      Mal.check(malUser, malPass).then(function (res) {
+        if (res) {
+          var aniUser = $('#anilist-username').value.trim();
+          Anilist.getList(aniUser).then(function (list) {
+            if (list) {
+              total = list.length;
+              return add(list);
+            }
+            return error('Anilist.co returned no results.');
+          }).catch(function (err) {
+            return error(err);
+          });
+        }
+      }).catch(function (err) {
+        return error(err);
+      });
+    }
+  };
+}();
+
+(function () {
+  $('#credentials').on('submit', Ani2Sync.sync);
+})();
+
+/***/ })
+/******/ ]);
 //# sourceMappingURL=bundle.js.map

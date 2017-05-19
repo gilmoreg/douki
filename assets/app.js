@@ -1,169 +1,112 @@
-/* eslint-disable no-undef */
 /* eslint-disable no-unused-vars */
+/* globals $, $$ */
 require('./bling.js');
+const Anilist = require('./anilist');
+const Mal = require('./mal');
 
-const Anilist = (() => {
-  const fetchToken = () =>
-    fetch('https://ytjv79nzl4.execute-api.us-east-1.amazonaws.com/dev/token')
-      .then(res => res.json())
-      .then(res => JSON.parse(res).access_token)
-      .catch(err => console.log('err', err));
-
-  const fetchList = (username, token) =>
-    fetch(`https://anilist.co/api/user/${username}/animelist?access_token=${token}`)
-      .then(res => res.json())
-      .catch(err => console.log('err', err));
-
-  const buildList = res =>
-    // console.log(Object.keys(res.lists));
-    // [ 'completed', 'plan_to_watch', 'dropped', 'on_hold', 'watching' ]
-    [
-      ...res.lists.completed || [],
-      ...res.lists.plan_to_watch || [],
-      ...res.lists.dropped || [],
-      ...res.lists.on_hold || [],
-      ...res.lists.watching || [],
-    ];
-
-  const sanitize = item => ({
-    episodes_watched: item.episodes_watched,
-    list_status: item.list_status,
-    score: item.score,
-    priority: item.priority,
-    notes: item.notes,
-    title: item.anime.title_romaji,
-  });
-
-  return {
-    getList: username =>
-      fetchToken()
-        .then(token => fetchList(username, token))
-        .then(res => buildList(res))
-        .then(res => res.map(item => sanitize(item)))
-        .catch((err) => {
-          $('#status').append(`<li>Unable to fetch Anilist.co list: ${err}</li>`);
-          console.log(err);
-          return err;
-        }),
-  };
-})();
-
-const Mal = (() => {
-  let auth = '';
+const Ani2Sync = (() => {
+  let total = 0;
   let errors = 0;
 
-  const malCheck = (user, pass) =>
-    fetch('http://localhost:4000/mal/check', {
-      method: 'post',
-      body: JSON.stringify({ auth: btoa(`${user}:${pass}`) }),
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-    })
-    .then(res => res.json())
-    .catch(err => console.log('MAL check err', err));
+  // For errors related to bad credentials, API errors etc.
+  const error = (msg) => {
+    console.error(msg);
+    // TODO display something in the DOM
+  };
 
-  const malSearch = (titles, anilist) =>
-    fetch('http://localhost:4000/mal/add', {
-      method: 'post',
-      body: JSON.stringify({ auth, anilist }),
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-    })
-    .then(res => res.json())
-    .catch(err => console.log('MAL search err', err));
-
-  const notFound = a =>
-    `${a.title}.
-    <a target="_blank" href="https://www.google.com/search?q=${encodeURIComponent(a.title)}+site%3Amyanimelist.net">
-    Please find the MAL ID</a> and enter it here:
-    <label for="malID-${a.anime.id}">MAL ID</label>
-    <input type="text" id="malID-${a.anime.id}" name="malID">
-    <input type="hidden" name="aniTitle" value="${a.title}">
+  const notFound = (a) => {
+    $('#errors').innerHTML += `
+      <li><a target="_blank" href="https://www.google.com/search?q=${encodeURIComponent(a.title)}+site%3Amyanimelist.net">
+      Please try adding it manually</a>.</li>
     `;
+  };
 
-  const fail = (title) => {
+  // For errors reported by MAL (not found, not approved yet, etc.)
+  const malError = (title) => {
     $('#errors').innerHTML += `<li>Could not match ${title}</li>`;
     errors += 1;
+  };
+
+  /* const display = (res) => {
+      $(`#${mal}`).classList.add('added');
+    } else return null;
+  }; */
+
+  const listAnime = (a) => {
+    $('#results').innerHTML += `<li ${a.id}>${a.title}</li>`;
+  };
+
+  const markSuccess = (id) => {
+    $(`${id}`).classList.add('added');
+  };
+
+  const markFail = (id) => {
+    $(`${id}`).classList.add('error');
+  };
+
+  const showProgress = (count) => {
+    // TODO progress bar
+    console.log(`Progress: ${count}/${total} ${Math.floor(count / total)}`);
+    $('#current').innerHTML = `${count - 1}`;
     $('#error-count').innerHTML = `${errors}`;
   };
 
-  const display = (res) => {
-    console.log('display', res);
-  };
-    /* $('#results').append(`<li id="${mal}">Matched ${anilist.anime.title_romaji}</li>`);
-      .then((res) => {
-        if (res === 'Created' || res.match(/The anime \(id: \d+\) is already in the list./g)) {
-          $(`#${mal}`).addClass('added');
-          resolve();
-        } else {
-          $(`#${mal}`).addClass('error');
-          fail(`Error: ${anilist.anime.title_romaji} - ${res}`);
-          resolve();
-        }
-      });*/
+  const add = (list) => {
+    showProgress(list.length);
+    // Base case for recursion
+    if (list.length <= 0) return;
 
-  const search = (list) => {
-    if (list.length > 0) {
-      $('#current').innerHTML = `${list.length - 1}`;
-      const newList = list.slice();
-      const item = newList.shift();
-      malSearch(auth, item)
-      .then((res) => {
-        display(res);
-        search(newList);
-        /* if (res && res.malID) {
-          add(item, res.malID);
-          search(newList);
+    const newList = list.slice();
+    const item = newList.shift();
+    // add anime to results to be marked success/fail later
+    listAnime(item);
+
+    Mal.add(item)
+    .then((res) => {
+      // this is the response from MAL - not found/blank or Alreday in list or Created
+      if (res) {
+        if (res === 'Created' || res.match(/The anime \(id: \d+\) is already in the list./g)) {
+          markSuccess(item.id);
         } else {
-          fail(notFound(item));
-          search(newList);
-        } */
-      });
-    }
+          markFail(item.id);
+          malError(res);
+        }
+      } else {
+        // Empty response from MAL means item not found
+        notFound(item);
+      }
+
+      // Recursively call until list is empty
+      add(newList);
+    })
+    .catch(err => error(err));
   };
 
   return {
-    sync: (list) => {
-      $('#status').innerHTML = `Items remaining: <span id="current">${list.length}</span>. Errors: <span id="error-count">0</span>.`;
-      search(list);
-    },
-    check: (user, pass) =>
-      malCheck(user, pass)
+    sync: (event) => {
+      event.preventDefault();
+      const malUser = $('#mal-username').value.trim();
+      const malPass = $('#mal-password').value.trim();
+      Mal.check(malUser, malPass)
       .then((res) => {
-        if (res !== 'Invalid credentials') {
-          auth = btoa(`${user}:${pass}`);
-          return true;
+        if (res) {
+          const aniUser = $('#anilist-username').value.trim();
+          Anilist.getList(aniUser)
+          .then((list) => {
+            if (list) {
+              total = list.length;
+              return add(list);
+            }
+            return error('Anilist.co returned no results.');
+          })
+          .catch(err => error(err));
         }
-        $('#status').innerHTML = 'Invalid MAL credentials';
-        return false;
-      }),
+      })
+      .catch(err => error(err));
+    },
   };
 })();
 
-const sync = (event) => {
-  event.preventDefault();
-  const malUser = $('#mal-username').value.trim();
-  const malPass = $('#mal-password').value.trim();
-  Mal.check(malUser, malPass)
-  .then((res) => {
-    if (res) {
-      const aniUser = $('#anilist-username').value.trim();
-      Anilist.getList(aniUser)
-      .then((list) => {
-        console.log('Mal list', list);
-        if (list) Mal.sync(list);
-      })
-      .catch(err => console.log('err', err));
-    }
-  })
-  .catch(err => console.log('err', err));
-};
-
-
 (() => {
-  $('#credentials').on('submit', sync);
+  $('#credentials').on('submit', Ani2Sync.sync);
 })();
