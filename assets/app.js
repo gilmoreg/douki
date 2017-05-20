@@ -33,15 +33,15 @@ const Ani2Sync = (() => {
   }; */
 
   const listAnime = (a) => {
-    $('#results').innerHTML += `<li ${a.id}>${a.title}</li>`;
+    $('#results').innerHTML += `<li id="al-${a.id}">${a.title}</li>`;
   };
 
   const markSuccess = (id) => {
-    $(`${id}`).classList.add('added');
+    $(`#al-${id}`).classList.add('added');
   };
 
   const markFail = (id) => {
-    $(`${id}`).classList.add('error');
+    $(`#al-${id}`).classList.add('error');
   };
 
   const showProgress = (count) => {
@@ -59,13 +59,15 @@ const Ani2Sync = (() => {
     const newList = list.slice();
     const item = newList.shift();
     // add anime to results to be marked success/fail later
+    console.log('item', item);
     listAnime(item);
 
     Mal.add(item)
     .then((res) => {
+      console.log('Mal.add', res);
       // this is the response from MAL - not found/blank or Alreday in list or Created
       if (res) {
-        if (res === 'Created' || res.match(/The anime \(id: \d+\) is already in the list./g)) {
+        if (res.message === 'Created' || res.message.match(/The anime \(id: \d+\) is already in the list./g)) {
           markSuccess(item.id);
         } else {
           markFail(item.id);
@@ -84,6 +86,7 @@ const Ani2Sync = (() => {
 
   return {
     sync: (event) => {
+      // TODO clear old searches/results
       event.preventDefault();
       const malUser = $('#mal-username').value.trim();
       const malPass = $('#mal-password').value.trim();

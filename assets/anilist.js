@@ -30,7 +30,7 @@ const Anilist = (() => {
     priority: item.priority,
     notes: item.notes,
     title: item.anime.title_romaji,
-    alID: item.id,
+    id: item.series_id,
   });
 
   return {

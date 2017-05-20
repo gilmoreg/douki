@@ -124,7 +124,7 @@ var Anilist = function () {
       priority: item.priority,
       notes: item.notes,
       title: item.anime.title_romaji,
-      alID: item.id
+      id: item.series_id
     };
   };
 
@@ -261,15 +261,15 @@ var Ani2Sync = function () {
   }; */
 
   var listAnime = function listAnime(a) {
-    $('#results').innerHTML += '<li ' + a.id + '>' + a.title + '</li>';
+    $('#results').innerHTML += '<li id="al-' + a.id + '">' + a.title + '</li>';
   };
 
   var markSuccess = function markSuccess(id) {
-    $('' + id).classList.add('added');
+    $('#al-' + id).classList.add('added');
   };
 
   var markFail = function markFail(id) {
-    $('' + id).classList.add('error');
+    $('#al-' + id).classList.add('error');
   };
 
   var showProgress = function showProgress(count) {
@@ -287,12 +287,14 @@ var Ani2Sync = function () {
     var newList = list.slice();
     var item = newList.shift();
     // add anime to results to be marked success/fail later
+    console.log('item', item);
     listAnime(item);
 
     Mal.add(item).then(function (res) {
+      console.log('Mal.add', res);
       // this is the response from MAL - not found/blank or Alreday in list or Created
       if (res) {
-        if (res === 'Created' || res.match(/The anime \(id: \d+\) is already in the list./g)) {
+        if (res.message === 'Created' || res.message.match(/The anime \(id: \d+\) is already in the list./g)) {
           markSuccess(item.id);
         } else {
           markFail(item.id);
@@ -312,6 +314,7 @@ var Ani2Sync = function () {
 
   return {
     sync: function sync(event) {
+      // TODO clear old searches/results
       event.preventDefault();
       var malUser = $('#mal-username').value.trim();
       var malPass = $('#mal-password').value.trim();
