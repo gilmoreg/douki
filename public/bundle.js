@@ -275,8 +275,8 @@ var Ani2Sync = function () {
   var showProgress = function showProgress(count) {
     // TODO progress bar
     console.log('Progress: ' + count + '/' + total + ' ' + Math.floor(count / total));
-    $('#current').innerHTML = '' + (count - 1);
-    $('#error-count').innerHTML = '' + errors;
+    $('#current').innerHTML = count + ' items remaining.';
+    $('#error-count').innerHTML = 'Errors: ' + errors + '.';
   };
 
   var add = function add(list) {
@@ -298,7 +298,8 @@ var Ani2Sync = function () {
           markSuccess(item.id);
         } else {
           markFail(item.id);
-          malError(res);
+          malError(res.title);
+          if (res.message === 'Invalid ID') notFound(item);
         }
       } else {
         // Empty response from MAL means item not found
