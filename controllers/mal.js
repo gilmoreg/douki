@@ -47,17 +47,18 @@ const malAPICall = (auth, url) =>
         },
       })
       .then(mal => resolve(mal.text()))
-      .catch(err => reject(err));
+      .catch(err => reject(Error(err)));
     });
   });
 
 const malAPISearch = (auth, title) =>
   new Promise((resolve, reject) => {
+    console.log('malAPISearch', title);
     malAPICall(auth, `https://myanimelist.net/api/anime/search.xml?q=${encodeURIComponent(title)}`)
     .then((res) => {
       if (res) {
         parser.parseString(res, async (err, data) => {
-          if (err) reject(err);
+          if (err) reject(Error(err));
           const malID = parseMalID(data);
           if (malID) {
             // Add this title/id hash to database
@@ -72,23 +73,24 @@ const malAPISearch = (auth, title) =>
         });
       }
       // Got no response - MAL's response on no results
+      console.log('malAPISearch no results');
       resolve(null);
     })
-    .catch(err => reject(err));
+    .catch(err => reject(Error(err)));
   });
 
 const addToMal = (auth, id, xml) =>
   new Promise((resolve, reject) => {
     malAPICall(auth, `https://myanimelist.net/api/animelist/add/${id}.xml?data=${xml}`)
     .then(res => resolve(res))
-    .catch(err => reject(err));
+    .catch(err => reject(Error(err)));
   });
 
 const checkMalCredentials = auth =>
   new Promise((resolve, reject) => {
     malAPICall(auth, 'https://myanimelist.net/api/account/verify_credentials.xml')
     .then(res => resolve(res))
-    .catch(err => reject(err));
+    .catch(err => reject(Error(err)));
   });
 
 const getMalID = (auth, title) =>
@@ -97,7 +99,9 @@ const getMalID = (auth, title) =>
     if (malID) resolve(malID);
     else { */
     // Nothing in the DB. Try searching MAL
+    console.log('getMalID await', title);
     const malID = await malAPISearch(auth, title);
+    console.log('getMalID', malID);
     if (malID) resolve(malID);
     // Last resort - try screen scraping
     /* let html = await fetch(`https://myanimelist.net/anime.php?q=${encodeURIComponent(title)}`);
@@ -109,7 +113,7 @@ const getMalID = (auth, title) =>
       console.log('scraping failed.', err);
     } */
     // Nothing found
-    reject();
+    resolve(null);
     // }
   });
 
@@ -128,7 +132,7 @@ const getStatus = (status) => {
     case 'plan_to_watch':
     case 'plantowatch': return 6;
     default: {
-      console.log(`unknown status "${status}"`);
+      console.error(`unknown status "${status}"`);
       return '';
     }
   }
@@ -167,14 +171,13 @@ const sync = ({ auth, anilist }) =>
           title: anilist.title,
           malID: mal.malID,
         });
-      } else reject();
-    }
+      } else resolve(null);
+    } else resolve(null);
   });
 
 module.exports = {
   // POST /mal/add { auth, anilist }
   add: async (req, res) => {
-    console.log('malController add', req.body);
     const result = await sync(req.body);
     res.status(200).json(result);
   },

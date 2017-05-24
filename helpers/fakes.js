@@ -9,6 +9,23 @@ module.exports = {
     sendAsJson: false,
   },
 
+  malSearchFail: {
+    status: 204,
+  },
+
+  malAuthSuccess: {
+    status: 200,
+    headers: {
+      'Content-Type': 'application/xml; charset=UTF-8',
+    },
+    body: '<?xml version="1.0" encoding="utf-8"?><user><id>0</id><username>test</username></user>',
+  },
+
+  malAuthFail: {
+    status: 401,
+    body: 'Invalid credentials',
+  },
+
   malAddSuccess1: {
     message: 'The anime (id: 0) is already in the list.',
     title: 'test',

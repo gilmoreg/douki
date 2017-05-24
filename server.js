@@ -1,8 +1,8 @@
 const express = require('express');
-const session = require('express-session');
-const mongoose = require('mongoose');
-const MongoStore = require('connect-mongo')(session);
-const passport = require('passport');
+// const session = require('express-session');
+// const mongoose = require('mongoose');
+// const MongoStore = require('connect-mongo')(session);
+// const passport = require('passport');
 const promisify = require('es6-promisify');
 const expressValidator = require('express-validator');
 const cors = require('cors');
@@ -11,18 +11,20 @@ const compression = require('compression');
 const router = require('./routes');
 const errorHandlers = require('./handlers/errors');
 require('dotenv').config();
-require('./handlers/passport');
+// require('./handlers/passport');
 
 process.on('unhandledRejection', (reason, p) => {
   console.log('Unhandled Rejection at: Promise', p, 'reason:', reason);
 });
 
+/*
 // Start up Mongoose
 mongoose.connect(process.env.DATABASE);
 mongoose.Promise = global.Promise; // Tell Mongoose to use ES6 promises
 mongoose.connection.on('error', (err) => {
   console.error(`Mongoose error: ${err.message}`);
 });
+*/
 
 const app = express();
 let server;
@@ -44,6 +46,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(expressValidator());
 
+/*
 app.use(session({
   secret: process.env.SECRET,
   resave: false,
@@ -53,6 +56,7 @@ app.use(session({
 
 app.use(passport.initialize());
 app.use(passport.session());
+*/
 
 // pass variables to our templates + all requests
 app.use((req, res, next) => {
@@ -62,10 +66,10 @@ app.use((req, res, next) => {
 });
 
 // promisify some callback based APIs
-app.use((req, res, next) => {
+/* app.use((req, res, next) => {
   req.login = promisify(req.login, req);
   next();
-});
+}); */
 
 // Log all requests
 app.use((req, res, next) => {
