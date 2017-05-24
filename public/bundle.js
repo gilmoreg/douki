@@ -299,6 +299,7 @@ var Ani2Sync = function () {
     listAnime(item);
 
     Mal.add(item).then(function (res) {
+      console.log('Mal.add res', res);
       // this is the response from MAL - not found/blank or Already in list or Created
       if (res) {
         if (res.message === 'Created' || res.message.match(/The anime \(id: \d+\) is already in the list./g)) {

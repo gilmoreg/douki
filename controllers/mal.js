@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-const fetch = require('node-fetch');
+require('node-fetch');
 const xml2js = require('xml2js');
 const mongoose = require('mongoose');
 // const IDHash = require('../models/IDHash');
@@ -97,17 +97,17 @@ const getMalID = (auth, title) =>
     if (malID) resolve(malID);
     else { */
     // Nothing in the DB. Try searching MAL
-    let malID = await malAPISearch(auth, title);
+    const malID = await malAPISearch(auth, title);
     if (malID) resolve(malID);
     // Last resort - try screen scraping
-    let html = await fetch(`https://myanimelist.net/anime.php?q=${encodeURIComponent(title)}`);
+    /* let html = await fetch(`https://myanimelist.net/anime.php?q=${encodeURIComponent(title)}`);
     try {
       html = await html.text();
       malID = html.split('<a class="hoverinfo_trigger')[1].split('https://myanimelist.net/anime/')[1].split('/')[0];
       resolve(parseInt(malID, 10));
     } catch (err) {
       console.log('scraping failed.', err);
-    }
+    } */
     // Nothing found
     reject();
     // }
@@ -157,6 +157,7 @@ const makeXML = a =>
 
 const sync = ({ auth, anilist }) =>
   new Promise(async (resolve, reject) => {
+    console.log('malController sync', auth, anilist);
     const mal = await getMalID(auth, anilist.title);
     if (mal) {
       const xml = makeXML(anilist);
@@ -172,10 +173,13 @@ const sync = ({ auth, anilist }) =>
   });
 
 module.exports = {
+  // POST /mal/add { auth, anilist }
   add: async (req, res) => {
+    console.log('malController add', req.body);
     const result = await sync(req.body);
     res.status(200).json(result);
   },
+  // POST /mal/check { auth }
   check: async (req, res) => {
     const results = await checkMalCredentials(req.body.auth);
     res.status(200).json(results);

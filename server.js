@@ -25,6 +25,7 @@ mongoose.connection.on('error', (err) => {
 });
 
 const app = express();
+let server;
 
 app.use(compression({ level: 9, threshold: 0 }));
 app.use(cors({
@@ -79,6 +80,25 @@ app.use(errorHandlers.notFound);
 if (process.env.NODE_ENV === 'development') app.use(errorHandlers.developmentErrors);
 app.use(errorHandlers.productionErrors);
 
-const server = app.listen(process.env.PORT || 4000, () => {
-  console.log(`Server now listening on port ${server.address().port}`);
-});
+
+const runServer = (port = process.env.PORT || 4000) =>
+  new Promise((resolve) => {
+    server = app.listen(port, () => {
+      console.log(`Server now listening on port ${port}`);
+      resolve();
+    });
+  });
+
+const closeServer = () =>
+  new Promise((resolve, reject) => {
+    server.close((err) => {
+      if (err) reject(err);
+      resolve();
+    });
+  });
+
+if (require.main === module) {
+  runServer().catch(err => console.error(err));
+}
+
+module.exports = { app, runServer, closeServer };
