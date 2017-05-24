@@ -38,6 +38,7 @@
     "extract-text-webpack-plugin": "^2.1.0",
     "fetch-mock": "^5.10.0",
     "jest": "^20.0.1",
+    "node-mocks-http": "^1.6.2",
     "style-loader": "^0.17.0",
     "webpack": "^2.5.1"
   },

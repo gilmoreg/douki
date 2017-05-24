@@ -3,7 +3,13 @@
 // Adapted from Wes Bos's Learn-Node course
 
 // Wrapped around async middleware to pass errors to the next middleware
-exports.catchErrors = fn => (req, res, next) => fn(req, res, next).catch(next);
+// Adapted from https://github.com/madole/async-error-catcher
+exports.catchErrors = fn =>
+  (req, res, next) => {
+    const routePromise = fn(req, res, next);
+    if (!routePromise.catch) return;
+    routePromise.catch(err => next(err));
+  };
 
 exports.notFound = (req, res, next) => {
   const err = new Error('Not Found');

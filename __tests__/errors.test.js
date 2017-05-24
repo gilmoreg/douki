@@ -1,10 +1,10 @@
 /* eslint-disable no-unused-vars */
-/* globals describe, it, beforeEach, afterEach, expect */
-const express = require('express');
-const chai = require('chai');
-const chaiHttp = require('chai-http');
-const errorHandlers = require('../handlers/errors');
-
+/* globals describe, it, beforeEach, afterEach, expect, jest */
+// const express = require('express');
+// const chai = require('chai');
+// const chaiHttp = require('chai-http');
+const { catchErrors } = require('../handlers/errors');
+/*
 const app = express();
 chai.use(chaiHttp);
 
@@ -43,5 +43,27 @@ describe('Error Handlers', () => {
         expect(res.status).toEqual(500);
         done();
       });
+  });
+}); */
+
+describe('Error handler middlewares', () => {
+  it('catchErrors middleware', (done) => {
+    // catchErrors is a function which takes a middleware and calls its next if error is thrown
+    // function(req, res, next)
+    const req = {};
+    const res = {};
+
+    const route = () => Promise.reject('testing error');
+    const routeWithCatcher = catchErrors(route);
+    const next = (err) => {
+      if (err) {
+        console.log('error was passed');
+        done();
+      } else {
+        console.log('no error passed');
+        done();
+      }
+    };
+    routeWithCatcher(req, res, next);
   });
 });
