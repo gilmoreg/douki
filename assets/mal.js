@@ -13,7 +13,7 @@ const Mal = (() => {
           'Content-Type': 'application/json',
         },
       })
-      .then(res => res.json())
+      // .then(res => res.json())
       .then((res) => {
         if (res !== 'Invalid credentials') {
           auth = btoa(`${user}:${pass}`);
