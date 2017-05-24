@@ -109,11 +109,10 @@ var Anilist = function () {
   };
 
   var buildList = function buildList(res) {
-    return (
-      // console.log(Object.keys(res.lists));
-      // [ 'completed', 'plan_to_watch', 'dropped', 'on_hold', 'watching' ]
-      [].concat(_toConsumableArray(res.lists.completed || []), _toConsumableArray(res.lists.plan_to_watch || []), _toConsumableArray(res.lists.dropped || []), _toConsumableArray(res.lists.on_hold || []), _toConsumableArray(res.lists.watching || []))
-    );
+    // console.log(Object.keys(res.lists));
+    // [ 'completed', 'plan_to_watch', 'dropped', 'on_hold', 'watching' ]
+    if (!res.lists) return [];
+    return [].concat(_toConsumableArray(res.lists.completed || []), _toConsumableArray(res.lists.plan_to_watch || []), _toConsumableArray(res.lists.dropped || []), _toConsumableArray(res.lists.on_hold || []), _toConsumableArray(res.lists.watching || []));
   };
 
   var sanitize = function sanitize(item) {

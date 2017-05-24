@@ -50,4 +50,30 @@ module.exports = {
     title: 'test',
   },
 
+  aniListResponse: {
+    id: 0,
+    lists: {
+      completed: [
+        {
+          record_id: 0,
+          list_status: 'completed',
+          score: 0,
+          episodes_watched: 0,
+          anime: {
+            id: 0,
+            title_romaji: 'test',
+          },
+        },
+      ],
+    },
+  },
+
+  aniListEmptyResponse: {
+    error: {
+      status: 404,
+      messages: [
+        'No query results for model [App\\AniList\\v1\\User\\User] test',
+      ],
+    },
+  },
 };

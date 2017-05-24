@@ -12,16 +12,18 @@ const Anilist = (() => {
       .then(res => res.json())
       .catch(err => Error(err));
 
-  const buildList = res =>
+  const buildList = (res) => {
     // console.log(Object.keys(res.lists));
     // [ 'completed', 'plan_to_watch', 'dropped', 'on_hold', 'watching' ]
-    [
+    if (!res.lists) return [];
+    return [
       ...res.lists.completed || [],
       ...res.lists.plan_to_watch || [],
       ...res.lists.dropped || [],
       ...res.lists.on_hold || [],
       ...res.lists.watching || [],
     ];
+  };
 
   const sanitize = item => ({
     episodes_watched: item.episodes_watched,
