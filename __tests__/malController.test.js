@@ -4,7 +4,7 @@ const chai = require('chai');
 const chaiHttp = require('chai-http');
 const fetchMock = require('fetch-mock');
 const malController = require('../controllers/mal');
-const fakes = require('./fakes');
+const fakes = require('../helpers/fakes');
 
 const { app, runServer, closeServer } = require('../server');
 

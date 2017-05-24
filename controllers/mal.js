@@ -157,7 +157,6 @@ const makeXML = a =>
 
 const sync = ({ auth, anilist }) =>
   new Promise(async (resolve, reject) => {
-    console.log('malController sync', auth, anilist);
     const mal = await getMalID(auth, anilist.title);
     if (mal) {
       const xml = makeXML(anilist);
