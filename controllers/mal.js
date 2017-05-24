@@ -80,16 +80,25 @@ const malAPISearch = (auth, title) =>
     .catch(err => reject(Error(err)));
   });
 
-const addToMal = (auth, id, xml) =>
-  new Promise((resolve, reject) => {
-    malAPICall(auth, `https://myanimelist.net/api/animelist/add/${id}.xml?data=${xml}`)
-    .then(res => resolve(res))
-    .catch(err => reject(Error(err)));
-  });
 
 const checkMalCredentials = auth =>
   new Promise((resolve, reject) => {
     malAPICall(auth, 'https://myanimelist.net/api/account/verify_credentials.xml')
+    .then((res) => {
+      if (res) {
+        if (res === 'Invalid credentials') resolve(res);
+        parser.parseString(res, async (err, data) => {
+          if (err) reject(Error(err));
+          resolve(data);
+        });
+      }
+    })
+    .catch(err => reject(Error(err)));
+  });
+
+const addToMal = (auth, id, xml) =>
+  new Promise((resolve, reject) => {
+    malAPICall(auth, `https://myanimelist.net/api/animelist/add/${id}.xml?data=${xml}`)
     .then(res => resolve(res))
     .catch(err => reject(Error(err)));
   });
