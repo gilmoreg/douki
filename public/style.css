@@ -28,66 +28,31 @@ h1, h4 {
   margin: 5px 0 5px 0;
 }
 
-input {
-  padding: 5px;
-  margin-bottom: 5px;
-}
-
-input, button {
-  border: none;
-}
-
-.row {
-  display: flex;
-  flex-wrap: wrap;
-  margin: 10px;
-}
-
-.credentials-form {
-  display: inline-block;
-  flex-basis: 100%;
-  flex-grow: 1;
-  flex-shrink: 0;
-  padding-left: 50px;
-}
-
-.credentials-form p, .credentials-form button {
-  margin: 5px 0 5px 0;
-}
-
-#credentials input {
-  display: block;
-}
-
-.info {
-  flex-basis: 100%;
-  flex-grow: 1;
-  flex-shrink: 0;
-}
-
-.warnings {
-  flex-basis: 100%;
-  flex-grow: 1;
-  flex-shrink: 0;
-}
-
-.inner {
+.div {
   background-color: rgba(255,246,229,0.7);
 	border-radius: 5px;
   margin: 5px auto;
   padding: 10px;
 }
 
-#status {
-  height: 2em;
-  flex: 2;
-  background-color: rgba(219,240,252,1);
-  border-radius: 5px;
+.section h4 {
+  text-align: center;
 }
 
 #results {
   height: 175px;
   overflow-y: scroll;
+}
+
+#progressBar {
+  width: 100%;
+  background-color: grey;
+}
+
+#progress {
+  width: 1%;
+  height: 30px;
+  background-color: green;
 }
 
 footer {
@@ -121,22 +86,14 @@ footer a:visited {
   display: none;
 }
 
-.outline {
-  outline: 1px solid black;
+.mcenter {
+  margin: 0 auto;
 }
 
-@media (min-width: 415px) {
-  .credentials-form {
-    flex-basis: 33%;
-    flex-grow: 0;
-    flex-shrink: 0;
-  }
-  .info {
-    flex-basis: 65%;
-    flex-grow: 0;
-  }
-  .warnings {
-    flex-basis: 100%;
-    flex-shrink: 0;
-  }
+.tcenter {
+  text-align: center;
+}
+
+.outline {
+  outline: 1px solid black;
 }

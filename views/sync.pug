@@ -2,24 +2,41 @@ extends layout
 
 block content
   main
-    .row
-      .credentials-form.inner
-        form(id='credentials')
-          h4 Enter your Anilist.co username:
-          input(type='text' id='anilist-username' placeholder='anilist username')
-          h4 Enter your MyAnimeList credentials:
-          p These will never be stored.
-          input(type='text' id='mal-username' placeholder='mal username')
-          input(type='password' id='mal-password' placeholder='mal password')
-          button(type='submit') submit
-      .info.inner
-        #status
-          #current
-          #error-count
-        ol#results.outline
-        ul#errors.errors
-      .row
-        .warnings.inner
-          p #[strong Warning]: this application is in #[em alpha] stage. It is strongly recommended that you use a temporary MAL account for testing rather than your main account. Use at your own risk!
-          p Note: a future update to Anilist.co will greatly reduce or perhaps even eliminate the large number of shows that are not matched. It will probably also eliminate the chance of erroneous matches. This application will not leave alpha stage until that happens.
-          p This application is open source. You can examine the code #[a(href='https://github.com/gilmoreg/ani2mal' target='_blank') here]. Please report problems on the #[a(href='https://github.com/gilmoreg/ani2mal/issues' target='_blank') Gitub Issues page].
+    .section#credentials
+      .columns
+        .column.is-narrow.div.mcenter
+          form.tcenter(id='credentials')
+            h4 Enter your Anilist.co username:
+            .field
+              p.control.tcenter
+                input(type='text' id='anilist-username' placeholder='anilist username')
+            h4 Enter your MyAnimeList credentials:
+            p These will never be stored.
+            .field
+              p.control.tcenter
+                input(type='text' id='mal-username' placeholder='mal username')
+            .field
+              p.control.tcenter
+                input(type='password' id='mal-password' placeholder='mal password')
+            .field
+              p.control.tcenter
+                button.button.is-primary#submit Submit
+    .section.hidden#sync
+      .section.div#current
+        h4 Status
+        #progressBar
+          #progress
+        #status-message
+      .section.div
+        h4 Results
+        ol#results
+      .sections.errors.div
+        p Errors: #[span#error-count]
+        ul#errors
+      p.tcenter
+        button.button.is-primary#reset Start Over
+    .section
+      .warnings.inner
+        p #[strong Warning]: this application is in #[em alpha] stage. It is strongly recommended that you use a temporary MAL account for testing rather than your main account. Use at your own risk!
+        p Note: a future update to Anilist.co will greatly reduce or perhaps even eliminate the large number of shows that are not matched. It will probably also eliminate the chance of erroneous matches. This application will not leave alpha stage until that happens.
+        p This application is open source. You can examine the code #[a(href='https://github.com/gilmoreg/ani2mal' target='_blank') here]. Please report problems on the #[a(href='https://github.com/gilmoreg/ani2mal/issues' target='_blank') Gitub Issues page].

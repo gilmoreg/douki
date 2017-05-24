@@ -14,6 +14,16 @@ const Ani2Sync = (() => {
     // TODO display something in the DOM
   };
 
+  const reset = () => {
+    $('#credentials').classList.toggle('hidden');
+    $('#sync').classList.toggle('hidden');
+    $('#error-count').innerHTML = '';
+    $('#results').innerHTML = '';
+    $('#submit').classList.remove('is-loading');
+    total = 0;
+    errors = 0;
+  };
+
   const notFound = (a) => {
     $('#errors').innerHTML += `
       <li><a target="_blank" href="https://www.google.com/search?q=${encodeURIComponent(a.title)}+site%3Amyanimelist.net">
@@ -45,18 +55,18 @@ const Ani2Sync = (() => {
   };
 
   const showProgress = (count) => {
-    // TODO progress bar
+    $('#progress').style.width = `${(100 * (total - count)) / total}%`;
     console.log(`Progress: ${count}/${total} ${Math.floor(count / total)}`);
-    $('#current').innerHTML = `${count} items remaining.`;
+    $('#status-message').innerHTML = `${count} items remaining.`;
     $('#error-count').innerHTML = `Errors: ${errors}.`;
   };
 
-  const add = (list) => {
+  const handle = (list) => {
     showProgress(list.length);
     // Base case for recursion
     if (list.length <= 0) return;
 
-    const newList = list.slice();
+    const newList = list.slice(); // treat arguments as immutable
     const item = newList.shift();
     // add anime to results to be marked success/fail later
     console.log('item', item);
@@ -65,7 +75,7 @@ const Ani2Sync = (() => {
     Mal.add(item)
     .then((res) => {
       console.log('Mal.add', res);
-      // this is the response from MAL - not found/blank or Alreday in list or Created
+      // this is the response from MAL - not found/blank or Already in list or Created
       if (res) {
         if (res.message === 'Created' || res.message.match(/The anime \(id: \d+\) is already in the list./g)) {
           markSuccess(item.id);
@@ -78,19 +88,18 @@ const Ani2Sync = (() => {
         // Empty response from MAL means item not found
         notFound(item);
       }
-
       // Recursively call until list is empty
-      add(newList);
+      handle(newList);
     })
     .catch(err => error(err));
   };
 
   return {
     sync: (event) => {
-      // TODO clear old searches/results
       event.preventDefault();
       const malUser = $('#mal-username').value.trim();
       const malPass = $('#mal-password').value.trim();
+      $('#submit').classList.add('is-loading');
       Mal.check(malUser, malPass)
       .then((res) => {
         if (res) {
@@ -98,8 +107,13 @@ const Ani2Sync = (() => {
           Anilist.getList(aniUser)
           .then((list) => {
             if (list) {
+              // We have good inputs on all three counts; let's go
+              // Clear old results and switch views
+              reset();
+              // Track total items in namespace for progress meter
               total = list.length;
-              return add(list);
+              // Start recursive handler
+              return handle(list);
             }
             return error('Anilist.co returned no results.');
           })
@@ -108,9 +122,13 @@ const Ani2Sync = (() => {
       })
       .catch(err => error(err));
     },
+    restart: () => {
+      reset();
+    },
   };
 })();
 
 (() => {
   $('#credentials').on('submit', Ani2Sync.sync);
+  $('#reset').on('click', Ani2Sync.restart);
 })();
