@@ -1,9 +1,10 @@
 /* eslint-disable no-unused-vars */
-require('node-fetch');
 const xml2js = require('xml2js');
 const mongoose = require('mongoose');
 // const IDHash = require('../models/IDHash');
 // require('dotenv').config();
+global.fetch = require('node-fetch');
+
 const parser = new xml2js.Parser();
 
 const RateLimiter = require('limiter').RateLimiter;

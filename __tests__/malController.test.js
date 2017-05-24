@@ -21,7 +21,7 @@ describe('malController', () => {
 
   it('/mal/add success', (done) => {
     fetchMock.mock(/.+search.+/g, fakes.malSearchResponse);
-    fetchMock.mock(/.+add\/.+/g, fakes.malAddSuccess1);
+    fetchMock.mock(/.+animelist\/.+/g, fakes.malAddSuccess1);
     chai.request(app)
       .post('/mal/add')
       .send({

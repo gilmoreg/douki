@@ -27,8 +27,10 @@ module.exports = {
   },
 
   malAddSuccess1: {
-    message: 'The anime (id: 0) is already in the list.',
-    title: 'test',
+    body: {
+      message: 'The anime (id: 0) is already in the list.',
+      title: 'test',
+    },
   },
 
   malAddSuccess2: {
