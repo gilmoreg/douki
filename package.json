@@ -7,6 +7,7 @@
     "start": "nodemon --inspect server.js",
     "exec": "node server.js --exec babel-node --presets es2015,stage-2",
     "test": "jest --watch --runInBand",
+    "coverage": "jest --coverage",
     "build": "webpack --progress --watch"
   },
   "repository": {
