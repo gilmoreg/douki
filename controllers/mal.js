@@ -54,7 +54,6 @@ const malAPICall = (auth, url) =>
 
 const malAPISearch = (auth, title) =>
   new Promise((resolve, reject) => {
-    console.log('malAPISearch', title);
     malAPICall(auth, `https://myanimelist.net/api/anime/search.xml?q=${encodeURIComponent(title)}`)
     .then((res) => {
       if (res) {
@@ -74,7 +73,6 @@ const malAPISearch = (auth, title) =>
         });
       }
       // Got no response - MAL's response on no results
-      console.log('malAPISearch no results');
       resolve(null);
     })
     .catch(err => reject(Error(err)));
@@ -109,9 +107,7 @@ const getMalID = (auth, title) =>
     if (malID) resolve(malID);
     else { */
     // Nothing in the DB. Try searching MAL
-    console.log('getMalID await', title);
     const malID = await malAPISearch(auth, title);
-    console.log('getMalID', malID);
     if (malID) resolve(malID);
     // Last resort - try screen scraping
     /* let html = await fetch(`https://myanimelist.net/anime.php?q=${encodeURIComponent(title)}`);

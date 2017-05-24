@@ -189,9 +189,7 @@ var Mal = function () {
           Accept: 'application/json',
           'Content-Type': 'application/json'
         }
-      })
-      // .then(res => res.json())
-      .then(function (res) {
+      }).then(function (res) {
         if (res !== 'Invalid credentials') {
           auth = btoa(user + ':' + pass);
           return true;
