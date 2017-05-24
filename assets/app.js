@@ -56,7 +56,6 @@ const Ani2Sync = (() => {
 
   const showProgress = (count) => {
     $('#progress').style.width = `${(100 * (total - count)) / total}%`;
-    console.log(`Progress: ${count}/${total} ${Math.floor(count / total)}`);
     $('#status-message').innerHTML = `${count} items remaining.`;
     $('#error-count').innerHTML = `Errors: ${errors}.`;
   };
@@ -69,12 +68,10 @@ const Ani2Sync = (() => {
     const newList = list.slice(); // treat arguments as immutable
     const item = newList.shift();
     // add anime to results to be marked success/fail later
-    console.log('item', item);
     listAnime(item);
 
     Mal.add(item)
     .then((res) => {
-      console.log('Mal.add', res);
       // this is the response from MAL - not found/blank or Already in list or Created
       if (res) {
         if (res.message === 'Created' || res.message.match(/The anime \(id: \d+\) is already in the list./g)) {

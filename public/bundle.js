@@ -284,7 +284,6 @@ var Ani2Sync = function () {
 
   var showProgress = function showProgress(count) {
     $('#progress').style.width = 100 * (total - count) / total + '%';
-    console.log('Progress: ' + count + '/' + total + ' ' + Math.floor(count / total));
     $('#status-message').innerHTML = count + ' items remaining.';
     $('#error-count').innerHTML = 'Errors: ' + errors + '.';
   };
@@ -297,11 +296,9 @@ var Ani2Sync = function () {
     var newList = list.slice(); // treat arguments as immutable
     var item = newList.shift();
     // add anime to results to be marked success/fail later
-    console.log('item', item);
     listAnime(item);
 
     Mal.add(item).then(function (res) {
-      console.log('Mal.add', res);
       // this is the response from MAL - not found/blank or Already in list or Created
       if (res) {
         if (res.message === 'Created' || res.message.match(/The anime \(id: \d+\) is already in the list./g)) {

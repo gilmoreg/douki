@@ -7,6 +7,10 @@
 body {
 	background: radial-gradient(ellipse at center, rgba(219,240,252,1) 0%,rgba(33,133,197,1) 100%);
 	background-attachment: fixed;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  overflow-y: scroll;
 }
 
 nav {
@@ -39,9 +43,13 @@ h1, h4 {
   text-align: center;
 }
 
-#results {
+#results, #errors {
   height: 175px;
   overflow-y: scroll;
+}
+
+#results li {
+  margin-left: 50px;
 }
 
 #progressBar {
@@ -52,7 +60,7 @@ h1, h4 {
 #progress {
   width: 1%;
   height: 30px;
-  background-color: green;
+  background-color: #00d1b2;
 }
 
 footer {
