@@ -20,9 +20,8 @@ describe('malController', () => {
   });
 
   it('/mal/add', (done) => {
-    fetchMock.mock('*',
-      fakes.malSearchResponse);
-    fetchMock.mock('https://myanimelist.net/api/animelist/add/0.xml?data=', fakes.malAddSuccess1);
+    fetchMock.mock(/.+search.+/g, fakes.malSearchResponse);
+    fetchMock.mock(/.+add\/.+/g, fakes.malAddSuccess1);
     chai.request(app)
       .post('/mal/add')
       .send({
@@ -31,7 +30,6 @@ describe('malController', () => {
       })
       .end((err, res) => {
         const { malID, title } = res.body;
-        console.log(res.body, malID, title);
         expect(title).toEqual('test');
         expect(malID).toEqual('269');
         done();

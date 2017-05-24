@@ -1,4 +1,6 @@
 module.exports = {
+  malXML: '<?xml version="1.0" encoding="utf-8"?><anime><entry><id>269</id></entry></anime>',
+
   malSearchResponse: {
     headers: {
       'Content-Type': 'application/xml; charset=UTF-8',
