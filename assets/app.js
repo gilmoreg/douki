@@ -18,6 +18,7 @@ const Ani2Sync = (() => {
     $('#credentials').classList.toggle('hidden');
     $('#sync').classList.toggle('hidden');
     $('#error-count').innerHTML = '';
+    $('#errors').innerHTML = '';
     $('#results').innerHTML = '';
     $('#submit').classList.remove('is-loading');
     total = 0;
