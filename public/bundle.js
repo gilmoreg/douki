@@ -252,8 +252,8 @@ var Ani2Sync = function () {
     errors = 0;
   };
 
-  var notFound = function notFound(a) {
-    $('#errors').innerHTML += '\n      <li><a target="_blank" href="https://www.google.com/search?q=' + encodeURIComponent(a.title) + '+site%3Amyanimelist.net">\n      Please try adding it manually</a>.</li>\n    ';
+  var notFound = function notFound(title) {
+    $('#errors').innerHTML += '\n      <li><a target="_blank" href="https://www.google.com/search?q=' + encodeURIComponent(title) + '+site%3Amyanimelist.net">\n      Please try adding it manually</a>.</li>\n    ';
   };
 
   // For errors reported by MAL (not found, not approved yet, etc.)
@@ -294,9 +294,7 @@ var Ani2Sync = function () {
     var item = newList.shift();
     // add anime to results to be marked success/fail later
     listAnime(item);
-
     Mal.add(item).then(function (res) {
-      console.log('Mal.add res', res);
       // this is the response from MAL - not found/blank or Already in list or Created
       if (res) {
         if (res.message === 'Created' || res.message.match(/The anime \(id: \d+\) is already in the list./g)) {
@@ -308,7 +306,9 @@ var Ani2Sync = function () {
         }
       } else {
         // Empty response from MAL means item not found
-        notFound(item);
+        markFail(item.id);
+        malError(item.title);
+        notFound(item.title);
       }
       // Recursively call until list is empty
       handle(newList);

@@ -25,20 +25,11 @@ exports.developmentErrors = (err, req, res) => {
     stackHighlighted: err.stack.replace(/[a-z_-\d]+.js:\d+:\d+/gi, '<mark>$&</mark>'),
   };
   res.status(err.status || 500);
-  res.format({
-    // Based on the `Accept` http header
-    'text/html': () => {
-      res.render('error', errorDetails);
-    }, // Form Submit, Reload the page
-    'application/json': () => res.json(errorDetails), // Ajax call, send JSON back
-  });
+  res.json(errorDetails);
 };
 
 // Do not leak stack trace to user in production
 exports.productionErrors = (err, req, res) => {
   res.status(err.status || 500);
-  res.render('error', {
-    message: err.message,
-    error: {},
-  });
+  res.json({ message: err.message });
 };

@@ -24,9 +24,9 @@ const Ani2Sync = (() => {
     errors = 0;
   };
 
-  const notFound = (a) => {
+  const notFound = (title) => {
     $('#errors').innerHTML += `
-      <li><a target="_blank" href="https://www.google.com/search?q=${encodeURIComponent(a.title)}+site%3Amyanimelist.net">
+      <li><a target="_blank" href="https://www.google.com/search?q=${encodeURIComponent(title)}+site%3Amyanimelist.net">
       Please try adding it manually</a>.</li>
     `;
   };
@@ -69,10 +69,8 @@ const Ani2Sync = (() => {
     const item = newList.shift();
     // add anime to results to be marked success/fail later
     listAnime(item);
-
     Mal.add(item)
     .then((res) => {
-      console.log('Mal.add res', res);
       // this is the response from MAL - not found/blank or Already in list or Created
       if (res) {
         if (res.message === 'Created' || res.message.match(/The anime \(id: \d+\) is already in the list./g)) {
@@ -84,7 +82,9 @@ const Ani2Sync = (() => {
         }
       } else {
         // Empty response from MAL means item not found
-        notFound(item);
+        markFail(item.id);
+        malError(item.title);
+        notFound(item.title);
       }
       // Recursively call until list is empty
       handle(newList);

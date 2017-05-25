@@ -47,23 +47,27 @@ describe('Error Handlers', () => {
 }); */
 
 describe('Error handler middlewares', () => {
-  it('catchErrors middleware', (done) => {
-    // catchErrors is a function which takes a middleware and calls its next if error is thrown
-    // function(req, res, next)
+  it('catchErrors middleware catches a Promise.reject', (done) => {
     const req = {};
     const res = {};
 
     const route = () => Promise.reject('testing error');
     const routeWithCatcher = catchErrors(route);
     const next = (err) => {
-      if (err) {
-        console.log('error was passed');
-        done();
-      } else {
-        console.log('no error passed');
-        done();
-      }
+      expect(err).toEqual('testing error');
+      done();
     };
     routeWithCatcher(req, res, next);
+  });
+
+  it('catchErrors middleware does not invoke next when no error', () => {
+    const req = {};
+    const res = {};
+
+    const route = () => Promise.resolve('testing success');
+    const routeWithCatcher = catchErrors(route);
+    const next = jest.fn();
+    routeWithCatcher(req, res, next);
+    expect(next.mock.calls.length).toBe(0);
   });
 });
