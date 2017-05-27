@@ -63,7 +63,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 4);
+/******/ 	return __webpack_require__(__webpack_require__.s = 3);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -73,25 +73,13 @@
 "use strict";
 
 
-module.exports = {
-  ANILIST_TOKEN_URL: 'https://ytjv79nzl4.execute-api.us-east-1.amazonaws.com/dev/token',
-  ENDPOINT: 'http://localhost:4000'
-};
-
-/***/ }),
-/* 1 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
-var config = __webpack_require__(0);
+var ANILIST_TOKEN_URL = 'https://ytjv79nzl4.execute-api.us-east-1.amazonaws.com/dev/token';
 
 var Anilist = function () {
   var fetchToken = function fetchToken() {
-    return fetch(config.ANILIST_TOKEN_URL).then(function (res) {
+    return fetch(ANILIST_TOKEN_URL).then(function (res) {
       return res.json();
     }).then(function (res) {
       return JSON.parse(res).access_token;
@@ -147,7 +135,7 @@ var Anilist = function () {
 module.exports = Anilist;
 
 /***/ }),
-/* 2 */
+/* 1 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -169,20 +157,18 @@ NodeList.prototype.on = NodeList.prototype.addEventListener = function (name, fn
 };
 
 /***/ }),
-/* 3 */
+/* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
-
-var config = __webpack_require__(0);
 
 var Mal = function () {
   var auth = '';
 
   return {
     check: function check(user, pass) {
-      return fetch(config.ENDPOINT + '/mal/check', {
+      return fetch('/mal/check', {
         method: 'post',
         body: JSON.stringify({ auth: btoa(user + ':' + pass) }),
         headers: {
@@ -201,7 +187,7 @@ var Mal = function () {
     },
 
     add: function add(anilist) {
-      return fetch(config.ENDPOINT + '/mal/add', {
+      return fetch('/mal/add', {
         method: 'post',
         body: JSON.stringify({ auth: auth, anilist: anilist }),
         headers: {
@@ -220,7 +206,7 @@ var Mal = function () {
 module.exports = Mal;
 
 /***/ }),
-/* 4 */
+/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -228,9 +214,9 @@ module.exports = Mal;
 
 /* eslint-disable no-unused-vars */
 /* globals $, $$ */
-__webpack_require__(2);
-var Anilist = __webpack_require__(1);
-var Mal = __webpack_require__(3);
+__webpack_require__(1);
+var Anilist = __webpack_require__(0);
+var Mal = __webpack_require__(2);
 
 var Ani2Sync = function () {
   var total = 0;

@@ -1,8 +1,8 @@
-const config = require('./config');
+const ANILIST_TOKEN_URL = 'https://ytjv79nzl4.execute-api.us-east-1.amazonaws.com/dev/token';
 
 const Anilist = (() => {
   const fetchToken = () =>
-    fetch(config.ANILIST_TOKEN_URL)
+    fetch(ANILIST_TOKEN_URL)
       .then(res => res.json())
       .then(res => JSON.parse(res).access_token)
       .catch(err => Error(err));

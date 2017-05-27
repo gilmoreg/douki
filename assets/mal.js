@@ -1,11 +1,9 @@
-const config = require('./config');
-
 const Mal = (() => {
   let auth = '';
 
   return {
     check: (user, pass) =>
-      fetch(`${config.ENDPOINT}/mal/check`, {
+      fetch('/mal/check', {
         method: 'post',
         body: JSON.stringify({ auth: btoa(`${user}:${pass}`) }),
         headers: {
@@ -23,7 +21,7 @@ const Mal = (() => {
       .catch(err => Error(err)),
 
     add: anilist =>
-      fetch(`${config.ENDPOINT}/mal/add`, {
+      fetch('/mal/add', {
         method: 'post',
         body: JSON.stringify({ auth, anilist }),
         headers: {

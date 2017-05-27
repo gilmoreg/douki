@@ -3,7 +3,6 @@ const express = require('express');
 // const mongoose = require('mongoose');
 // const MongoStore = require('connect-mongo')(session);
 // const passport = require('passport');
-const promisify = require('es6-promisify');
 const expressValidator = require('express-validator');
 const cors = require('cors');
 const bodyParser = require('body-parser');
@@ -85,7 +84,7 @@ if (process.env.NODE_ENV === 'development') app.use(errorHandlers.developmentErr
 app.use(errorHandlers.productionErrors);
 
 
-const runServer = (port = process.env.PORT || 4000) =>
+const runServer = (port = process.env.PORT || 80) =>
   new Promise((resolve) => {
     server = app.listen(port, () => {
       console.log(`Server now listening on port ${port}`);
