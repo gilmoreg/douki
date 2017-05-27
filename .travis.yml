@@ -1,7 +1,6 @@
 language: node_js
 node_js: node
-after_success:
-  - npm run deploy
+after_success: bash ./deploy.sh
 branches:
   only:
       - master

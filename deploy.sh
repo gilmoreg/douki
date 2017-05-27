@@ -9,5 +9,4 @@ then
     exit 0;
 fi
 
-npm install -g now
-now -C --docker -t $NOW_API_TOKEN 
+now -C --docker -t $NOW_API_TOKEN
