@@ -8,7 +8,7 @@
     "dev": "nodemon --inspect server.js",
     "exec": "node server.js --exec babel-node --presets es2015,stage-2",
     "devtest": "jest --watch --runInBand",
-    "test": "--verbose --bail --forceExit",
+    "test": "jest --verbose --bail --forceExit",
     "coverage": "jest --coverage",
     "build": "webpack",
     "devbuild": "webpack --progress --watch",
