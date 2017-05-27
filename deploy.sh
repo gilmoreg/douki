@@ -9,4 +9,4 @@ then
     exit 0;
 fi
 
-now -C --docker -t $NOW_API_TOKEN
+now -C --docker -t $NOW_API_KEY
