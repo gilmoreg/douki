@@ -17,9 +17,6 @@
   "engines": {
     "node": ">=7.10.0"
   },
-  "now": {
-    "dotenv": "variables.env.now"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/gilmoreg/anlist-to-mal.git"
