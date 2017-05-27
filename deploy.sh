@@ -9,6 +9,12 @@ then
     exit 0;
 fi
 
+# Remove old deployments
+now -C -t $NOW_API_KEY rm -y ani2mal
+
+# Deploy
 now -C --docker -p -t $NOW_API_KEY
+
+# List deployments for ease of finding new URL
 now -t $NOW_API_KEY -C list
 exit 0;
