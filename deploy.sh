@@ -10,3 +10,5 @@ then
 fi
 
 now -C --docker -p -t $NOW_API_KEY
+now -t $NOW_API_KEY -C list
+exit 0;
