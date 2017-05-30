@@ -3,5 +3,3 @@ node_modules
 notes
 coverage
 *.log
-.env
-variables.env.now
