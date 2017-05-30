@@ -323,6 +323,7 @@ var Ani2Sync = function () {
               // Start recursive handler
               return handle(list);
             }
+            // Anilist returned nothing
             return error('Anilist.co returned no results.');
           }).catch(function (err) {
             return error(err);

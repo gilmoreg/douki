@@ -114,6 +114,7 @@ const Ani2Sync = (() => {
               // Start recursive handler
               return handle(list);
             }
+            // Anilist returned nothing
             return error('Anilist.co returned no results.');
           })
           .catch(err => error(err));
