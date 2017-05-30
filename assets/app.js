@@ -15,11 +15,13 @@ const Ani2Sync = (() => {
   };
 
   const reset = () => {
-    $('#credentials').classList.toggle('hidden');
-    $('#sync').classList.toggle('hidden');
+    $('#credentials').classList.remove('hidden');
+    $('#sync').classList.add('hidden');
     $('#error-count').innerHTML = '';
     $('#errors').innerHTML = '';
     $('#results').innerHTML = '';
+    $('.anilist-error').innerHTML = '';
+    $('.mal-error').innerHTML = '';
     $('#submit').classList.remove('is-loading');
     total = 0;
     errors = 0;
@@ -105,20 +107,31 @@ const Ani2Sync = (() => {
           const aniUser = $('#anilist-username').value.trim();
           Anilist.getList(aniUser)
           .then((list) => {
-            if (list) {
+            if (list && list.length) {
               // We have good inputs on all three counts; let's go
-              // Clear old results and switch views
+              // Clear old results
               reset();
+              // Switch views
+              $('#credentials').classList.add('hidden');
+              $('#sync').classList.remove('hidden');
               // Track total items in namespace for progress meter
               total = list.length;
               // Start recursive handler
               return handle(list);
             }
             // Anilist returned nothing
+            Anilist.error(`Anilist.co returned no results for ${aniUser}.`);
+            setTimeout(() => reset(), 3000);
             return error('Anilist.co returned no results.');
           })
           .catch(err => error(err));
+        } else {
+          // Mal auth check returned false
+          Mal.error('Invaild MAL credentials.');
+          setTimeout(() => reset(), 3000);
+          return error('Invaild MAL credentials.');
         }
+        return null;
       })
       .catch(err => error(err));
     },

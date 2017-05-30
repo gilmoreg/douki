@@ -1,3 +1,4 @@
+/* globals $ */
 const ANILIST_TOKEN_URL = 'https://ytjv79nzl4.execute-api.us-east-1.amazonaws.com/dev/token';
 
 const Anilist = (() => {
@@ -35,6 +36,10 @@ const Anilist = (() => {
     id: item.series_id,
   });
 
+  const error = (msg) => {
+    $('.anilist-error').innerHTML = msg;
+  };
+
   return {
     getList: username =>
       fetchToken()
@@ -42,6 +47,7 @@ const Anilist = (() => {
         .then(res => buildList(res))
         .then(res => res.map(item => sanitize(item)))
         .catch(err => Error(err)),
+    error: msg => error(msg),
   };
 })();
 

@@ -12,6 +12,7 @@ block content
                 .field
                   p.control.tcenter
                     input(type='text' id='anilist-username' placeholder='anilist username')
+                  .anilist-error.error
                 h4 Enter your MyAnimeList credentials:
                 p These will never be stored.
                 .field
@@ -20,6 +21,7 @@ block content
                 .field
                   p.control.tcenter
                     input(type='password' id='mal-password' placeholder='mal password')
+                  .mal-error.error
                 .field
                   p.control.tcenter
                     button.button#submit Submit

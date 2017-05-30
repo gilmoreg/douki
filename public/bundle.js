@@ -75,6 +75,7 @@
 
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
+/* globals $ */
 var ANILIST_TOKEN_URL = 'https://ytjv79nzl4.execute-api.us-east-1.amazonaws.com/dev/token';
 
 var Anilist = function () {
@@ -115,6 +116,10 @@ var Anilist = function () {
     };
   };
 
+  var _error = function _error(msg) {
+    $('.anilist-error').innerHTML = msg;
+  };
+
   return {
     getList: function getList(username) {
       return fetchToken().then(function (token) {
@@ -128,6 +133,9 @@ var Anilist = function () {
       }).catch(function (err) {
         return Error(err);
       });
+    },
+    error: function error(msg) {
+      return _error(msg);
     }
   };
 }();
@@ -163,8 +171,13 @@ NodeList.prototype.on = NodeList.prototype.addEventListener = function (name, fn
 "use strict";
 
 
+/* globals $ */
 var Mal = function () {
   var auth = '';
+
+  var _error = function _error(msg) {
+    $('.mal-error').innerHTML = msg;
+  };
 
   return {
     check: function check(user, pass) {
@@ -176,7 +189,9 @@ var Mal = function () {
           'Content-Type': 'application/json'
         }
       }).then(function (res) {
-        if (res !== 'Invalid credentials') {
+        return res.json();
+      }).then(function (res) {
+        if (res.user) {
           auth = btoa(user + ':' + pass);
           return true;
         }
@@ -199,6 +214,9 @@ var Mal = function () {
       }).catch(function (err) {
         return Error(err);
       });
+    },
+    error: function error(msg) {
+      return _error(msg);
     }
   };
 }();
@@ -229,11 +247,13 @@ var Ani2Sync = function () {
   };
 
   var reset = function reset() {
-    $('#credentials').classList.toggle('hidden');
-    $('#sync').classList.toggle('hidden');
+    $('#credentials').classList.remove('hidden');
+    $('#sync').classList.add('hidden');
     $('#error-count').innerHTML = '';
     $('#errors').innerHTML = '';
     $('#results').innerHTML = '';
+    $('.anilist-error').innerHTML = '';
+    $('.mal-error').innerHTML = '';
     $('#submit').classList.remove('is-loading');
     total = 0;
     errors = 0;
@@ -314,21 +334,36 @@ var Ani2Sync = function () {
         if (res) {
           var aniUser = $('#anilist-username').value.trim();
           Anilist.getList(aniUser).then(function (list) {
-            if (list) {
+            if (list && list.length) {
               // We have good inputs on all three counts; let's go
-              // Clear old results and switch views
+              // Clear old results
               reset();
+              // Switch views
+              $('#credentials').classList.add('hidden');
+              $('#sync').classList.remove('hidden');
               // Track total items in namespace for progress meter
               total = list.length;
               // Start recursive handler
               return handle(list);
             }
             // Anilist returned nothing
+            Anilist.error('Anilist.co returned no results for ' + aniUser + '.');
+            setTimeout(function () {
+              return reset();
+            }, 3000);
             return error('Anilist.co returned no results.');
           }).catch(function (err) {
             return error(err);
           });
+        } else {
+          // Mal auth check returned false
+          Mal.error('Invaild MAL credentials.');
+          setTimeout(function () {
+            return reset();
+          }, 3000);
+          return error('Invaild MAL credentials.');
         }
+        return null;
       }).catch(function (err) {
         return error(err);
       });

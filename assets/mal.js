@@ -1,5 +1,10 @@
+/* globals $ */
 const Mal = (() => {
   let auth = '';
+
+  const error = (msg) => {
+    $('.mal-error').innerHTML = msg;
+  };
 
   return {
     check: (user, pass) =>
@@ -11,8 +16,9 @@ const Mal = (() => {
           'Content-Type': 'application/json',
         },
       })
+      .then(res => res.json())
       .then((res) => {
-        if (res !== 'Invalid credentials') {
+        if (res.user) {
           auth = btoa(`${user}:${pass}`);
           return true;
         }
@@ -31,6 +37,7 @@ const Mal = (() => {
       })
       .then(res => res.json())
       .catch(err => Error(err)),
+    error: msg => error(msg),
   };
 })();
 
