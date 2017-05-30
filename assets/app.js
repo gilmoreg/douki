@@ -56,7 +56,7 @@ const Ani2Sync = (() => {
   };
 
   const showProgress = (count) => {
-    $('#progress').style.width = `${(100 * (total - count)) / total}%`;
+    $('.progress').setAttribute('value', (100 * (total - count)) / total);
     $('#status-message').innerHTML = `${count} items remaining.`;
     $('#error-count').innerHTML = `Errors: ${errors}.`;
   };

@@ -1,3 +1,11 @@
+/*
+Color palette:
+Tan:      216,202,168   #D8CAA8
+ltgreen:  92,131,47     #5C832F
+dkgreen:  40,73,7       #284907
+brown:    56,37,19      #382513
+greyish:  54,57,66      #363942
+*/
 * {
   box-sizing: border-box;
   color: #3E454C;
@@ -5,35 +13,44 @@
 }
 
 body {
-	background: radial-gradient(ellipse at center, rgba(219,240,252,1) 0%,rgba(33,133,197,1) 100%);
-	background-attachment: fixed;
   position: absolute;
   top: 0;
   bottom: 0;
-  overflow-y: scroll;
-}
-
-nav {
-  background: radial-gradient(ellipse at center, rgba(62,69,76,1) 0%,rgba(27,50,73,1) 100%);
-	padding: 5px;
-	font-size: 22px;
-  text-align: center;
-}
-
-main {
-  margin-bottom: 2em;
+  overflow-x: hidden;
 }
 
 h1, h2, h3, h4 {
-  color: #FF7F66;  
+  color: #363942;
+  font-weight: bold;
 }
 
 h1, h4 {
   margin: 5px 0 5px 0;
 }
 
+nav {
+  background-color: #363942;
+  /* background: radial-gradient(ellipse at center, #2B2922 0%, #2B2922 100%); */
+	padding: 5px;
+	font-size: 22px;
+  text-align: center;
+}
+
+nav h1 {
+  color:white;
+}
+
+main {
+  margin-bottom: 2em;
+}
+
+.section {
+  padding-top: 1em;
+  padding-bottom: 1em;
+}
+
 .div {
-  background-color: rgba(255,246,229,0.7);
+  /* background-color: #D8CAA8; */
 	border-radius: 5px;
   margin: 5px auto;
   padding: 10px;
@@ -51,17 +68,12 @@ h1, h4 {
 #results li {
   margin-left: 50px;
 }
-
-#progressBar {
-  width: 100%;
-  background-color: grey;
-}
-
+/*
 #progress {
   width: 1%;
   height: 30px;
   background-color: #00d1b2;
-}
+}*/
 
 footer {
   position: fixed;
@@ -69,25 +81,25 @@ footer {
   bottom: 0;
   font-size: 9px;
   text-align: center;
-  background: radial-gradient(ellipse at center, rgba(62,69,76,1) 0%,rgba(27,50,73,1) 100%);
+  background-color: #363942;
   height: 2em;
 }
 
 footer p {
   margin: 5px 0 2px 0;
-  color: #FF7F66;  
+  color: white;  
 }
 
 footer a:visited {
-  color: #FF7F66; 
+  color: white; 
 }
 
 .added {
-  color: green;
+  color: hsl(171, 100%, 41%);
 }
 
 .error {
-  color: red;
+  color: hsl(348, 100%, 61%);
 }
 
 .hidden {

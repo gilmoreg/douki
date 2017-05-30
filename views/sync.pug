@@ -1,38 +1,51 @@
 extends layout
 
 block content
-  main
-    .section#credentials
-      .columns
-        .column.is-narrow.div.mcenter
-          form.tcenter(id='credentials')
-            h4 Enter your Anilist.co username:
-            .field
-              p.control.tcenter
-                input(type='text' id='anilist-username' placeholder='anilist username')
-            h4 Enter your MyAnimeList credentials:
-            p These will never be stored.
-            .field
-              p.control.tcenter
-                input(type='text' id='mal-username' placeholder='mal username')
-            .field
-              p.control.tcenter
-                input(type='password' id='mal-password' placeholder='mal password')
-            .field
-              p.control.tcenter
-                button.button.is-primary#submit Submit
-    .section.hidden#sync
-      p.tcenter
-          button.button.is-primary#reset Start Over
-      .section.div#current
-        h4 Status
-        #progressBar
-          #progress
-        #status-message
-      .section.div
-        h4 Results
-        ol#results
-      .section.errors.div
-        h4 Errors
-        p #[span#error-count]
-        ul#errors
+  .section#credentials
+    .columns
+      .column.is-narrow.div.mcenter
+        .card
+          .card-content
+            .content
+              form.tcenter(id='credentials')
+                h4 Enter your Anilist.co username:
+                .field
+                  p.control.tcenter
+                    input(type='text' id='anilist-username' placeholder='anilist username')
+                h4 Enter your MyAnimeList credentials:
+                p These will never be stored.
+                .field
+                  p.control.tcenter
+                    input(type='text' id='mal-username' placeholder='mal username')
+                .field
+                  p.control.tcenter
+                    input(type='password' id='mal-password' placeholder='mal password')
+                .field
+                  p.control.tcenter
+                    button.button#submit Submit
+  .section.hidden#sync
+    p.tcenter
+        button.button#reset Start Over
+    .section.div#current
+      .card
+          header.card-header
+            p.card-header-title Status
+          .card-content
+            .content
+              progress.progress.is-primary(value='0' max='100')
+              #status-message
+    .section.div
+      .card
+        header.card-header
+          p.card-header-title Results
+        .card-content
+          .content
+            ol#results
+    .section.errors.div
+      .card
+        header.card-header
+          p.card-header-title Errors
+        .card-content
+          .content
+            p #[span#error-count]
+            ul#errors
