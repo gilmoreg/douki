@@ -1,8 +1,5 @@
 /* eslint-disable no-unused-vars */
 const xml2js = require('xml2js');
-const mongoose = require('mongoose');
-// const IDHash = require('../models/IDHash');
-// require('dotenv').config();
 global.fetch = require('node-fetch');
 
 const parser = new xml2js.Parser();
@@ -17,25 +14,6 @@ const parseMalID = (malRes) => {
   }
   return null;
 };
-
-/*
-const getDBmalID = aniTitle =>
-  new Promise((resolve, reject) => {
-    IDHash.findOne({ aniTitle }, { malID: true, _id: false })
-    .then(res => resolve(res))
-    .catch(err => reject(err));
-  });
-
-const setDBmalID = (aniTitle, malID) =>
-  new Promise((resolve, reject) => {
-    IDHash.findOneAndUpdate(
-      { aniTitle, malID: parseInt(malID, 10) },
-      { aniTitle, malID: parseInt(malID, 10) },
-      { upsert: true, new: true, runValidators: true })
-    .then(res => resolve(res))
-    .catch(err => reject(err));
-  });
-*/
 
 const malAPICall = (auth, url) =>
   // Use rate limiter on all MAL calls. Max one call every 50ms.
@@ -60,13 +38,7 @@ const malAPISearch = (auth, title) =>
         parser.parseString(res, async (err, data) => {
           if (err) reject(Error(err));
           const malID = parseMalID(data);
-          if (malID) {
-            // Add this title/id hash to database
-            // const set = await setDBmalID(title, malID);
-
-            // Return MAL ID
-            resolve({ malID });
-          }
+          if (malID) resolve({ malID });
           // Got a response but incorrectly formatted
           // Treat it as no results
           resolve(null);
@@ -103,24 +75,10 @@ const addToMal = (auth, id, xml) =>
 
 const getMalID = (auth, title) =>
   new Promise(async (resolve, reject) => {
-    /* let malID = await getDBmalID(title);
-    if (malID) resolve(malID);
-    else { */
-    // Nothing in the DB. Try searching MAL
     const malID = await malAPISearch(auth, title);
     if (malID) resolve(malID);
-    // Last resort - try screen scraping
-    /* let html = await fetch(`https://myanimelist.net/anime.php?q=${encodeURIComponent(title)}`);
-    try {
-      html = await html.text();
-      malID = html.split('<a class="hoverinfo_trigger')[1].split('https://myanimelist.net/anime/')[1].split('/')[0];
-      resolve(parseInt(malID, 10));
-    } catch (err) {
-      console.log('scraping failed.', err);
-    } */
     // Nothing found
     resolve(null);
-    // }
   });
 
 const getStatus = (status) => {
