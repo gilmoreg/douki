@@ -9,9 +9,10 @@ then
     exit 0;
 fi
 
-# Deploy
-now -C --docker -p -t $NOW_API_KEY
+# Deploy docker image to Heroku
 
-# List deployments for ease of finding new URL
-now -t $NOW_API_KEY -C list
-exit 0;
+# Install the toolbelt, and the required plugin.
+wget -qO- https://toolbelt.heroku.com/install-ubuntu.sh | sh
+heroku plugins:install heroku-container-registry
+docker login -u=$DOCKER_USERNAME -p=$HEROKU_API_KEY registry.heroku.com
+heroku container:push --app ani2mal
