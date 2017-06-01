@@ -1,5 +1,4 @@
 const express = require('express');
-const expressValidator = require('express-validator');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const compression = require('compression');
@@ -28,8 +27,6 @@ app.set('view engine', 'pug');
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-
-app.use(expressValidator());
 
 // pass variables to our templates + all requests
 app.use((req, res, next) => {
