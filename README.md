@@ -13,7 +13,6 @@ Ani2Mal remains in alpha phase. Use at your own risk!
 * Server Stack: Node, Express, Pug
 * Client Side: Bulma CSS Framework
 * Tests: Jest
-* Hosting: running from a Docker image on now.sh
 
 ## Issues
-Due to limitations of the Myanimelist API, a large number of shows are not matched. A future update to Anilist.co's API promises to alleviate this difficulty. This application will remain in alpha phase until that happens.
+Please report issues on the Github issues page.
