@@ -7,7 +7,7 @@ by [Grayson Gilmore](https://github.com/gilmoreg/).
 ## Summary
 This application will sync your Anilist.co anime list to your Myanimelist.com list. Simply enter your credentials and let it take care of the rest.
 
-Ani2Mal remains in alpha phase. Use at your own risk!
+Ani2Mal remains in beta phase. Use at your own risk!
 
 ## Technical
 * Server Stack: Node, Express, Pug
