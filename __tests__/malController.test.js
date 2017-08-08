@@ -35,7 +35,7 @@ describe('malController', () => {
       });
   });
 
-  it.only('/mal/check should verify genuine credentials', (done) => {
+  it('/mal/check should verify genuine credentials', (done) => {
     fetchMock.mock(/.+account.+/g, fakes.malAuthSuccess);
     chai.request(app)
       .post('/mal/check')
