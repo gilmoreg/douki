@@ -11,8 +11,7 @@
     "test": "jest --verbose --bail --forceExit",
     "coverage": "jest --coverage",
     "build": "webpack",
-    "devbuild": "webpack --progress --watch",
-    "deploy": "now -C --docker -t $NOW_API_TOKEN"
+    "devbuild": "webpack --progress --watch"
   },
   "engines": {
     "node": ">=7.10.0"
