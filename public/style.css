@@ -32,6 +32,11 @@ nav h1 {
   color:white;
 }
 
+nav p {
+  font-size: 12px;
+  color: white;
+}
+
 main {
   margin-bottom: 2em;
 }
