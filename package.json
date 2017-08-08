@@ -19,14 +19,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/gilmoreg/anlist-to-mal.git"
+    "url": "git+https://github.com/gilmoreg/ani2mal.git"
   },
   "author": "Grayson Gilmore (gilmoreg@live.com)",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/gilmoreg/anlist-to-mal/issues"
+    "url": "https://github.com/gilmoreg/ani2mal/issues"
   },
-  "homepage": "https://github.com/gilmoreg/anlist-to-mal#readme",
+  "homepage": "https://github.com/gilmoreg/ani2mal#readme",
   "devDependencies": {
     "babel-cli": "6.24.1",
     "babel-core": "6.24.1",
