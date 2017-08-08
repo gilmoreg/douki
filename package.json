@@ -1,5 +1,5 @@
 {
-  "name": "ani2mal",
+  "name": "douki",
   "version": "1.0.0",
   "description": "Sync your Anilist anime list to MyAnimeList",
   "main": "server.js",
@@ -18,14 +18,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/gilmoreg/ani2mal.git"
+    "url": "git+https://github.com/gilmoreg/douki.git"
   },
   "author": "Grayson Gilmore (gilmoreg@live.com)",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/gilmoreg/ani2mal/issues"
+    "url": "https://github.com/gilmoreg/douki/issues"
   },
-  "homepage": "https://github.com/gilmoreg/ani2mal#readme",
+  "homepage": "https://github.com/gilmoreg/douki#readme",
   "devDependencies": {
     "babel-cli": "6.24.1",
     "babel-core": "6.24.1",
