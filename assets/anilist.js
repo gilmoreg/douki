@@ -1,39 +1,71 @@
 /* globals $ */
-const ANILIST_TOKEN_URL = 'https://ytjv79nzl4.execute-api.us-east-1.amazonaws.com/dev/token';
+// const ANILIST_TOKEN_URL = 'https://ytjv79nzl4.execute-api.us-east-1.amazonaws.com/dev/token';
 
 const Anilist = (() => {
-  const fetchToken = () =>
-    fetch(ANILIST_TOKEN_URL)
-      .then(res => res.json())
-      .then(res => JSON.parse(res).access_token)
-      .catch(err => Error(err));
+  const anilistCall = (query, variables) =>
+    fetch('https://graphql.anilist.co', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      body: JSON.stringify({
+        query,
+        variables,
+      }),
+    });
 
-  const fetchList = (username, token) =>
-    fetch(`https://anilist.co/api/user/${username}/animelist?access_token=${token}`)
-      .then(res => res.json())
-      .catch(err => Error(err));
+  const getUserId = name =>
+    anilistCall(`
+      query ($name: String) {
+        User (name: $name) {
+          id
+        }
+      }
+    `, { name })
+    .then(res => res.json())
+    .then(res => res.data.User.id)
+    .catch(err => Error(err));
+
+  const fetchList = userId =>
+    anilistCall(`
+      query ($userId: Int, $type: MediaType) {
+        MediaListCollection(userId: $userId, type: $type) {
+          statusLists {
+            status
+            score
+            progress
+            media {
+              idMal
+              title {
+                romaji
+              }
+            }
+          }
+        }
+      }
+    `, { userId, type: 'ANIME' })
+    .then(res => res.json())
+    .then(res => res.data.MediaListCollection.statusLists)
+    .catch(err => Error(err));
 
   const buildList = (res) => {
-    // console.log(Object.keys(res.lists));
-    // [ 'completed', 'plan_to_watch', 'dropped', 'on_hold', 'watching' ]
-    if (!res.lists) return [];
+    if (!res) return [];
     return [
-      ...res.lists.completed || [],
-      ...res.lists.plan_to_watch || [],
-      ...res.lists.dropped || [],
-      ...res.lists.on_hold || [],
-      ...res.lists.watching || [],
+      ...res.completed || [],
+      ...res.current || [],
+      ...res.dropped || [],
+      ...res.paused || [],
+      ...res.planning || [],
     ];
   };
 
   const sanitize = item => ({
-    episodes_watched: item.episodes_watched,
-    list_status: item.list_status,
+    progress: item.progress,
+    status: item.status,
     score: item.score,
-    priority: item.priority,
-    notes: item.notes,
-    title: item.anime.title_romaji,
-    id: item.series_id,
+    id: item.media.idMal,
+    title: item.media.title.romaji,
   });
 
   const error = (msg) => {
@@ -42,8 +74,8 @@ const Anilist = (() => {
 
   return {
     getList: username =>
-      fetchToken()
-        .then(token => fetchList(username, token))
+      getUserId(username)
+        .then(userId => fetchList(userId))
         .then(res => buildList(res))
         .then(res => res.map(item => sanitize(item)))
         .catch(err => Error(err)),

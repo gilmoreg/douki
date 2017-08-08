@@ -4,97 +4,69 @@ global.fetch = require('node-fetch');
 
 const parser = new xml2js.Parser();
 
-const RateLimiter = require('limiter').RateLimiter;
-
-const limiter = new RateLimiter(1, 50);
-
-const parseMalID = (malRes) => {
-  if (malRes && malRes.anime && malRes.anime.entry) {
-    return malRes.anime.entry[0].id[0];
+// Rate limiting
+const callQueue = [];
+setInterval(() => {
+  if (callQueue.length) {
+    const [auth, url, cb] = callQueue.shift();
+    fetch(url, {
+      method: 'GET',
+      headers: {
+        Authorization: `Basic ${auth}`,
+      },
+    })
+    .then(mal => mal.text())
+    .then(mal => cb(mal))
+    .catch(err => Error(err));
   }
-  return null;
+}, 250);
+
+const malAPICall = (auth, url, cb) => {
+  callQueue.push([auth, url, cb]);
 };
 
-const malAPICall = (auth, url) =>
-  // Use rate limiter on all MAL calls. Max one call every 50ms.
+const malCheckResponse = mal =>
   new Promise((resolve, reject) => {
-    limiter.removeTokens(1, () => {
-      fetch(url, {
-        method: 'GET',
-        headers: {
-          Authorization: `Basic ${auth}`,
-        },
-      })
-      .then(mal => resolve(mal.text()))
-      .catch(err => reject(Error(err)));
-    });
+    if (mal) {
+      if (mal === 'Invalid credentials') resolve(mal);
+      parser.parseString(mal, async (err, data) => {
+        if (err) reject(err);
+        resolve(data);
+      });
+    }
+    return reject('Empty response from MAL on auth check');
   });
-
-const malAPISearch = (auth, title) =>
-  new Promise((resolve, reject) => {
-    malAPICall(auth, `https://myanimelist.net/api/anime/search.xml?q=${encodeURIComponent(title)}`)
-    .then((res) => {
-      if (res) {
-        parser.parseString(res, async (err, data) => {
-          if (err) reject(Error(err));
-          const malID = parseMalID(data);
-          if (malID) resolve({ malID });
-          // Got a response but incorrectly formatted
-          // Treat it as no results
-          resolve(null);
-        });
-      }
-      // Got no response - MAL's response on no results
-      resolve(null);
-    })
-    .catch(err => reject(Error(err)));
-  });
-
 
 const checkMalCredentials = auth =>
   new Promise((resolve, reject) => {
-    malAPICall(auth, 'https://myanimelist.net/api/account/verify_credentials.xml')
-    .then((res) => {
-      if (res) {
-        if (res === 'Invalid credentials') resolve(res);
-        parser.parseString(res, async (err, data) => {
-          if (err) reject(Error(err));
-          resolve(data);
-        });
-      }
-    })
-    .catch(err => reject(Error(err)));
+    malAPICall(auth,
+      'https://myanimelist.net/api/account/verify_credentials.xml',
+      mal => resolve(malCheckResponse(mal)));
   });
 
 const addToMal = (auth, id, xml) =>
   new Promise((resolve, reject) => {
-    malAPICall(auth, `https://myanimelist.net/api/animelist/add/${id}.xml?data=${xml}`)
-    .then(res => resolve(res))
-    .catch(err => reject(Error(err)));
+    malAPICall(auth,
+      `https://myanimelist.net/api/animelist/add/${id}.xml?data=${xml}`,
+      mal => resolve(mal));
   });
 
-const getMalID = (auth, title) =>
-  new Promise(async (resolve, reject) => {
-    const malID = await malAPISearch(auth, title);
-    if (malID) resolve(malID);
-    // Nothing found
-    resolve(null);
+const updateMal = (auth, id, xml) =>
+  new Promise((resolve, reject) => {
+    malAPICall(auth,
+      `https://myanimelist.net/api/animelist/update/${id}.xml?data=${xml}`,
+      mal => resolve(mal));
   });
+
 
 const getStatus = (status) => {
-// 'completed', 'plan_to_watch', 'dropped', 'on_hold', 'watching'
-// status. 1/watching, 2/completed, 3/onhold, 4/dropped, 6/plantowatch
+// MAL status: 1/watching, 2/completed, 3/onhold, 4/dropped, 6/plantowatch
   switch (status.trim()) {
-    case 'watching': return 1;
-    case 'completed': return 2;
-    case 'on-hold':
-    case 'on hold':
-    case 'onhold':
-    case 'on_hold': return 3;
-    case 'dropped': return 4;
-    case 'plan to watch':
-    case 'plan_to_watch':
-    case 'plantowatch': return 6;
+    case 'CURRENT': return 1;
+    case 'COMPLETED': return 2;
+    case 'PAUSED': return 3;
+    case 'DROPPED': return 4;
+    case 'PLANNING': return 6;
     default: {
       console.error(`unknown status "${status}"`);
       return '';
@@ -106,44 +78,46 @@ const makeXML = a =>
   encodeURIComponent(`
     <?xml version="1.0" encoding="UTF-8"?>
     <entry>
-      <episode>${a.episodes_watched || ''}</episode>
-      <status>${getStatus(a.list_status)}</status>
+      <episode>${a.progress || ''}</episode>
+      <status>${getStatus(a.status)}</status>
       <score>${a.score || ''}</score>
       <storage_type></storage_type>
       <storage_value></storage_value>
       <times_rewatched></times_rewatched>
       <rewatch_value></rewatch_value>
-      <date_start>${''}</date_start>
-      <date_finish>${''}</date_finish>
-      <priority>${a.priority || ''}</priority>
+      <date_start></date_start>
+      <date_finish></date_finish>
+      <priority></priority>
       <enable_discussion></enable_discussion>
       <enable_rewatching></enable_rewatching>
-      <comments>${a.notes || ''}</comments>
+      <comments></comments>
       <tags></tags>
     </entry>
     `.trim().replace(/(\r\n|\n|\r)/gm, ''));
 
-const sync = ({ auth, anilist }) =>
+const sync = ({ auth, anilist }, mode) =>
   new Promise(async (resolve, reject) => {
-    const mal = await getMalID(auth, anilist.title);
-    if (mal) {
-      const xml = makeXML(anilist);
-      const malResponse = await addToMal(auth, mal.malID, xml);
-      if (malResponse) {
-        resolve({
-          message: malResponse,
-          title: anilist.title,
-          malID: mal.malID,
-        });
-      } else resolve(null);
+    const xml = makeXML(anilist);
+    const malResponse = mode === 'add' ?
+      await addToMal(auth, anilist.id, xml) :
+      await updateMal(auth, anilist.id, xml);
+    if (malResponse) {
+      resolve({
+        message: malResponse,
+        title: anilist.title,
+      });
     } else resolve(null);
   });
 
 module.exports = {
   // POST /mal/add { auth, anilist }
   add: async (req, res) => {
-    const result = await sync(req.body);
-    res.status(200).json(result);
+    const result = await sync(req.body, 'add');
+    // If the anime is already in the list, it won't be updated unless we do this
+    if (result.message.match(/The anime \(id: \d+\) is already in the list./g)) {
+      const updateResult = await sync(req.body, 'update');
+      res.status(200).json(updateResult);
+    } else res.status(200).json(result);
   },
   // POST /mal/check { auth }
   check: async (req, res) => {

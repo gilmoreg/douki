@@ -14,7 +14,7 @@ block content
                     input(type='text' id='anilist-username' placeholder='anilist username')
                   .anilist-error.error
                 h4 Enter your MyAnimeList credentials:
-                p These will never be stored.
+                p These will never be stored. #[i(id='help' class='fa fa-question-circle-o' aria-hidden='true')]
                 .field
                   p.control.tcenter
                     input(type='text' id='mal-username' placeholder='mal username')
@@ -51,3 +51,12 @@ block content
           .content
             p #[span#error-count]
             ul#errors
+  .modal#helpModal
+    .modal-background
+    .modal-content
+      .box(style='max-width: 400px; margin: 0 auto')
+        h4.tcenter Why do I have to enter my password?
+        p This is to ensure that only the owners of MyAnimeList accounts can modify their lists.
+        h4.tcenter Is it secure?
+        p Ani2Mal uses the same technology that MAL does for security. Your credentials will be passed along to MAL to make sure you are a valid user, and then immediately discarded.
+    button.modal-close

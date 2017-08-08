@@ -66,7 +66,7 @@ footer {
   font-size: 9px;
   text-align: center;
   background-color: #363942;
-  height: 2em;
+  height: 2.5em;
 }
 
 footer p {
@@ -74,8 +74,9 @@ footer p {
   color: white;  
 }
 
-footer a:visited {
+footer:a, footer a:visited {
   color: white; 
+  text-decoration: underline;
 }
 
 .added {

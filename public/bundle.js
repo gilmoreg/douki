@@ -76,43 +76,55 @@
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
 /* globals $ */
-var ANILIST_TOKEN_URL = 'https://ytjv79nzl4.execute-api.us-east-1.amazonaws.com/dev/token';
+// const ANILIST_TOKEN_URL = 'https://ytjv79nzl4.execute-api.us-east-1.amazonaws.com/dev/token';
 
 var Anilist = function () {
-  var fetchToken = function fetchToken() {
-    return fetch(ANILIST_TOKEN_URL).then(function (res) {
+  var anilistCall = function anilistCall(query, variables) {
+    return fetch('https://graphql.anilist.co', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json'
+      },
+      body: JSON.stringify({
+        query: query,
+        variables: variables
+      })
+    });
+  };
+
+  var getUserId = function getUserId(name) {
+    return anilistCall('\n      query ($name: String) {\n        User (name: $name) {\n          id\n        }\n      }\n    ', { name: name }).then(function (res) {
       return res.json();
     }).then(function (res) {
-      return JSON.parse(res).access_token;
+      return res.data.User.id;
     }).catch(function (err) {
       return Error(err);
     });
   };
 
-  var fetchList = function fetchList(username, token) {
-    return fetch('https://anilist.co/api/user/' + username + '/animelist?access_token=' + token).then(function (res) {
+  var fetchList = function fetchList(userId) {
+    return anilistCall('\n      query ($userId: Int, $type: MediaType) {\n        MediaListCollection(userId: $userId, type: $type) {\n          statusLists {\n            status\n            score\n            progress\n            media {\n              idMal\n              title {\n                romaji\n              }\n            }\n          }\n        }\n      }\n    ', { userId: userId, type: 'ANIME' }).then(function (res) {
       return res.json();
+    }).then(function (res) {
+      return res.data.MediaListCollection.statusLists;
     }).catch(function (err) {
       return Error(err);
     });
   };
 
   var buildList = function buildList(res) {
-    // console.log(Object.keys(res.lists));
-    // [ 'completed', 'plan_to_watch', 'dropped', 'on_hold', 'watching' ]
-    if (!res.lists) return [];
-    return [].concat(_toConsumableArray(res.lists.completed || []), _toConsumableArray(res.lists.plan_to_watch || []), _toConsumableArray(res.lists.dropped || []), _toConsumableArray(res.lists.on_hold || []), _toConsumableArray(res.lists.watching || []));
+    if (!res) return [];
+    return [].concat(_toConsumableArray(res.completed || []), _toConsumableArray(res.current || []), _toConsumableArray(res.dropped || []), _toConsumableArray(res.paused || []), _toConsumableArray(res.planning || []));
   };
 
   var sanitize = function sanitize(item) {
     return {
-      episodes_watched: item.episodes_watched,
-      list_status: item.list_status,
+      progress: item.progress,
+      status: item.status,
       score: item.score,
-      priority: item.priority,
-      notes: item.notes,
-      title: item.anime.title_romaji,
-      id: item.series_id
+      id: item.media.idMal,
+      title: item.media.title.romaji
     };
   };
 
@@ -122,8 +134,8 @@ var Anilist = function () {
 
   return {
     getList: function getList(username) {
-      return fetchToken().then(function (token) {
-        return fetchList(username, token);
+      return getUserId(username).then(function (userId) {
+        return fetchList(userId);
       }).then(function (res) {
         return buildList(res);
       }).then(function (res) {
@@ -304,17 +316,17 @@ var Ani2Sync = function () {
     Mal.add(item).then(function (res) {
       // this is the response from MAL - not found/blank or Already in list or Created
       if (res) {
-        if (res.message === 'Created' || res.message.match(/The anime \(id: \d+\) is already in the list./g)) {
+        if (res.message === 'Created' || res.message === 'Updated') {
           markSuccess(item.id);
         } else {
           markFail(item.id);
-          malError(res.title);
-          if (res.message === 'Invalid ID') notFound(item);
+          malError(res.title + ': ' + res.message);
+          if (res.message === 'Invalid ID') notFound(item.title);
         }
       } else {
         // Empty response from MAL means item not found
         markFail(item.id);
-        malError(item.title);
+        malError(res.title + ': ' + res.message);
         notFound(item.title);
       }
       // Recursively call until list is empty
@@ -377,6 +389,19 @@ var Ani2Sync = function () {
 (function () {
   $('#credentials').on('submit', Ani2Sync.sync);
   $('#reset').on('click', Ani2Sync.restart);
+  $('#help').on('click', function () {
+    $('#helpModal').classList.add('is-active');
+  });
+  Array.from($$('.modal-background')).forEach(function (e) {
+    e.on('click', function () {
+      return $('.is-active').classList.remove('is-active');
+    });
+  });
+  Array.from($$('.modal-close')).forEach(function (e) {
+    e.on('click', function () {
+      return $('.is-active').classList.remove('is-active');
+    });
+  });
 })();
 
 /***/ })

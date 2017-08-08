@@ -76,17 +76,17 @@ const Ani2Sync = (() => {
     .then((res) => {
       // this is the response from MAL - not found/blank or Already in list or Created
       if (res) {
-        if (res.message === 'Created' || res.message.match(/The anime \(id: \d+\) is already in the list./g)) {
+        if (res.message === 'Created' || res.message === 'Updated') {
           markSuccess(item.id);
         } else {
           markFail(item.id);
-          malError(res.title);
-          if (res.message === 'Invalid ID') notFound(item);
+          malError(`${res.title}: ${res.message}`);
+          if (res.message === 'Invalid ID') notFound(item.title);
         }
       } else {
         // Empty response from MAL means item not found
         markFail(item.id);
-        malError(item.title);
+        malError(`${res.title}: ${res.message}`);
         notFound(item.title);
       }
       // Recursively call until list is empty
@@ -144,4 +144,13 @@ const Ani2Sync = (() => {
 (() => {
   $('#credentials').on('submit', Ani2Sync.sync);
   $('#reset').on('click', Ani2Sync.restart);
+  $('#help').on('click', () => {
+    $('#helpModal').classList.add('is-active');
+  });
+  Array.from($$('.modal-background')).forEach((e) => {
+    e.on('click', () => $('.is-active').classList.remove('is-active'));
+  });
+  Array.from($$('.modal-close')).forEach((e) => {
+    e.on('click', () => $('.is-active').classList.remove('is-active'));
+  });
 })();
