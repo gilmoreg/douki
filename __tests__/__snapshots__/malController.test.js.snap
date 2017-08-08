@@ -1,0 +1,8 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`malController Should update an anime if already in the list 1`] = `
+Object {
+  "message": "{}",
+  "title": "test",
+}
+`;

@@ -19,43 +19,23 @@ describe('malController', () => {
     closeServer();
   });
 
-  it('/mal/add success', (done) => {
-    fetchMock.mock(/.+search.+/g, fakes.malSearchResponse);
-    fetchMock.mock(/.+animelist\/.+/g, fakes.malAddSuccess1);
+  it('Should update an anime if already in the list', (done) => {
+    fetchMock.mock('*', new Error('unmatched fetch'));
+    fetchMock.mock(/.+animelist\/add.+/g, fakes.malAddSuccess1);
+    fetchMock.mock(/.+animelist\/update.+/g, fakes.malUpdateSuccess);
     chai.request(app)
       .post('/mal/add')
       .send({
         auth: 'auth',
         anilist: fakes.aniList,
       })
-      .end((err, res) => {
-        const { malID, title } = res.body;
-        expect(err).toEqual(null);
-        expect(title).toEqual('test');
-        expect(malID).toEqual('269');
+      .then((res) => {
+        expect(res.body).toMatchSnapshot();
         done();
       });
   });
 
-  it('/mal/add search fail response', (done) => {
-    // Search returns empty on no results
-    fetchMock.mock(/.+search.+/g, fakes.malSearchFail);
-    // fetchMock.mock(/.+add\/.+/g, fakes.malAddFail);
-    chai.request(app)
-      .post('/mal/add')
-      .send({
-        auth: 'auth',
-        anilist: fakes.aniList,
-      })
-      .end((err, res) => {
-        expect(err).toEqual(null);
-        expect(res.body).toEqual(null);
-        console.log(res.body);
-        done();
-      });
-  });
-
-  it('/mal/check should verify genuine credentials', (done) => {
+  it.only('/mal/check should verify genuine credentials', (done) => {
     fetchMock.mock(/.+account.+/g, fakes.malAuthSuccess);
     chai.request(app)
       .post('/mal/check')

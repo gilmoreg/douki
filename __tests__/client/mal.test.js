@@ -2,7 +2,7 @@
 /* globals describe, it, beforeEach, afterEach, expect */
 const fetchMock = require('fetch-mock');
 const Mal = require('../../assets/mal');
-const { malAuthSuccess, malAuthFail, malAddSuccess1 } = require('../../helpers/fakes');
+const fakes = require('../../helpers/fakes');
 
 describe('Client side MAL', () => {
   afterEach(() => {
@@ -10,19 +10,24 @@ describe('Client side MAL', () => {
   });
 
   it('check with valid credentials', (done) => {
-    fetchMock.mock('*', '"<?xml version="1.0" encoding="utf-8"?>\n<user>\n  <id>0</id>\n  <username>test</username>\n</user>\n"');
+    fetchMock.mock('/mal/check', { user: 'test', id: 0 }, { method: 'post' });
     Mal.check('test', 'test')
     .then((res) => {
-      console.log('mal check', res);
+      expect(res).toEqual(true);
+      done();
+    });
+  });
+
+  it('check with invalid credentials', (done) => {
+    fetchMock.mock('/mal/check', { }, { method: 'post' });
+    Mal.check('test', 'test')
+    .then((res) => {
+      expect(res).toEqual(false);
       done();
     });
   });
 
   /*
-  it('check with invalid credentials', (done) => {
-    fetchMock.mock('*', {});
-  });
-
   it('add with valid id', (done) => {
     fetchMock.mock('*', {});
   });

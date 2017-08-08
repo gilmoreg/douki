@@ -38,32 +38,37 @@ module.exports = {
     title: 'test',
   },
 
+  malUpdateSuccess: {
+    message: 'Updated',
+    title: 'test',
+  },
+
   malAddFail: {
     message: 'Invalid ID',
     title: 'test',
   },
 
   aniList: {
-    episodes_watched: 0,
-    list_status: 'plan to watch',
+    id: 0,
+    progress: 0,
+    status: 'PLANNING',
     score: 0,
     priority: 0,
-    notes: '',
     title: 'test',
   },
 
   aniListResponse: {
-    id: 0,
-    lists: {
-      completed: [
+    data: {
+      statusLists: [
         {
-          record_id: 0,
-          list_status: 'completed',
-          score: 0,
-          episodes_watched: 0,
-          anime: {
-            id: 0,
-            title_romaji: 'test',
+          status: 'COMPLETED',
+          score: 10,
+          progress: 12,
+          media: {
+            idMal: 0,
+            title: {
+              romaji: 'test',
+            },
           },
         },
       ],
