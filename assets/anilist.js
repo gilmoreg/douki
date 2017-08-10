@@ -29,11 +29,11 @@ const Anilist = (() => {
 
   const fetchList = userId =>
     anilistCall(`
-      query ($userId: Int, $type: MediaType) {
-        MediaListCollection(userId: $userId, type: $type) {
+      query ($userId: Int) {
+        MediaListCollection(userId: $userId, type: ANIME) {
           statusLists {
             status
-            score
+            score(format:POINT_10)
             progress
             media {
               idMal
@@ -44,7 +44,7 @@ const Anilist = (() => {
           }
         }
       }
-    `, { userId, type: 'ANIME' })
+    `, { userId })
     .then(res => res.json())
     .then(res => res.data.MediaListCollection.statusLists)
     .catch(err => Error(err));
