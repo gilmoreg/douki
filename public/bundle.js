@@ -104,7 +104,7 @@ var Anilist = function () {
   };
 
   var fetchList = function fetchList(userId) {
-    return anilistCall('\n      query ($userId: Int, $type: MediaType) {\n        MediaListCollection(userId: $userId, type: $type) {\n          statusLists {\n            status\n            score\n            progress\n            media {\n              idMal\n              title {\n                romaji\n              }\n            }\n          }\n        }\n      }\n    ', { userId: userId, type: 'ANIME' }).then(function (res) {
+    return anilistCall('\n      query ($userId: Int) {\n        MediaListCollection(userId: $userId, type: ANIME) {\n          statusLists {\n            status\n            score(format:POINT_10)\n            progress\n            media {\n              idMal\n              title {\n                romaji\n              }\n            }\n          }\n        }\n      }\n    ', { userId: userId }).then(function (res) {
       return res.json();
     }).then(function (res) {
       return res.data.MediaListCollection.statusLists;
