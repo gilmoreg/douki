@@ -37,7 +37,7 @@ app.use((req, res, next) => {
 
 // Log all requests
 app.use((req, res, next) => {
-  console.info(`${req.method} ${req.url} ${req.body ? JSON.stringify(req.body) : 'No body'}`);
+  console.info(`${req.method} ${req.url}`);
   next();
 });
 
