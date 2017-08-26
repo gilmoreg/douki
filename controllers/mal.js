@@ -74,7 +74,7 @@ const getStatus = (status) => {
   }
 };
 
-const makeXML = a =>
+const makeAnimeXML = a =>
   encodeURIComponent(`
     <?xml version="1.0" encoding="UTF-8"?>
     <entry>
@@ -95,9 +95,31 @@ const makeXML = a =>
     </entry>
     `.trim().replace(/(\r\n|\n|\r)/gm, ''));
 
+const makeMangaXML = m =>
+  encodeURIComponent(`
+    <?xml version="1.0" encoding="UTF-8"?>
+    <entry>
+      <chapter>${m.progress || ''}</chapter>
+      <volume>${m.volumes}</volume>
+      <status>${getStatus(m.status)}</status>
+      <score>${m.score || ''}</score>
+      <times_reread></times_reread>
+      <reread_value></reread_value>
+      <date_start></date_start>
+      <date_finish></date_finish>
+      <priority></priority>
+      <enable_discussion></enable_discussion>
+      <enable_rewatching></enable_rewatching>
+      <comments></comments>
+      <scan_group></scan_group>
+      <tags></tags>
+      <retail_volumes></retail_volumes>        
+    </entry>
+    `.trim().replace(/(\r\n|\n|\r)/gm, ''));
+
 const sync = ({ auth, anilist }, mode) =>
   new Promise(async (resolve, reject) => {
-    const xml = makeXML(anilist);
+    const xml = makeAnimeXML(anilist);
     const malResponse = mode === 'add' ?
       await addToMal(auth, anilist.id, xml) :
       await updateMal(auth, anilist.id, xml);

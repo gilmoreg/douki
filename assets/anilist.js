@@ -29,8 +29,21 @@ const Anilist = (() => {
 
   const fetchList = userId =>
     anilistCall(`
-      query ($userId: Int) {
-        MediaListCollection(userId: $userId, type: ANIME) {
+      query {
+        anime: MediaListCollection(userId: $userId, type: ANIME) {
+          statusLists {
+            status
+            score(format:POINT_10)
+            progress
+            media {
+              idMal
+              title {
+                romaji
+              }
+            }
+          }
+        },
+        manga: MediaListCollection(userId: $userId, type: MANGA) {
           statusLists {
             status
             score(format:POINT_10)
@@ -46,22 +59,37 @@ const Anilist = (() => {
       }
     `, { userId })
     .then(res => res.json())
-    .then(res => res.data.MediaListCollection.statusLists)
+    .then(res => ({
+      anime: res.data.anime.MediaListCollection.statusLists,
+      manga: res.data.manga.MediaListCollection.statusLists,
+    }))
     .catch(err => Error(err));
 
   const buildList = (res) => {
-    if (!res) return [];
-    return [
-      ...res.completed || [],
-      ...res.current || [],
-      ...res.dropped || [],
-      ...res.paused || [],
-      ...res.planning || [],
-    ];
+    if (!res) return { anime: [], manga: [] };
+    const { anime, manga } = res;
+    return {
+      anime: [
+        ...anime.completed || [],
+        ...anime.current || [],
+        ...anime.dropped || [],
+        ...anime.paused || [],
+        ...anime.planning || [],
+      ],
+      manga: [
+        ...manga.completed || [],
+        ...manga.current || [],
+        ...manga.dropped || [],
+        ...manga.paused || [],
+        ...manga.planning || [],
+      ],
+    };
   };
 
-  const sanitize = item => ({
+  const sanitize = (item, type) => ({
+    type,
     progress: item.progress,
+    volumes: item.progressVolumes,
     status: item.status,
     score: item.score,
     id: item.media.idMal,
@@ -77,7 +105,10 @@ const Anilist = (() => {
       getUserId(username)
         .then(userId => fetchList(userId))
         .then(res => buildList(res))
-        .then(res => res.map(item => sanitize(item)))
+        .then(res => ({
+          anime: res.map(item => sanitize(item, 'anime')),
+          manga: res.map(item => sanitize(item, 'manga')),
+        }))
         .catch(err => Error(err)),
     error: msg => error(msg),
   };
