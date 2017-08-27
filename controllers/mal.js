@@ -134,9 +134,7 @@ const sync = ({ auth, anilist }, mode) =>
 module.exports = {
   // POST /mal/add { auth, anilist }
   add: async (req, res) => {
-    console.log('adding');
     const result = await sync(req.body, 'add');
-    console.log(result);
     // If the anime is already in the list, it won't be updated unless we do this
     if (result.message.match(/The anime \(id: \d+\) is already in the list./g)) {
       const updateResult = await sync(req.body, 'update');
