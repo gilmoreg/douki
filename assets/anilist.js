@@ -65,7 +65,7 @@ const Anilist = (() => {
     }))
     .catch(err => Error(err));
 
-  const buildList = (res) => {
+  const buildLists = (res) => {
     if (!res) return { anime: [], manga: [] };
     const { anime, manga } = res;
     return {
@@ -104,11 +104,11 @@ const Anilist = (() => {
     getList: username =>
       getUserId(username)
         .then(userId => fetchList(userId))
-        .then(res => buildList(res))
-        .then(res => ({
-          anime: res.map(item => sanitize(item, 'anime')),
-          manga: res.map(item => sanitize(item, 'manga')),
-        }))
+        .then(res => buildLists(res))
+        .then(lists => [
+          ...lists.anime.map(item => sanitize(item, 'anime')),
+          ...lists.manga.map(item => sanitize(item, 'manga')),
+        ])
         .catch(err => Error(err)),
     error: msg => error(msg),
   };
