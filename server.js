@@ -37,7 +37,7 @@ app.use((req, res, next) => {
 
 // Log all requests
 app.use((req, res, next) => {
-  console.info(`${req.method} ${req.url}`);
+  console.info(`${req.method} ${req.url} ${Date.now()}`);
   next();
 });
 

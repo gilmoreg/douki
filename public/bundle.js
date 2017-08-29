@@ -104,23 +104,34 @@ var Anilist = function () {
   };
 
   var fetchList = function fetchList(userId) {
-    return anilistCall('\n      query ($userId: Int) {\n        MediaListCollection(userId: $userId, type: ANIME) {\n          statusLists {\n            status\n            score(format:POINT_10)\n            progress\n            media {\n              idMal\n              title {\n                romaji\n              }\n            }\n          }\n        }\n      }\n    ', { userId: userId }).then(function (res) {
+    return anilistCall('\n      query {\n        anime: MediaListCollection(userId: $userId, type: ANIME) {\n          statusLists {\n            status\n            score(format:POINT_10)\n            progress\n            media {\n              idMal\n              title {\n                romaji\n              }\n            }\n          }\n        },\n        manga: MediaListCollection(userId: $userId, type: MANGA) {\n          statusLists {\n            status\n            score(format:POINT_10)\n            progress\n            media {\n              idMal\n              title {\n                romaji\n              }\n            }\n          }\n        }\n      }\n    ', { userId: userId }).then(function (res) {
       return res.json();
     }).then(function (res) {
-      return res.data.MediaListCollection.statusLists;
+      return {
+        anime: res.data.anime.MediaListCollection.statusLists,
+        manga: res.data.manga.MediaListCollection.statusLists
+      };
     }).catch(function (err) {
       return Error(err);
     });
   };
 
-  var buildList = function buildList(res) {
-    if (!res) return [];
-    return [].concat(_toConsumableArray(res.completed || []), _toConsumableArray(res.current || []), _toConsumableArray(res.dropped || []), _toConsumableArray(res.paused || []), _toConsumableArray(res.planning || []));
+  var buildLists = function buildLists(res) {
+    if (!res) return { anime: [], manga: [] };
+    var anime = res.anime,
+        manga = res.manga;
+
+    return {
+      anime: [].concat(_toConsumableArray(anime.completed || []), _toConsumableArray(anime.current || []), _toConsumableArray(anime.dropped || []), _toConsumableArray(anime.paused || []), _toConsumableArray(anime.planning || [])),
+      manga: [].concat(_toConsumableArray(manga.completed || []), _toConsumableArray(manga.current || []), _toConsumableArray(manga.dropped || []), _toConsumableArray(manga.paused || []), _toConsumableArray(manga.planning || []))
+    };
   };
 
-  var sanitize = function sanitize(item) {
+  var sanitize = function sanitize(item, type) {
     return {
+      type: type,
       progress: item.progress,
+      volumes: item.progressVolumes,
       status: item.status,
       score: item.score,
       id: item.media.idMal,
@@ -137,11 +148,13 @@ var Anilist = function () {
       return getUserId(username).then(function (userId) {
         return fetchList(userId);
       }).then(function (res) {
-        return buildList(res);
-      }).then(function (res) {
-        return res.map(function (item) {
-          return sanitize(item);
-        });
+        return buildLists(res);
+      }).then(function (lists) {
+        return [].concat(_toConsumableArray(lists.anime.map(function (item) {
+          return sanitize(item, 'anime');
+        })), _toConsumableArray(lists.manga.map(function (item) {
+          return sanitize(item, 'manga');
+        })));
       }).catch(function (err) {
         return Error(err);
       });
@@ -345,7 +358,13 @@ var Ani2Sync = function () {
       Mal.check(malUser, malPass).then(function (res) {
         if (res) {
           var aniUser = $('#anilist-username').value.trim();
-          Anilist.getList(aniUser).then(function (list) {
+          Anilist.getList(aniUser).then(function (lists) {
+            // This should be { anime[], manga[] } now
+            /* So how should we take care of this?
+              Should I write two update functions?
+              The other thing I could do is just make one big list - there's already a type
+              on each one
+            */
             if (list && list.length) {
               // We have good inputs on all three counts; let's go
               // Clear old results
