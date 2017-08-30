@@ -203,6 +203,10 @@ var Mal = function () {
         }
       }).then(function (res) {
         return res.text();
+      })
+      // Strip off leading and tailing double quotes
+      .then(function (text) {
+        return text.replace(/"/g, '');
       }).catch(function (err) {
         return Error(err);
       });
@@ -291,6 +295,7 @@ var Ani2Sync = function () {
     listAnime(item);
     Mal.add(item).then(function (message) {
       // this is the response from MAL - not found/blank or Already in list or Created
+      console.log('mal add message', message);
       if (message) {
         if (message === 'Created' || message === 'Updated') {
           markSuccess(item.id);

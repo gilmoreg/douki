@@ -28,6 +28,8 @@ const Mal = (() => {
         },
       })
       .then(res => res.text())
+      // Strip off leading and tailing double quotes
+      .then(text => text.replace(/"/g, ''))
       .catch(err => Error(err)),
   };
 })();

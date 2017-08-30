@@ -74,6 +74,7 @@ const Ani2Sync = (() => {
     Mal.add(item)
     .then((message) => {
       // this is the response from MAL - not found/blank or Already in list or Created
+      console.log('mal add message', message);
       if (message) {
         if (message === 'Created' || message === 'Updated') {
           markSuccess(item.id);
