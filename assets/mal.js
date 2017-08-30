@@ -33,6 +33,7 @@ const Mal = (() => {
       })
       .then(res => res.json())
       .catch(err => Error(err)),
+
     error: msg => error(msg),
   };
 })();
