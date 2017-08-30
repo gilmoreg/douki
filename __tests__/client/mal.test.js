@@ -1,16 +1,19 @@
-/* eslint-disable no-unused-vars */
-/* globals describe, it, beforeEach, afterEach, expect */
 const fetchMock = require('fetch-mock');
 const Mal = require('../../assets/mal');
 const fakes = require('../../helpers/fakes');
 
 describe('Client side MAL', () => {
+  beforeEach(() => {
+    // Throw error on any fetch calls that aren't mocked
+    fetchMock.catch(500);
+  });
+
   afterEach(() => {
     fetchMock.restore();
   });
 
   it('check with valid credentials', (done) => {
-    fetchMock.mock('/mal/check', { user: 'test', id: 0 }, { method: 'post' });
+    fetchMock.mock('*', fakes.malValidCheckResponse);
     Mal.check('test', 'test')
     .then((res) => {
       expect(res).toEqual(true);
@@ -19,7 +22,7 @@ describe('Client side MAL', () => {
   });
 
   it('check with invalid credentials', (done) => {
-    fetchMock.mock('/mal/check', { }, { method: 'post' });
+    fetchMock.mock('*', fakes.malInvalidCheckResponse);
     Mal.check('test', 'test')
     .then((res) => {
       expect(res).toEqual(false);

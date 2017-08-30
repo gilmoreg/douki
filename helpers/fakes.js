@@ -13,6 +13,14 @@ module.exports = {
     status: 204,
   },
 
+  malValidCheckResponse: {
+    success: '<?xml version="1.0" encoding="utf-8"?>\n<user>\n  <id>000000</id>\n  <username>test</username>\n</user>\n',
+  },
+
+  malInvalidCheckResponse: {
+    success: 'Invalid credentials',
+  },
+
   malAuthSuccess: {
     status: 200,
     headers: {
