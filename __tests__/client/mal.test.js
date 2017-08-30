@@ -39,7 +39,7 @@ describe('Client side MAL', () => {
     });
   });
 
-  it.only('should handle an error from Google Cloud proxy', (done) => {
+  it('should handle an error from Google Cloud proxy', (done) => {
     fetchMock.mock('*', { throws: 'Error' });
     Mal.check('test', 'test')
     .then((res) => {

@@ -121,14 +121,14 @@ const Ani2Sync = (() => {
               return handle(list);
             }
             // Anilist returned nothing
-            Anilist.error(`Anilist.co returned no results for ${aniUser}.`);
+            $('.anilist-error').innerHTML = `Anilist.co returned no results for ${aniUser}.`;
             setTimeout(() => reset(), 3000);
             return error('Anilist.co returned no results.');
           })
           .catch(err => error(err));
         } else {
           // Mal auth check returned false
-          Mal.error('Invaild MAL credentials.');
+          $('.mal-error').innerHTML = 'Invaild MAL credentials.';
           setTimeout(() => reset(), 3000);
           return error('Invaild MAL credentials.');
         }

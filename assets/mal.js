@@ -2,10 +2,6 @@
 const Mal = (() => {
   let auth = '';
 
-  const error = (msg) => {
-    $('.mal-error').innerHTML = msg;
-  };
-
   return {
     check: (user, pass) => {
       const authCheck = btoa(`${user}:${pass}`);
@@ -33,8 +29,6 @@ const Mal = (() => {
       })
       .then(res => res.json())
       .catch(err => Error(err)),
-
-    error: msg => error(msg),
   };
 })();
 

@@ -1,6 +1,3 @@
-/* globals $ */
-// const ANILIST_TOKEN_URL = 'https://ytjv79nzl4.execute-api.us-east-1.amazonaws.com/dev/token';
-
 const Anilist = (() => {
   const anilistCall = (query, variables) =>
     fetch('https://graphql.anilist.co', {
@@ -85,10 +82,6 @@ const Anilist = (() => {
     title: item.media.title.romaji,
   });
 
-  const error = (msg) => {
-    $('.anilist-error').innerHTML = msg;
-  };
-
   return {
     getList: username =>
       fetchList(username)
@@ -98,7 +91,6 @@ const Anilist = (() => {
           ...lists.manga.map(item => sanitize(item, 'manga')),
         ])
         .catch(err => Error(err)),
-    error: msg => error(msg),
   };
 })();
 

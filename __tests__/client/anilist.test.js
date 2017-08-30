@@ -1,25 +1,23 @@
-/* eslint-disable no-unused-vars */
-/* globals describe, it, beforeEach, afterEach, expect */
 const fetchMock = require('fetch-mock');
 const Anilist = require('../../assets/anilist');
-const { aniListResponse, aniListEmptyResponse } = require('../../helpers/fakes');
+const fakes = require('../../helpers/fakes');
 
 describe('Client side Anilist', () => {
-  afterEach(() => {
-    fetchMock.restore();
-  });
+  beforeEach(() => fetchMock.catch(500));
+  afterEach(() => fetchMock.restore());
 
-  it('getList with one result', (done) => {
-    fetchMock.mock('*', aniListResponse);
+  it.only('getList with one result', (done) => {
+    fetchMock.mock('*', fakes.aniListResponse);
     Anilist.getList('test')
     .then((list) => {
-      expect(list[0]).toBeDefined();
+      console.log(list);
+      // expect(list[0]).toBeDefined();
       done();
     });
   });
 
   it('getList with empty results', (done) => {
-    fetchMock.mock('*', aniListEmptyResponse);
+    fetchMock.mock('*', fakes.aniListEmptyResponse);
     Anilist.getList('test')
     .then((list) => {
       expect(list.length).toEqual(0);
