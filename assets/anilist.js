@@ -51,7 +51,6 @@ const Anilist = (() => {
     }));
 
   const buildLists = (res) => {
-    if (!res) return { anime: [], manga: [] };
     const { anime, manga } = res;
     return {
       anime: [

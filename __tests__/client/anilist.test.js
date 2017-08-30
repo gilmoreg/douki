@@ -24,7 +24,7 @@ describe('Client side Anilist', () => {
     });
   });
 
-  it.only('getList with network error', (done) => {
+  it('getList with network error', (done) => {
     fetchMock.mock('*', { throws: Error('timeout') });
     Anilist.getList('test')
     .then((err) => {
