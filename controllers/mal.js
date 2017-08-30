@@ -48,10 +48,7 @@ const getStatus = (status) => {
     case 'PAUSED': return 3;
     case 'DROPPED': return 4;
     case 'PLANNING': return 6;
-    default: {
-      console.error(`unknown status "${status}"`);
-      return '';
-    }
+    default: throw new Error(`unknown status "${status}"`);
   }
 };
 
