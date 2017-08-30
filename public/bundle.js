@@ -115,7 +115,7 @@ var Anilist = function () {
     return {
       type: type,
       progress: item.progress,
-      volumes: item.progressVolumes,
+      progressVolumes: item.progressVolumes,
       status: item.status,
       score: item.score,
       id: item.media.idMal,

@@ -5,20 +5,20 @@ Array [
   Object {
     "id": 0,
     "progress": 12,
+    "progressVolumes": undefined,
     "score": 10,
     "status": "COMPLETED",
     "title": "test",
     "type": "anime",
-    "volumes": undefined,
   },
   Object {
     "id": 0,
     "progress": 12,
+    "progressVolumes": 1,
     "score": 10,
     "status": "COMPLETED",
     "title": "test",
     "type": "manga",
-    "volumes": 1,
   },
 ]
 `;
