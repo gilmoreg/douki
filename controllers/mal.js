@@ -44,17 +44,17 @@ const checkMalCredentials = auth =>
       mal => resolve(malCheckResponse(mal)));
   });
 
-const addToMal = (auth, id, xml) =>
+const addToMal = (auth, type, id, xml) =>
   new Promise((resolve, reject) => {
     malAPICall(auth,
-      `https://myanimelist.net/api/animelist/add/${id}.xml?data=${xml}`,
+      `https://myanimelist.net/api/${type}list/add/${id}.xml?data=${xml}`,
       mal => resolve(mal));
   });
 
-const updateMal = (auth, id, xml) =>
+const updateMal = (auth, type, id, xml) =>
   new Promise((resolve, reject) => {
     malAPICall(auth,
-      `https://myanimelist.net/api/animelist/update/${id}.xml?data=${xml}`,
+      `https://myanimelist.net/api/${type}list/update/${id}.xml?data=${xml}`,
       mal => resolve(mal));
   });
 
@@ -121,8 +121,8 @@ const sync = ({ auth, anilist }, mode) =>
   new Promise(async (resolve, reject) => {
     const xml = makeAnimeXML(anilist);
     const malResponse = mode === 'add' ?
-      await addToMal(auth, anilist.id, xml) :
-      await updateMal(auth, anilist.id, xml);
+      await addToMal(auth, anilist.type, anilist.id, xml) :
+      await updateMal(auth, anilist.type, anilist.id, xml);
     if (malResponse) {
       resolve({
         message: malResponse,
