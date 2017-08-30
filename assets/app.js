@@ -106,7 +106,6 @@ const Ani2Sync = (() => {
           const aniUser = $('#anilist-username').value.trim();
           Anilist.getList(aniUser)
           .then((list) => {
-            console.log('lists', list);
             if (list && list.length) {
               // We have good inputs on all counts; let's go
               // Clear old results

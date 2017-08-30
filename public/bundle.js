@@ -202,7 +202,7 @@ var Mal = function () {
           'Content-Type': 'application/json'
         }
       }).then(function (res) {
-        return res.json();
+        return res.text();
       }).catch(function (err) {
         return Error(err);
       });
@@ -322,7 +322,6 @@ var Ani2Sync = function () {
         if (res) {
           var aniUser = $('#anilist-username').value.trim();
           Anilist.getList(aniUser).then(function (list) {
-            console.log('lists', list);
             if (list && list.length) {
               // We have good inputs on all counts; let's go
               // Clear old results

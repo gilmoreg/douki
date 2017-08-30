@@ -27,7 +27,7 @@ const Mal = (() => {
           'Content-Type': 'application/json',
         },
       })
-      .then(res => res.json())
+      .then(res => res.text())
       .catch(err => Error(err)),
   };
 })();
