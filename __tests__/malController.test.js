@@ -34,33 +34,5 @@ describe('malController', () => {
         done();
       });
   });
-
-  it('/mal/check should verify genuine credentials', (done) => {
-    fetchMock.mock(/.+account.+/g, fakes.malAuthSuccess);
-    chai.request(app)
-      .post('/mal/check')
-      .send({
-        auth: 'test',
-      })
-      .end((err, res) => {
-        expect(err).toEqual(null);
-        expect(res.body).toBeDefined();
-        done();
-      });
-  });
-
-  it('/mal/check should reject invalid credentials', (done) => {
-    fetchMock.mock(/.+account.+/g, fakes.malAuthFail);
-    chai.request(app)
-      .post('/mal/check')
-      .send({
-        auth: 'test',
-      })
-      .end((err, res) => {
-        expect(err).toEqual(null);
-        expect(res.body).toEqual('Invalid credentials');
-        done();
-      });
-  });
 });
 

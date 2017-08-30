@@ -25,18 +25,6 @@ const malAPICall = (auth, url, cb) => {
   callQueue.push([auth, url, cb]);
 };
 
-const malCheckResponse = mal =>
-  new Promise((resolve, reject) => {
-    if (mal) {
-      if (mal === 'Invalid credentials') resolve(mal);
-      parser.parseString(mal, async (err, data) => {
-        if (err) reject(err);
-        resolve(data);
-      });
-    }
-    return reject('Empty response from MAL on auth check');
-  });
-
 const addToMal = (auth, type, id, xml) =>
   new Promise((resolve, reject) => {
     malAPICall(auth,
