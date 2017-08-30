@@ -1,0 +1,24 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Client side Anilist getList should return a valid list 1`] = `
+Array [
+  Object {
+    "id": 0,
+    "progress": 12,
+    "score": 10,
+    "status": "COMPLETED",
+    "title": "test",
+    "type": "anime",
+    "volumes": undefined,
+  },
+  Object {
+    "id": 0,
+    "progress": 12,
+    "score": 10,
+    "status": "COMPLETED",
+    "title": "test",
+    "type": "manga",
+    "volumes": 1,
+  },
+]
+`;

@@ -60,45 +60,57 @@ module.exports = {
   aniListResponse: {
     data: {
       anime: {
-        statusLists: [
-          {
-            status: 'COMPLETED',
-            score: 10,
-            progress: 12,
-            media: {
-              idMal: 0,
-              title: {
-                romaji: 'test',
+        statusLists: {
+          completed: [
+            {
+              status: 'COMPLETED',
+              score: 10,
+              progress: 12,
+              media: {
+                idMal: 0,
+                title: {
+                  romaji: 'test',
+                },
               },
             },
-          },
-        ],
+          ],
+        },
       },
       manga: {
-        statusLists: [
-          {
-            status: 'COMPLETED',
-            score: 10,
-            progress: 12,
-            progressVolumes: 1,
-            media: {
-              idMal: 0,
-              title: {
-                romaji: 'test',
+        statusLists: {
+          completed: [
+            {
+              status: 'COMPLETED',
+              score: 10,
+              progress: 12,
+              progressVolumes: 1,
+              media: {
+                idMal: 0,
+                title: {
+                  romaji: 'test',
+                },
               },
             },
-          },
-        ],
+          ],
+        },
       },
     },
   },
 
   aniListEmptyResponse: {
-    error: {
-      status: 404,
-      messages: [
-        'No query results for model [App\\AniList\\v1\\User\\User] test',
-      ],
+    data: {
+      anime: null,
+      manga: null,
     },
+    errors: [
+      {
+        message: 'Internal Server Error',
+        status: 500,
+      },
+      {
+        message: 'Internal Server Error',
+        status: 500,
+      },
+    ],
   },
 };

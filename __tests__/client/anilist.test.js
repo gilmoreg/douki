@@ -6,21 +6,20 @@ describe('Client side Anilist', () => {
   beforeEach(() => fetchMock.catch(500));
   afterEach(() => fetchMock.restore());
 
-  it.only('getList with one result', (done) => {
+  it('getList should return a valid list', (done) => {
     fetchMock.mock('*', fakes.aniListResponse);
     Anilist.getList('test')
     .then((list) => {
-      console.log(list);
-      // expect(list[0]).toBeDefined();
+      expect(list).toMatchSnapshot();
       done();
     });
   });
 
-  it('getList with empty results', (done) => {
+  it.only('getList with empty results', (done) => {
     fetchMock.mock('*', fakes.aniListEmptyResponse);
     Anilist.getList('test')
     .then((list) => {
-      expect(list.length).toEqual(0);
+      console.log(list);
       done();
     });
   });

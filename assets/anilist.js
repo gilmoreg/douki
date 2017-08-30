@@ -48,8 +48,7 @@ const Anilist = (() => {
     .then(res => ({
       anime: res.data.anime.statusLists,
       manga: res.data.manga.statusLists,
-    }))
-    .catch(err => Error(err));
+    }));
 
   const buildLists = (res) => {
     if (!res) return { anime: [], manga: [] };
