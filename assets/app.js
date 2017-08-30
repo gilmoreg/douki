@@ -73,20 +73,20 @@ const Ani2Sync = (() => {
     // add anime to results to be marked success/fail later
     listAnime(item);
     Mal.add(item)
-    .then((res) => {
+    .then((message) => {
       // this is the response from MAL - not found/blank or Already in list or Created
-      if (res) {
-        if (res.message === 'Created' || res.message === 'Updated') {
+      if (message) {
+        if (message === 'Created' || message === 'Updated') {
           markSuccess(item.id);
         } else {
           markFail(item.id);
-          malError(`${res.title}: ${res.message}`);
-          if (res.message === 'Invalid ID') notFound(item.title);
+          malError(`${item.title}: ${message}`);
+          if (message === 'Invalid ID') notFound(item.title);
         }
       } else {
         // Empty response from MAL means item not found
         markFail(item.id);
-        malError(`${res.title}: ${res.message}`);
+        malError(`${item.title}: ${message}`);
         notFound(item.title);
       }
       // Recursively call until list is empty
