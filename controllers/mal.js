@@ -37,13 +37,6 @@ const malCheckResponse = mal =>
     return reject('Empty response from MAL on auth check');
   });
 
-const checkMalCredentials = auth =>
-  new Promise((resolve, reject) => {
-    malAPICall(auth,
-      'https://myanimelist.net/api/account/verify_credentials.xml',
-      mal => resolve(malCheckResponse(mal)));
-  });
-
 const addToMal = (auth, type, id, xml) =>
   new Promise((resolve, reject) => {
     malAPICall(auth,
@@ -140,10 +133,5 @@ module.exports = {
       const updateResult = await sync(req.body, 'update');
       res.status(200).json(updateResult);
     } else res.status(200).json(result);
-  },
-  // POST /mal/check { auth }
-  check: async (req, res) => {
-    const results = await checkMalCredentials(req.body.auth);
-    res.status(200).json(results);
   },
 };
