@@ -81,7 +81,7 @@ const makeMangaXML = m =>
     <?xml version="1.0" encoding="UTF-8"?>
     <entry>
       <chapter>${m.progress || ''}</chapter>
-      <volume>${m.volumes}</volume>
+      <volume>${m.volumesProgress}</volume>
       <status>${getStatus(m.status)}</status>
       <score>${m.score || ''}</score>
       <times_reread></times_reread>
@@ -100,23 +100,20 @@ const makeMangaXML = m =>
 
 const sync = ({ auth, anilist }, mode) =>
   new Promise(async (resolve, reject) => {
-    const xml = makeAnimeXML(anilist);
+    const xml = anilist.type === 'anime' ? makeAnimeXML(anilist) :
+      makeMangaXML(anilist);
     const malResponse = mode === 'add' ?
       await addToMal(auth, anilist.type, anilist.id, xml) :
       await updateMal(auth, anilist.type, anilist.id, xml);
-    if (malResponse) {
-      resolve({
-        message: malResponse,
-        title: anilist.title,
-      });
-    } else resolve(null);
+    if (malResponse) resolve(JSON.parse(malResponse));
+    else resolve(null);
   });
 
 module.exports = {
   // POST /mal/add { auth, anilist }
   add: async (req, res) => {
     const result = await sync(req.body, 'add');
-    // If the anime is already in the list, it won't be updated unless we do this
+    // If the item is already in the list, it won't be updated unless we do this
     if (result.message.match(/.+\(id: \d+\) is already in the list./g)) {
       const updateResult = await sync(req.body, 'update');
       res.status(200).json(updateResult);

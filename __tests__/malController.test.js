@@ -12,6 +12,7 @@ chai.use(chaiHttp);
 
 describe('malController', () => {
   beforeEach(() => {
+    fetchMock.catch(500);
     runServer(5000);
   });
   afterEach(() => {
@@ -20,14 +21,28 @@ describe('malController', () => {
   });
 
   it('Should update an anime if already in the list', (done) => {
-    fetchMock.mock('*', new Error('unmatched fetch'));
-    fetchMock.mock(/.+animelist\/add.+/g, fakes.malAddSuccess1);
+    fetchMock.mock(/.+animelist\/add.+/g, fakes.malAnimeAddAlreadyInList);
     fetchMock.mock(/.+animelist\/update.+/g, fakes.malUpdateSuccess);
     chai.request(app)
       .post('/mal/add')
       .send({
         auth: 'auth',
-        anilist: fakes.aniList,
+        anilist: fakes.aniListAnime,
+      })
+      .then((res) => {
+        expect(res.body).toMatchSnapshot();
+        done();
+      });
+  });
+
+  it('Should update a manga if it is already in the list', (done) => {
+    fetchMock.mock(/.+mangalist\/add.+/g, fakes.malMangaAddAlreadyInList);
+    fetchMock.mock(/.+mangalist\/update.+/g, fakes.malUpdateSuccess);
+    chai.request(app)
+      .post('/mal/add')
+      .send({
+        auth: 'auth',
+        anilist: fakes.aniListManga,
       })
       .then((res) => {
         expect(res.body).toMatchSnapshot();

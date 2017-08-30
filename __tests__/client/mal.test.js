@@ -29,13 +29,4 @@ describe('Client side MAL', () => {
       done();
     });
   });
-
-  /*
-  it('add with valid id', (done) => {
-    fetchMock.mock('*', {});
-  });
-
-  it('add with invalid id', (done) => {
-    fetchMock.mock('*', {});
-  }); */
 });
