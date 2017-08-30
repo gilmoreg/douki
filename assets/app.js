@@ -106,14 +106,10 @@ const Ani2Sync = (() => {
         if (res) {
           const aniUser = $('#anilist-username').value.trim();
           Anilist.getList(aniUser)
-          .then((lists) => { // This should be { anime[], manga[] } now
-          /* So how should we take care of this?
-            Should I write two update functions?
-            The other thing I could do is just make one big list - there's already a type
-            on each one
-          */
+          .then((list) => {
+            console.log('lists', list);
             if (list && list.length) {
-              // We have good inputs on all three counts; let's go
+              // We have good inputs on all counts; let's go
               // Clear old results
               reset();
               // Switch views

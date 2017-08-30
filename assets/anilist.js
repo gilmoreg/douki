@@ -15,22 +15,10 @@ const Anilist = (() => {
       }),
     });
 
-  const getUserId = name =>
+  const fetchList = userName =>
     anilistCall(`
-      query ($name: String) {
-        User (name: $name) {
-          id
-        }
-      }
-    `, { name })
-    .then(res => res.json())
-    .then(res => res.data.User.id)
-    .catch(err => Error(err));
-
-  const fetchList = userId =>
-    anilistCall(`
-      query {
-        anime: MediaListCollection(userId: $userId, type: ANIME) {
+      query ($userName: String) {
+        anime: MediaListCollection(userName: $userName, type: ANIME) {
           statusLists {
             status
             score(format:POINT_10)
@@ -43,11 +31,12 @@ const Anilist = (() => {
             }
           }
         },
-        manga: MediaListCollection(userId: $userId, type: MANGA) {
+        manga: MediaListCollection(userName: $userName, type: MANGA) {
           statusLists {
             status
             score(format:POINT_10)
             progress
+            progressVolumes
             media {
               idMal
               title {
@@ -57,11 +46,11 @@ const Anilist = (() => {
           }
         }
       }
-    `, { userId })
+    `, { userName })
     .then(res => res.json())
     .then(res => ({
-      anime: res.data.anime.MediaListCollection.statusLists,
-      manga: res.data.manga.MediaListCollection.statusLists,
+      anime: res.data.anime.statusLists,
+      manga: res.data.manga.statusLists,
     }))
     .catch(err => Error(err));
 
@@ -102,8 +91,7 @@ const Anilist = (() => {
 
   return {
     getList: username =>
-      getUserId(username)
-        .then(userId => fetchList(userId))
+      fetchList(username)
         .then(res => buildLists(res))
         .then(lists => [
           ...lists.anime.map(item => sanitize(item, 'anime')),

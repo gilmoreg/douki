@@ -93,23 +93,13 @@ var Anilist = function () {
     });
   };
 
-  var getUserId = function getUserId(name) {
-    return anilistCall('\n      query ($name: String) {\n        User (name: $name) {\n          id\n        }\n      }\n    ', { name: name }).then(function (res) {
-      return res.json();
-    }).then(function (res) {
-      return res.data.User.id;
-    }).catch(function (err) {
-      return Error(err);
-    });
-  };
-
-  var fetchList = function fetchList(userId) {
-    return anilistCall('\n      query {\n        anime: MediaListCollection(userId: $userId, type: ANIME) {\n          statusLists {\n            status\n            score(format:POINT_10)\n            progress\n            media {\n              idMal\n              title {\n                romaji\n              }\n            }\n          }\n        },\n        manga: MediaListCollection(userId: $userId, type: MANGA) {\n          statusLists {\n            status\n            score(format:POINT_10)\n            progress\n            media {\n              idMal\n              title {\n                romaji\n              }\n            }\n          }\n        }\n      }\n    ', { userId: userId }).then(function (res) {
+  var fetchList = function fetchList(userName) {
+    return anilistCall('\n      query ($userName: String) {\n        anime: MediaListCollection(userName: $userName, type: ANIME) {\n          statusLists {\n            status\n            score(format:POINT_10)\n            progress\n            media {\n              idMal\n              title {\n                romaji\n              }\n            }\n          }\n        },\n        manga: MediaListCollection(userName: $userName, type: MANGA) {\n          statusLists {\n            status\n            score(format:POINT_10)\n            progress\n            progressVolumes\n            media {\n              idMal\n              title {\n                romaji\n              }\n            }\n          }\n        }\n      }\n    ', { userName: userName }).then(function (res) {
       return res.json();
     }).then(function (res) {
       return {
-        anime: res.data.anime.MediaListCollection.statusLists,
-        manga: res.data.manga.MediaListCollection.statusLists
+        anime: res.data.anime.statusLists,
+        manga: res.data.manga.statusLists
       };
     }).catch(function (err) {
       return Error(err);
@@ -145,9 +135,7 @@ var Anilist = function () {
 
   return {
     getList: function getList(username) {
-      return getUserId(username).then(function (userId) {
-        return fetchList(userId);
-      }).then(function (res) {
+      return fetchList(username).then(function (res) {
         return buildLists(res);
       }).then(function (lists) {
         return [].concat(_toConsumableArray(lists.anime.map(function (item) {
@@ -206,18 +194,13 @@ var Mal = function () {
 
   return {
     check: function check(user, pass) {
-      return fetch('/mal/check', {
-        method: 'post',
-        body: JSON.stringify({ auth: btoa(user + ':' + pass) }),
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json'
-        }
-      }).then(function (res) {
+      var authCheck = btoa(user + ':' + pass);
+      var url = 'https://us-central1-douki-178418.cloudfunctions.net/mal-proxy/check?auth=' + authCheck;
+      return fetch(url).then(function (res) {
         return res.json();
       }).then(function (res) {
-        if (res.user) {
-          auth = btoa(user + ':' + pass);
+        if (res.success && res.success.includes('username')) {
+          auth = authCheck;
           return true;
         }
         return false;
@@ -358,15 +341,10 @@ var Ani2Sync = function () {
       Mal.check(malUser, malPass).then(function (res) {
         if (res) {
           var aniUser = $('#anilist-username').value.trim();
-          Anilist.getList(aniUser).then(function (lists) {
-            // This should be { anime[], manga[] } now
-            /* So how should we take care of this?
-              Should I write two update functions?
-              The other thing I could do is just make one big list - there's already a type
-              on each one
-            */
+          Anilist.getList(aniUser).then(function (list) {
+            console.log('lists', list);
             if (list && list.length) {
-              // We have good inputs on all three counts; let's go
+              // We have good inputs on all counts; let's go
               // Clear old results
               reset();
               // Switch views
