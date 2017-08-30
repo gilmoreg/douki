@@ -102,7 +102,6 @@ const sync = ({ auth, anilist }, mode) =>
     const malResponse = mode === 'add' ?
       await addToMal(auth, anilist.type, anilist.id, xml) :
       await updateMal(auth, anilist.type, anilist.id, xml);
-    console.log('malResponse', malResponse, typeof malResponse);
     if (malResponse) resolve(malResponse);
     else resolve(null);
   });
