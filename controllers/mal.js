@@ -97,7 +97,8 @@ const makeMangaXML = m =>
 
 const sync = ({ auth, anilist }, mode) =>
   new Promise(async (resolve, reject) => {
-    const xml = anilist.type === 'anime' ? makeAnimeXML(anilist) :
+    const xml = anilist.type === 'anime' ?
+      makeAnimeXML(anilist) :
       makeMangaXML(anilist);
     const malResponse = mode === 'add' ?
       await addToMal(auth, anilist.type, anilist.id, xml) :
