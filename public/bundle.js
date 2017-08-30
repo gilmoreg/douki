@@ -232,7 +232,6 @@ var Ani2Sync = function () {
   // For errors related to bad credentials, API errors etc.
   var error = function error(msg) {
     console.error(msg);
-    // TODO display something in the DOM
   };
 
   var reset = function reset() {

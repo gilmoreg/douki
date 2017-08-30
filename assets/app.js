@@ -11,7 +11,6 @@ const Ani2Sync = (() => {
   // For errors related to bad credentials, API errors etc.
   const error = (msg) => {
     console.error(msg);
-    // TODO display something in the DOM
   };
 
   const reset = () => {
