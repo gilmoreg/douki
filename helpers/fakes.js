@@ -1,4 +1,5 @@
 module.exports = {
+  // Google Cloud Function responses
   malValidCheckResponse: {
     success: '<?xml version="1.0" encoding="utf-8"?>\n<user>\n  <id>000000</id>\n  <username>test</username>\n</user>\n',
   },
@@ -7,34 +8,13 @@ module.exports = {
     success: 'Invalid credentials',
   },
 
-  malAnimeAddAlreadyInList: {
-    body: {
-      message: 'The anime (id: 0) is already in the list.',
-      title: 'test',
-    },
-  },
-
-  malAddSuccess: {
-    message: 'Created',
-    title: 'test',
-  },
-
-  malUpdateSuccess: {
-    message: 'Updated',
-    title: 'test',
-  },
-
-  malMangaAddAlreadyInList: {
-    body: {
-      message: 'The manga (id: 0) is already in the list.',
-      title: 'test',
-    },
-  },
-
-  malAddFail: {
-    message: 'Invalid ID',
-    title: 'test',
-  },
+  // MAL Add/Update responses
+  malAnimeAddAlreadyInList: 'The anime (id: 0) is already in the list.',
+  malAddSuccess: 'Created',
+  malUpdateSuccess: 'Updated',
+  malMangaAddAlreadyInList: 'The manga (id: 0) is already in the list.',
+  malAddFail: 'Invalid ID',
+  malAuthFail: 'Too many invalid logins',
 
   aniListAnime: {
     id: 0,
@@ -57,6 +37,7 @@ module.exports = {
     type: 'manga',
   },
 
+  // AL responses
   aniListResponse: {
     data: {
       anime: {

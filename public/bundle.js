@@ -75,9 +75,6 @@
 
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
-/* globals $ */
-// const ANILIST_TOKEN_URL = 'https://ytjv79nzl4.execute-api.us-east-1.amazonaws.com/dev/token';
-
 var Anilist = function () {
   var anilistCall = function anilistCall(query, variables) {
     return fetch('https://graphql.anilist.co', {
@@ -101,13 +98,10 @@ var Anilist = function () {
         anime: res.data.anime.statusLists,
         manga: res.data.manga.statusLists
       };
-    }).catch(function (err) {
-      return Error(err);
     });
   };
 
   var buildLists = function buildLists(res) {
-    if (!res) return { anime: [], manga: [] };
     var anime = res.anime,
         manga = res.manga;
 
@@ -129,10 +123,6 @@ var Anilist = function () {
     };
   };
 
-  var _error = function _error(msg) {
-    $('.anilist-error').innerHTML = msg;
-  };
-
   return {
     getList: function getList(username) {
       return fetchList(username).then(function (res) {
@@ -144,11 +134,9 @@ var Anilist = function () {
           return sanitize(item, 'manga');
         })));
       }).catch(function (err) {
-        return Error(err);
+        console.error('Anilist getList error', err);
+        return 'No data found for user ' + username;
       });
-    },
-    error: function error(msg) {
-      return _error(msg);
     }
   };
 }();
@@ -188,10 +176,6 @@ NodeList.prototype.on = NodeList.prototype.addEventListener = function (name, fn
 var Mal = function () {
   var auth = '';
 
-  var _error = function _error(msg) {
-    $('.mal-error').innerHTML = msg;
-  };
-
   return {
     check: function check(user, pass) {
       var authCheck = btoa(user + ':' + pass);
@@ -222,9 +206,6 @@ var Mal = function () {
       }).catch(function (err) {
         return Error(err);
       });
-    },
-    error: function error(msg) {
-      return _error(msg);
     }
   };
 }();
@@ -356,7 +337,7 @@ var Ani2Sync = function () {
               return handle(list);
             }
             // Anilist returned nothing
-            Anilist.error('Anilist.co returned no results for ' + aniUser + '.');
+            $('.anilist-error').innerHTML = 'Anilist.co returned no results for ' + aniUser + '.';
             setTimeout(function () {
               return reset();
             }, 3000);
@@ -366,7 +347,7 @@ var Ani2Sync = function () {
           });
         } else {
           // Mal auth check returned false
-          Mal.error('Invaild MAL credentials.');
+          $('.mal-error').innerHTML = 'Invaild MAL credentials.';
           setTimeout(function () {
             return reset();
           }, 3000);

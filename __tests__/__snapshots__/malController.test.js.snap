@@ -1,15 +1,5 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`malController Should update a manga if it is already in the list 1`] = `
-Object {
-  "message": "Updated",
-  "title": "test",
-}
-`;
+exports[`malController Should update a manga if it is already in the list 1`] = `"Updated"`;
 
-exports[`malController Should update an anime if already in the list 1`] = `
-Object {
-  "message": "Updated",
-  "title": "test",
-}
-`;
+exports[`malController Should update an anime if already in the list 1`] = `"Updated"`;

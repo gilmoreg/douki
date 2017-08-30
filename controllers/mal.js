@@ -102,7 +102,8 @@ const sync = ({ auth, anilist }, mode) =>
     const malResponse = mode === 'add' ?
       await addToMal(auth, anilist.type, anilist.id, xml) :
       await updateMal(auth, anilist.type, anilist.id, xml);
-    if (malResponse) resolve(JSON.parse(malResponse));
+    console.log('malResponse', malResponse, typeof malResponse);
+    if (malResponse) resolve(malResponse);
     else resolve(null);
   });
 
@@ -111,7 +112,7 @@ module.exports = {
   add: async (req, res) => {
     const result = await sync(req.body, 'add');
     // If the item is already in the list, it won't be updated unless we do this
-    if (result.message.match(/.+\(id: \d+\) is already in the list./g)) {
+    if (result.match(/.+\(id: \d+\) is already in the list./g)) {
       const updateResult = await sync(req.body, 'update');
       res.status(200).json(updateResult);
     } else res.status(200).json(result);

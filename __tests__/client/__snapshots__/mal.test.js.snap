@@ -1,11 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Client side MAL add should add an anime 1`] = `
-Object {
-  "message": "Created",
-  "title": "test",
-}
-`;
+exports[`Client side MAL add should add an anime 1`] = `[Error: SyntaxError: Unexpected token C in JSON at position 0]`;
 
 exports[`Client side MAL should handle an error from Google Cloud proxy 1`] = `[Error: Error]`;
 
