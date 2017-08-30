@@ -22,3 +22,7 @@ Array [
   },
 ]
 `;
+
+exports[`Client side Anilist getList with empty results 1`] = `"No data found for user test"`;
+
+exports[`Client side Anilist getList with network error 1`] = `"No data found for user test"`;

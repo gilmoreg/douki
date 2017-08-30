@@ -15,20 +15,20 @@ describe('Client side Anilist', () => {
     });
   });
 
-  it.only('getList with empty results', (done) => {
+  it('getList with empty results', (done) => {
     fetchMock.mock('*', fakes.aniListEmptyResponse);
     Anilist.getList('test')
-    .then((list) => {
-      console.log(list);
+    .then((err) => {
+      expect(err).toMatchSnapshot();
       done();
     });
   });
 
-  it('getList with network error', (done) => {
+  it.only('getList with network error', (done) => {
     fetchMock.mock('*', { throws: Error('timeout') });
     Anilist.getList('test')
-    .then((list) => {
-      expect(list.length).toEqual(0);
+    .then((err) => {
+      expect(err).toMatchSnapshot();
       done();
     });
   });

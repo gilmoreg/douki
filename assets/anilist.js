@@ -89,7 +89,10 @@ const Anilist = (() => {
           ...lists.anime.map(item => sanitize(item, 'anime')),
           ...lists.manga.map(item => sanitize(item, 'manga')),
         ])
-        .catch(err => Error(err)),
+        .catch((err) => {
+          console.error('Anilist getList error', err);
+          return `No data found for user ${username}`;
+        }),
   };
 })();
 
