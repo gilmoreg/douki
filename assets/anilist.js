@@ -1,4 +1,38 @@
 const Anilist = (() => {
+  /*
+    Anilist response takes the following form:
+    data: {
+      anime: {
+        statusLists: {
+          completed: [],
+          planning: [],
+          etc.
+        },
+        customLists: { etc. },
+      },
+      manga: {
+        statusLists: { etc. },
+        customLists: { etc. },
+      }
+    }
+    'data' is stripped off by the fetch function
+
+    flatten() combines the statusLists and customLists, and all of the lists embedded in them,
+    and creates one big flat array of items
+  */
+  const flatten = obj =>
+  // Outer reduce concats arrays built by inner reduce
+    Object.keys(obj).reduce((accumulator, list) =>
+      // Inner reduce builds an array out of the lists
+      accumulator.concat(Object.keys(obj[list]).reduce((acc2, item) =>
+        acc2.concat(obj[list][item]), [])), []);
+
+  // Remove duplicates from array
+  const uniqify = (arr) => {
+    const seen = new Set();
+    return arr.filter(item => (seen.has(item.media.idMal) ? false : seen.add(item.media.idMal)));
+  };
+
   const anilistCall = (query, variables) =>
     fetch('https://graphql.anilist.co', {
       method: 'POST',
@@ -26,10 +60,33 @@ const Anilist = (() => {
                 romaji
               }
             }
+          },
+          customLists {
+            status
+            score(format:POINT_10)
+            progress
+            media {
+              idMal
+              title {
+                romaji
+              }
+            }
           }
         },
         manga: MediaListCollection(userName: $userName, type: MANGA) {
           statusLists {
+            status
+            score(format:POINT_10)
+            progress
+            progressVolumes
+            media {
+              idMal
+              title {
+                romaji
+              }
+            }
+          },
+          customLists {
             status
             score(format:POINT_10)
             progress
@@ -45,30 +102,11 @@ const Anilist = (() => {
       }
     `, { userName })
     .then(res => res.json())
+    .then(res => res.data)
     .then(res => ({
-      anime: res.data.anime.statusLists,
-      manga: res.data.manga.statusLists,
+      anime: uniqify(flatten(res.anime)),
+      manga: uniqify(flatten(res.manga)),
     }));
-
-  const buildLists = (res) => {
-    const { anime, manga } = res;
-    return {
-      anime: [
-        ...anime.completed || [],
-        ...anime.current || [],
-        ...anime.dropped || [],
-        ...anime.paused || [],
-        ...anime.planning || [],
-      ],
-      manga: [
-        ...manga.completed || [],
-        ...manga.current || [],
-        ...manga.dropped || [],
-        ...manga.paused || [],
-        ...manga.planning || [],
-      ],
-    };
-  };
 
   const sanitize = (item, type) => ({
     type,
@@ -83,7 +121,6 @@ const Anilist = (() => {
   return {
     getList: username =>
       fetchList(username)
-        .then(res => buildLists(res))
         .then(lists => [
           ...lists.anime.map(item => sanitize(item, 'anime')),
           ...lists.manga.map(item => sanitize(item, 'manga')),

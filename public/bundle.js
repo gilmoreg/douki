@@ -76,6 +76,48 @@
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
 var Anilist = function () {
+  /*
+    Anilist response takes the following form:
+    data: {
+      anime: {
+        statusLists: {
+          completed: [],
+          planning: [],
+          etc.
+        },
+        customLists: { etc. },
+      },
+      manga: {
+        statusLists: { etc. },
+        customLists: { etc. },
+      }
+    }
+    'data' is stripped off by the fetch function
+     flatten() combines the statusLists and customLists, and all of the lists embedded in them,
+    and creates one big flat array of items
+  */
+  var flatten = function flatten(obj) {
+    return (
+      // Outer reduce concats arrays built by inner reduce
+      Object.keys(obj).reduce(function (accumulator, list) {
+        return (
+          // Inner reduce builds an array out of the lists
+          accumulator.concat(Object.keys(obj[list]).reduce(function (acc2, item) {
+            return acc2.concat(obj[list][item]);
+          }, []))
+        );
+      }, [])
+    );
+  };
+
+  // Remove duplicates from array
+  var uniqify = function uniqify(arr) {
+    var seen = new Set();
+    return arr.filter(function (item) {
+      return seen.has(item.media.idMal) ? false : seen.add(item.media.idMal);
+    });
+  };
+
   var anilistCall = function anilistCall(query, variables) {
     return fetch('https://graphql.anilist.co', {
       method: 'POST',
@@ -91,24 +133,22 @@ var Anilist = function () {
   };
 
   var fetchList = function fetchList(userName) {
-    return anilistCall('\n      query ($userName: String) {\n        anime: MediaListCollection(userName: $userName, type: ANIME) {\n          statusLists {\n            status\n            score(format:POINT_10)\n            progress\n            media {\n              idMal\n              title {\n                romaji\n              }\n            }\n          }\n        },\n        manga: MediaListCollection(userName: $userName, type: MANGA) {\n          statusLists {\n            status\n            score(format:POINT_10)\n            progress\n            progressVolumes\n            media {\n              idMal\n              title {\n                romaji\n              }\n            }\n          }\n        }\n      }\n    ', { userName: userName }).then(function (res) {
+    return anilistCall('\n      query ($userName: String) {\n        anime: MediaListCollection(userName: $userName, type: ANIME) {\n          statusLists {\n            status\n            score(format:POINT_10)\n            progress\n            media {\n              idMal\n              title {\n                romaji\n              }\n            }\n          },\n          customLists {\n            status\n            score(format:POINT_10)\n            progress\n            media {\n              idMal\n              title {\n                romaji\n              }\n            }\n          }\n        },\n        manga: MediaListCollection(userName: $userName, type: MANGA) {\n          statusLists {\n            status\n            score(format:POINT_10)\n            progress\n            progressVolumes\n            media {\n              idMal\n              title {\n                romaji\n              }\n            }\n          },\n          customLists {\n            status\n            score(format:POINT_10)\n            progress\n            progressVolumes\n            media {\n              idMal\n              title {\n                romaji\n              }\n            }\n          }\n        }\n      }\n    ', { userName: userName }).then(function (res) {
       return res.json();
     }).then(function (res) {
+      return res.data;
+    }).then(function (res) {
+      console.log(res);
+      return res;
+    }).then(function (res) {
       return {
-        anime: res.data.anime.statusLists,
-        manga: res.data.manga.statusLists
+        anime: uniqify(flatten(res.anime)),
+        manga: uniqify(flatten(res.manga))
       };
+    }).then(function (res) {
+      console.log(res);
+      return res;
     });
-  };
-
-  var buildLists = function buildLists(res) {
-    var anime = res.anime,
-        manga = res.manga;
-
-    return {
-      anime: [].concat(_toConsumableArray(anime.completed || []), _toConsumableArray(anime.current || []), _toConsumableArray(anime.dropped || []), _toConsumableArray(anime.paused || []), _toConsumableArray(anime.planning || [])),
-      manga: [].concat(_toConsumableArray(manga.completed || []), _toConsumableArray(manga.current || []), _toConsumableArray(manga.dropped || []), _toConsumableArray(manga.paused || []), _toConsumableArray(manga.planning || []))
-    };
   };
 
   var sanitize = function sanitize(item, type) {
@@ -125,9 +165,7 @@ var Anilist = function () {
 
   return {
     getList: function getList(username) {
-      return fetchList(username).then(function (res) {
-        return buildLists(res);
-      }).then(function (lists) {
+      return fetchList(username).then(function (lists) {
         return [].concat(_toConsumableArray(lists.anime.map(function (item) {
           return sanitize(item, 'anime');
         })), _toConsumableArray(lists.manga.map(function (item) {
@@ -293,10 +331,12 @@ var Ani2Sync = function () {
     var item = newList.shift();
     // add anime to results to be marked success/fail later
     listAnime(item);
+    console.log('handling', item);
     Mal.add(item).then(function (message) {
       // this is the response from /mal/add - Created or Updated or an error
       if (message) {
         if (message === 'Created' || message === 'Updated') {
+          console.log('success', item.id);
           markSuccess(item.id);
         } else {
           markFail(item.id);
