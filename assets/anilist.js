@@ -15,7 +15,8 @@ const Anilist = (() => {
         customLists: { etc. },
       }
     }
-    'data' is stripped off by the fetch function
+    'data' is stripped off by the fetch function, and flatten() is called once for
+    anime and once for manga
 
     flatten() combines the statusLists and customLists, and all of the lists embedded in them,
     and creates one big flat array of items
