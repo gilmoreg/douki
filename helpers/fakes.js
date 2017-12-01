@@ -19,6 +19,16 @@ module.exports = {
   aniListAnime: {
     id: 0,
     progress: 0,
+    startedAt: {
+      year: null,
+      month: null,
+      day: null,
+    },
+    completedAt: {
+      year: null,
+      month: null,
+      day: null,
+    },
     status: 'PLANNING',
     score: 0,
     priority: 0,
@@ -30,6 +40,16 @@ module.exports = {
     id: 0,
     progress: 0,
     progressVolumes: 0,
+    startedAt: {
+      year: null,
+      month: null,
+      day: null,
+    },
+    completedAt: {
+      year: null,
+      month: null,
+      day: null,
+    },
     status: 'PLANNING',
     score: 0,
     priority: 0,
