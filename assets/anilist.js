@@ -121,6 +121,8 @@ const Anilist = (() => {
     type,
     progress: item.progress,
     progressVolumes: item.progressVolumes,
+    startedAt: item.startedAt,
+    completedAt: item.completedAt,
     status: item.status,
     score: item.score,
     id: item.media.idMal,
