@@ -65,6 +65,8 @@ const Anilist = (() => {
               month
               day
             }
+            repeat
+            notes
             media {
               idMal
               title {
@@ -86,6 +88,8 @@ const Anilist = (() => {
               month
               day
             }
+            repeat
+            notes
             media {
               idMal
               title {
@@ -110,6 +114,8 @@ const Anilist = (() => {
               month
               day
             }
+            repeat
+            notes
             media {
               idMal
               title {
@@ -132,6 +138,8 @@ const Anilist = (() => {
               month
               day
             }
+            repeat
+            notes
             media {
               idMal
               title {
@@ -155,6 +163,8 @@ const Anilist = (() => {
     progressVolumes: item.progressVolumes,
     startedAt: item.startedAt,
     completedAt: item.completedAt,
+    repeat: item.repeat,
+    notes: item.notes,
     status: item.status,
     score: item.score,
     id: item.media.idMal,
