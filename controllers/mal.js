@@ -52,6 +52,12 @@ const getStatus = (status) => {
   }
 };
 
+// AL date object is { year, month, day }, MAL takes yyyy-mm-dd
+// AL will have null year, month, day if no data
+const formatDate = date => (date.year ?
+  `${date.year}-${date.month < 10 ? '0' : ''}${date.month}-${date.day < 10 ? '0' : ''}${date.day}`
+  : '');
+
 const makeAnimeXML = a =>
   encodeURIComponent(`
     <?xml version="1.0" encoding="UTF-8"?>
@@ -63,8 +69,8 @@ const makeAnimeXML = a =>
       <storage_value></storage_value>
       <times_rewatched></times_rewatched>
       <rewatch_value></rewatch_value>
-      <date_start></date_start>
-      <date_finish></date_finish>
+      <date_start>${formatDate(a.startedAt)}</date_start>
+      <date_finish>${formatDate(a.completedAt)}</date_finish>
       <priority></priority>
       <enable_discussion></enable_discussion>
       <enable_rewatching></enable_rewatching>
@@ -83,8 +89,8 @@ const makeMangaXML = m =>
       <score>${m.score || ''}</score>
       <times_reread></times_reread>
       <reread_value></reread_value>
-      <date_start></date_start>
-      <date_finish></date_finish>
+      <date_start>${formatDate(m.startedAt)}</date_start>
+      <date_finish>${formatDate(m.completedAt)}</date_finish>
       <priority></priority>
       <enable_discussion></enable_discussion>
       <enable_rewatching></enable_rewatching>
