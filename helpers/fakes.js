@@ -82,7 +82,6 @@ module.exports = {
                 day: null,
               },
               repeat: 0,
-              notes: null,
               media: {
                 idMal: 0,
                 title: {
@@ -109,7 +108,6 @@ module.exports = {
                 day: null,
               },
               repeat: 0,
-              notes: 'test',
               media: {
                 idMal: 1,
                 title: {
@@ -139,7 +137,6 @@ module.exports = {
                 day: null,
               },
               repeat: 0,
-              notes: 'test',
               media: {
                 idMal: 0,
                 title: {
@@ -167,7 +164,6 @@ module.exports = {
                 day: null,
               },
               repeat: 1,
-              notes: 'test',
               media: {
                 idMal: 1,
                 title: {

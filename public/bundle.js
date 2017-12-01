@@ -92,7 +92,8 @@ var Anilist = function () {
         customLists: { etc. },
       }
     }
-    'data' is stripped off by the fetch function
+    'data' is stripped off by the fetch function, and flatten() is called once for
+    anime and once for manga
      flatten() combines the statusLists and customLists, and all of the lists embedded in them,
     and creates one big flat array of items
   */
@@ -133,21 +134,15 @@ var Anilist = function () {
   };
 
   var fetchList = function fetchList(userName) {
-    return anilistCall('\n      query ($userName: String) {\n        anime: MediaListCollection(userName: $userName, type: ANIME) {\n          statusLists {\n            status\n            score(format:POINT_10)\n            progress\n            media {\n              idMal\n              title {\n                romaji\n              }\n            }\n          },\n          customLists {\n            status\n            score(format:POINT_10)\n            progress\n            media {\n              idMal\n              title {\n                romaji\n              }\n            }\n          }\n        },\n        manga: MediaListCollection(userName: $userName, type: MANGA) {\n          statusLists {\n            status\n            score(format:POINT_10)\n            progress\n            progressVolumes\n            media {\n              idMal\n              title {\n                romaji\n              }\n            }\n          },\n          customLists {\n            status\n            score(format:POINT_10)\n            progress\n            progressVolumes\n            media {\n              idMal\n              title {\n                romaji\n              }\n            }\n          }\n        }\n      }\n    ', { userName: userName }).then(function (res) {
+    return anilistCall('\n      query ($userName: String) {\n        anime: MediaListCollection(userName: $userName, type: ANIME) {\n          statusLists {\n            status\n            score(format:POINT_10)\n            progress\n            startedAt {\n              year\n              month\n              day\n            }\n            completedAt {\n              year\n              month\n              day\n            }\n            repeat\n            media {\n              idMal\n              title {\n                romaji\n              }\n            }\n          },\n          customLists {\n            status\n            score(format:POINT_10)\n            progress\n            startedAt {\n              year\n              month\n              day\n            }\n            completedAt {\n              year\n              month\n              day\n            }\n            repeat\n            media {\n              idMal\n              title {\n                romaji\n              }\n            }\n          }\n        },\n        manga: MediaListCollection(userName: $userName, type: MANGA) {\n          statusLists {\n            status\n            score(format:POINT_10)\n            progress\n            progressVolumes\n            startedAt {\n              year\n              month\n              day\n            }\n            completedAt {\n              year\n              month\n              day\n            }\n            repeat\n            media {\n              idMal\n              title {\n                romaji\n              }\n            }\n          },\n          customLists {\n            status\n            score(format:POINT_10)\n            progress\n            progressVolumes\n            startedAt {\n              year\n              month\n              day\n            }\n            completedAt {\n              year\n              month\n              day\n            }\n            repeat\n            media {\n              idMal\n              title {\n                romaji\n              }\n            }\n          }\n        }\n      }\n    ', { userName: userName }).then(function (res) {
       return res.json();
     }).then(function (res) {
       return res.data;
-    }).then(function (res) {
-      console.log(res);
-      return res;
     }).then(function (res) {
       return {
         anime: uniqify(flatten(res.anime)),
         manga: uniqify(flatten(res.manga))
       };
-    }).then(function (res) {
-      console.log(res);
-      return res;
     });
   };
 
@@ -156,6 +151,9 @@ var Anilist = function () {
       type: type,
       progress: item.progress,
       progressVolumes: item.progressVolumes,
+      startedAt: item.startedAt,
+      completedAt: item.completedAt,
+      repeat: item.repeat,
       status: item.status,
       score: item.score,
       id: item.media.idMal,
@@ -331,12 +329,10 @@ var Ani2Sync = function () {
     var item = newList.shift();
     // add anime to results to be marked success/fail later
     listAnime(item);
-    console.log('handling', item);
     Mal.add(item).then(function (message) {
       // this is the response from /mal/add - Created or Updated or an error
       if (message) {
         if (message === 'Created' || message === 'Updated') {
-          console.log('success', item.id);
           markSuccess(item.id);
         } else {
           markFail(item.id);

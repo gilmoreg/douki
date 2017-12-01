@@ -74,7 +74,7 @@ const makeAnimeXML = a =>
       <priority></priority>
       <enable_discussion></enable_discussion>
       <enable_rewatching></enable_rewatching>
-      <comments>${a.notes || ''}</comments>
+      <comments></comments>
       <tags></tags>
     </entry>
     `.trim().replace(/(\r\n|\n|\r)/gm, ''));
@@ -94,7 +94,7 @@ const makeMangaXML = m =>
       <priority></priority>
       <enable_discussion></enable_discussion>
       <enable_rewatching></enable_rewatching>
-      <comments>${m.notes || ''}</comments>
+      <comments></comments>
       <scan_group></scan_group>
       <tags></tags>
       <retail_volumes></retail_volumes>        
