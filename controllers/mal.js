@@ -67,14 +67,14 @@ const makeAnimeXML = a =>
       <score>${a.score || ''}</score>
       <storage_type></storage_type>
       <storage_value></storage_value>
-      <times_rewatched></times_rewatched>
+      <times_rewatched>${a.repeat || ''}</times_rewatched>
       <rewatch_value></rewatch_value>
       <date_start>${formatDate(a.startedAt)}</date_start>
       <date_finish>${formatDate(a.completedAt)}</date_finish>
       <priority></priority>
       <enable_discussion></enable_discussion>
       <enable_rewatching></enable_rewatching>
-      <comments></comments>
+      <comments>${a.notes || ''}</comments>
       <tags></tags>
     </entry>
     `.trim().replace(/(\r\n|\n|\r)/gm, ''));
@@ -87,14 +87,14 @@ const makeMangaXML = m =>
       <volume>${m.progressVolumes || ''}</volume>
       <status>${getStatus(m.status)}</status>
       <score>${m.score || ''}</score>
-      <times_reread></times_reread>
+      <times_reread>${m.repeat || ''}</times_reread>
       <reread_value></reread_value>
       <date_start>${formatDate(m.startedAt)}</date_start>
       <date_finish>${formatDate(m.completedAt)}</date_finish>
       <priority></priority>
       <enable_discussion></enable_discussion>
       <enable_rewatching></enable_rewatching>
-      <comments></comments>
+      <comments>${m.notes || ''}</comments>
       <scan_group></scan_group>
       <tags></tags>
       <retail_volumes></retail_volumes>        
