@@ -54,6 +54,8 @@ const Anilist = (() => {
             status
             score(format:POINT_10)
             progress
+            startedAt
+            completedAt
             media {
               idMal
               title {
@@ -65,6 +67,8 @@ const Anilist = (() => {
             status
             score(format:POINT_10)
             progress
+            startedAt
+            completedAt
             media {
               idMal
               title {
@@ -79,6 +83,8 @@ const Anilist = (() => {
             score(format:POINT_10)
             progress
             progressVolumes
+            startedAt
+            completedAt
             media {
               idMal
               title {
@@ -91,6 +97,8 @@ const Anilist = (() => {
             score(format:POINT_10)
             progress
             progressVolumes
+            startedAt
+            completedAt
             media {
               idMal
               title {
