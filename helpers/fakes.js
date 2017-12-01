@@ -47,8 +47,43 @@ module.exports = {
               status: 'COMPLETED',
               score: 10,
               progress: 12,
+              startedAt: {
+                year: 2017,
+                month: 1,
+                day: 1,
+              },
+              completedAt: {
+                year: null,
+                month: null,
+                day: null,
+              },
               media: {
                 idMal: 0,
+                title: {
+                  romaji: 'test',
+                },
+              },
+            },
+          ],
+        },
+        customLists: {
+          customList: [
+            {
+              status: 'CURRENT',
+              score: 0,
+              progress: 0,
+              startedAt: {
+                year: null,
+                month: null,
+                day: null,
+              },
+              completedAt: {
+                year: null,
+                month: null,
+                day: null,
+              },
+              media: {
+                idMal: 1,
                 title: {
                   romaji: 'test',
                 },
@@ -65,8 +100,44 @@ module.exports = {
               score: 10,
               progress: 12,
               progressVolumes: 1,
+              startedAt: {
+                year: 2017,
+                month: 1,
+                day: 1,
+              },
+              completedAt: {
+                year: null,
+                month: null,
+                day: null,
+              },
               media: {
                 idMal: 0,
+                title: {
+                  romaji: 'test',
+                },
+              },
+            },
+          ],
+        },
+        customLists: {
+          customList: [
+            {
+              status: 'CURRENT',
+              score: 0,
+              progress: 0,
+              progressVolumes: 0,
+              startedAt: {
+                year: null,
+                month: null,
+                day: null,
+              },
+              completedAt: {
+                year: null,
+                month: null,
+                day: null,
+              },
+              media: {
+                idMal: 1,
                 title: {
                   romaji: 'test',
                 },
