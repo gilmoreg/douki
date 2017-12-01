@@ -84,7 +84,7 @@ const makeMangaXML = m =>
     <?xml version="1.0" encoding="UTF-8"?>
     <entry>
       <chapter>${m.progress || ''}</chapter>
-      <volume>${m.progressVolumes}</volume>
+      <volume>${m.progressVolumes || ''}</volume>
       <status>${getStatus(m.status)}</status>
       <score>${m.score || ''}</score>
       <times_reread></times_reread>
