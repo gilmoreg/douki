@@ -77,7 +77,7 @@ const makeAnimeXML = a =>
       <comments></comments>
       <tags></tags>
     </entry>
-    `.trim().replace(/(\r\n|\n|\r|\s)+/gm, ''));
+    `.trim().replace(/(\r\n|\n|\r)+/gm, ''));
 
 const makeMangaXML = m =>
   encodeURIComponent(`
@@ -99,14 +99,13 @@ const makeMangaXML = m =>
       <tags></tags>
       <retail_volumes></retail_volumes>        
     </entry>
-    `.trim().replace(/(\r\n|\n|\r|\s)+/gm, ''));
+    `.trim().replace(/(\r\n|\n|\r)+/gm, ''));
 
 const sync = ({ auth, anilist }, mode) =>
   new Promise(async (resolve, reject) => {
     const xml = anilist.type === 'anime' ?
       makeAnimeXML(anilist) :
       makeMangaXML(anilist);
-    if (anilist.startedAt) console.log(anilist, xml);
     const malResponse = mode === 'add' ?
       await addToMal(auth, anilist.type, anilist.id, xml) :
       await updateMal(auth, anilist.type, anilist.id, xml);
