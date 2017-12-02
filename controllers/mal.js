@@ -52,10 +52,10 @@ const getStatus = (status) => {
   }
 };
 
-// AL date object is { year, month, day }, MAL takes yyyy-mm-dd
+// AL date object is { year, month, day }, MAL takes mmddyyyy
 // AL will have null year, month, day if no data
 const formatDate = date => (date.year ?
-  `${date.year}-${date.month < 10 ? '0' : ''}${date.month}-${date.day < 10 ? '0' : ''}${date.day}`
+  `${date.month < 10 ? '0' : ''}${date.month}${date.day < 10 ? '0' : ''}${date.day}${date.year}`
   : '');
 
 const makeAnimeXML = a =>
