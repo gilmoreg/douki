@@ -2,3 +2,5 @@ node_modules
 coverage
 notes
 .env
+bundle.js
+bundle.js.map
