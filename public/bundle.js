@@ -63,11 +63,12 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 3);
+/******/ 	return __webpack_require__(__webpack_require__.s = 73);
 /******/ })
 /************************************************************************/
-/******/ ([
-/* 0 */
+/******/ ({
+
+/***/ 70:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -151,8 +152,16 @@ var Anilist = function () {
       type: type,
       progress: item.progress,
       progressVolumes: item.progressVolumes,
-      startedAt: item.startedAt,
-      completedAt: item.completedAt,
+      startedAt: {
+        year: item.startedAt.year || 0,
+        month: item.startedAt.month || 0,
+        day: item.startedAt.day || 0
+      },
+      completedAt: {
+        year: item.completedAt.year || 0,
+        month: item.completedAt.month || 0,
+        day: item.completedAt.day || 0
+      },
       repeat: item.repeat,
       status: item.status,
       score: item.score,
@@ -180,7 +189,8 @@ var Anilist = function () {
 module.exports = Anilist;
 
 /***/ }),
-/* 1 */
+
+/***/ 71:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -202,13 +212,62 @@ NodeList.prototype.on = NodeList.prototype.addEventListener = function (name, fn
 };
 
 /***/ }),
-/* 2 */
+
+/***/ 72:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
 /* globals $ */
+var statusCodes = ['', 'CURRENT', 'COMPLETED', 'PAUSED', 'DROPPED', '', 'PLANNING'];
+
+var buildDate = function buildDate(dateString) {
+  var parts = dateString.split('-');
+  return {
+    year: Number(parts[0]),
+    month: Number(parts[1]),
+    day: Number(parts[2])
+  };
+};
+
+var sanitizeAnimeListing = function sanitizeAnimeListing(item) {
+  return {
+    type: 'anime',
+    id: Number(item.series_animedb_id[0]),
+    progress: Number(item.my_watched_episodes[0]),
+    startedAt: buildDate(item.my_start_date[0]),
+    completedAt: buildDate(item.my_finish_date[0]),
+    status: statusCodes[item.my_status[0]],
+    score: Number(item.my_score[0]),
+    repeat: Number(item.my_rewatching[0])
+  };
+};
+
+var sanitizeMangaListing = function sanitizeMangaListing(item) {
+  return {
+    type: 'manga',
+    id: Number(item.series_mangadb_id[0]),
+    progress: Number(item.my_read_chapters[0]),
+    progressVolumes: Number(item.my_read_volumes[0]),
+    startedAt: buildDate(item.my_start_date[0]),
+    completedAt: buildDate(item.my_finish_date[0]),
+    status: statusCodes[item.my_status[0]],
+    score: Number(item.my_score[0]),
+    repeat: Number(item.my_rereadingg[0]) // sic, spelling error is MAL's
+  };
+};
+
+var getMalAppInfoList = function getMalAppInfoList(user, type) {
+  return fetch('https://us-central1-douki-178418.cloudfunctions.net/malAppInfoProxy?user=' + user + '&type=' + type).then(function (res) {
+    return res.json();
+  }).then(function (res) {
+    return res.result.myanimelist;
+  }).then(function (list) {
+    return list.anime || list.manga;
+  });
+};
+
 var Mal = function () {
   var auth = '';
 
@@ -226,6 +285,26 @@ var Mal = function () {
         return false;
       }).catch(function (err) {
         return Error(err);
+      });
+    },
+
+    getList: function getList(user) {
+      var fetchAnimeList = getMalAppInfoList(user, 'anime'); // TODO error messages
+      var fetchMangaList = getMalAppInfoList(user, 'manga');
+      return Promise.all([fetchAnimeList, fetchMangaList]).then(function (lists) {
+        var hashTable = {};
+        lists[0].forEach(function (item) {
+          var anime = sanitizeAnimeListing(item);
+          hashTable[anime.id] = anime;
+        });
+        lists[1].forEach(function (item) {
+          var manga = sanitizeMangaListing(item);
+          hashTable[manga.id] = manga;
+        });
+        return hashTable;
+      }).catch(function (error) {
+        console.error(error);
+        debugger; // TODO error message
       });
     },
 
@@ -253,7 +332,8 @@ var Mal = function () {
 module.exports = Mal;
 
 /***/ }),
-/* 3 */
+
+/***/ 73:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -261,13 +341,14 @@ module.exports = Mal;
 
 /* eslint-disable no-unused-vars */
 /* globals $, $$ */
-__webpack_require__(1);
-var Anilist = __webpack_require__(0);
-var Mal = __webpack_require__(2);
+__webpack_require__(71);
+var Anilist = __webpack_require__(70);
+var Mal = __webpack_require__(72);
 
 var Ani2Sync = function () {
   var total = 0;
   var errors = 0;
+  var malItems = {};
 
   // For errors related to bad credentials, API errors etc.
   var error = function error(msg) {
@@ -320,6 +401,44 @@ var Ani2Sync = function () {
     $('#error-count').innerHTML = 'Errors: ' + errors + '.';
   };
 
+  // Returns true if item has changed and needs to be updated
+  var changed = function changed(alItem) {
+    var malItem = malItems[alItem.id];
+    if (!malItem) {
+      // Item does not exist yet, must update
+      return true;
+    }
+
+    var matchFields = ['progress', 'status', 'score'];
+    if (matchFields.some(function (field) {
+      return malItem[field] !== alItem[field];
+    })) return true;
+
+    var dateMatchFields = ['year', 'month', 'day'];
+    if (alItem.startedAt) {
+      if (!malItem.startedAt) return true;
+      if (dateMatchFields.some(function (field) {
+        return alItem.startedAt[field] !== malItem.startedAt[field];
+      })) return true;
+    }
+
+    if (alItem.completedAt) {
+      if (!malItem.completedAt) return true;
+      if (dateMatchFields.some(function (field) {
+        return alItem.completedAt[field] !== malItem.completedAt[field];
+      })) return true;
+    }
+
+    // Since this one can be undefined, it must be checked separately
+    if (alItem.progressVolumes) {
+      if (!malItem.progressVolumes) return true;
+      if (malItem.progressVolumes !== alItem.progressVolumes) return true;
+    }
+
+    // No changes detected
+    return false;
+  };
+
   var handle = function handle(list) {
     showProgress(list.length);
     // Base case for recursion
@@ -361,18 +480,26 @@ var Ani2Sync = function () {
       Mal.check(malUser, malPass).then(function (res) {
         if (res) {
           var aniUser = $('#anilist-username').value.trim();
-          Anilist.getList(aniUser).then(function (list) {
-            if (list && list.length) {
+          Anilist.getList(aniUser).then(function (alList) {
+            if (alList && alList.length) {
               // We have good inputs on all counts; let's go
+              Mal.getList(malUser).then(function (malList) {
+                malItems = malList;
+                var list = alList.filter(function (item) {
+                  return changed(item);
+                });
+                debugger;
+              });
+
               // Clear old results
-              reset();
-              // Switch views
-              $('#credentials').classList.add('hidden');
-              $('#sync').classList.remove('hidden');
-              // Track total items in namespace for progress meter
-              total = list.length;
-              // Start recursive handler
-              return handle(list);
+              // reset();
+              // // Switch views
+              // $('#credentials').classList.add('hidden');
+              // $('#sync').classList.remove('hidden');
+              // // Track total items in namespace for progress meter
+              // total = list.length;
+              // // Start recursive handler
+              // return handle(list);
             }
             // Anilist returned nothing
             $('.anilist-error').innerHTML = 'Anilist.co returned no results for ' + aniUser + '.';
@@ -421,5 +548,6 @@ var Ani2Sync = function () {
 })();
 
 /***/ })
-/******/ ]);
+
+/******/ });
 //# sourceMappingURL=bundle.js.map

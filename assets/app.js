@@ -7,6 +7,7 @@ const Mal = require('./mal');
 const Ani2Sync = (() => {
   let total = 0;
   let errors = 0;
+  let malItems = {};
 
   // For errors related to bad credentials, API errors etc.
   const error = (msg) => {
@@ -62,6 +63,40 @@ const Ani2Sync = (() => {
     $('#error-count').innerHTML = `Errors: ${errors}.`;
   };
 
+  // Returns true if item has changed and needs to be updated
+  const changed = (alItem) => {
+    const malItem = malItems[alItem.id];
+    if (!malItem) {
+      // Item does not exist yet, must update
+      return true;
+    }
+
+    const matchFields = ['progress', 'status', 'score'];
+    if (matchFields.some(field => malItem[field] !== alItem[field])) return true;
+
+    const dateMatchFields = ['year', 'month', 'day'];
+    if (alItem.startedAt) {
+      if (!malItem.startedAt) return true;
+      if (dateMatchFields.some(field =>
+        alItem.startedAt[field] !== malItem.startedAt[field])) return true;
+    }
+
+    if (alItem.completedAt) {
+      if (!malItem.completedAt) return true;
+      if (dateMatchFields.some(field =>
+        alItem.completedAt[field] !== malItem.completedAt[field])) return true;
+    }
+
+    // Since this one can be undefined, it must be checked separately
+    if (alItem.progressVolumes) {
+      if (!malItem.progressVolumes) return true;
+      if (malItem.progressVolumes !== alItem.progressVolumes) return true;
+    }
+
+    // No changes detected
+    return false;
+  };
+
   const handle = (list) => {
     showProgress(list.length);
     // Base case for recursion
@@ -105,18 +140,25 @@ const Ani2Sync = (() => {
         if (res) {
           const aniUser = $('#anilist-username').value.trim();
           Anilist.getList(aniUser)
-          .then((list) => {
-            if (list && list.length) {
+          .then((alList) => {
+            if (alList && alList.length) {
               // We have good inputs on all counts; let's go
+              Mal.getList(malUser)
+                .then((malList) => {
+                  malItems = malList;
+                  const list = alList.filter(item => changed(item));
+                  debugger;
+                });
+
               // Clear old results
-              reset();
-              // Switch views
-              $('#credentials').classList.add('hidden');
-              $('#sync').classList.remove('hidden');
-              // Track total items in namespace for progress meter
-              total = list.length;
-              // Start recursive handler
-              return handle(list);
+              // reset();
+              // // Switch views
+              // $('#credentials').classList.add('hidden');
+              // $('#sync').classList.remove('hidden');
+              // // Track total items in namespace for progress meter
+              // total = list.length;
+              // // Start recursive handler
+              // return handle(list);
             }
             // Anilist returned nothing
             $('.anilist-error').innerHTML = `Anilist.co returned no results for ${aniUser}.`;

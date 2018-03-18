@@ -1,4 +1,44 @@
 /* globals $ */
+const statusCodes = ['', 'CURRENT', 'COMPLETED', 'PAUSED', 'DROPPED', '', 'PLANNING'];
+
+const buildDate = (dateString) => {
+  const parts = dateString.split('-');
+  return {
+    year: Number(parts[0]),
+    month: Number(parts[1]),
+    day: Number(parts[2]),
+  };
+};
+
+const sanitizeAnimeListing = item => ({
+  type: 'anime',
+  id: Number(item.series_animedb_id[0]),
+  progress: Number(item.my_watched_episodes[0]),
+  startedAt: buildDate(item.my_start_date[0]),
+  completedAt: buildDate(item.my_finish_date[0]),
+  status: statusCodes[item.my_status[0]],
+  score: Number(item.my_score[0]),
+  repeat: Number(item.my_rewatching[0]),
+});
+
+const sanitizeMangaListing = item => ({
+  type: 'manga',
+  id: Number(item.series_mangadb_id[0]),
+  progress: Number(item.my_read_chapters[0]),
+  progressVolumes: Number(item.my_read_volumes[0]),
+  startedAt: buildDate(item.my_start_date[0]),
+  completedAt: buildDate(item.my_finish_date[0]),
+  status: statusCodes[item.my_status[0]],
+  score: Number(item.my_score[0]),
+  repeat: Number(item.my_rereadingg[0]), // sic, spelling error is MAL's
+});
+
+const getMalAppInfoList = (user, type) =>
+  fetch(`https://us-central1-douki-178418.cloudfunctions.net/malAppInfoProxy?user=${user}&type=${type}`)
+  .then(res => res.json())
+  .then(res => res.result.myanimelist)
+  .then(list => list.anime || list.manga);
+
 const Mal = (() => {
   let auth = '';
 
@@ -16,6 +56,28 @@ const Mal = (() => {
           return false;
         })
         .catch(err => Error(err));
+    },
+
+    getList: (user) => {
+      const fetchAnimeList = getMalAppInfoList(user, 'anime'); // TODO error messages
+      const fetchMangaList = getMalAppInfoList(user, 'manga');
+      return Promise.all([fetchAnimeList, fetchMangaList])
+        .then((lists) => {
+          const hashTable = {};
+          lists[0].forEach((item) => {
+            const anime = sanitizeAnimeListing(item);
+            hashTable[anime.id] = anime;
+          });
+          lists[1].forEach((item) => {
+            const manga = sanitizeMangaListing(item);
+            hashTable[manga.id] = manga;
+          });
+          return hashTable;
+        })
+        .catch((error) => {
+          console.error(error);
+          debugger; // TODO error message
+        });
     },
 
     add: anilist =>

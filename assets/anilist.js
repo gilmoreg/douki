@@ -157,8 +157,16 @@ const Anilist = (() => {
     type,
     progress: item.progress,
     progressVolumes: item.progressVolumes,
-    startedAt: item.startedAt,
-    completedAt: item.completedAt,
+    startedAt: {
+      year: item.startedAt.year || 0,
+      month: item.startedAt.month || 0,
+      day: item.startedAt.day || 0,
+    },
+    completedAt: {
+      year: item.completedAt.year || 0,
+      month: item.completedAt.month || 0,
+      day: item.completedAt.day || 0,
+    },
     repeat: item.repeat,
     status: item.status,
     score: item.score,

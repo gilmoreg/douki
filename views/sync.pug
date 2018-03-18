@@ -23,6 +23,17 @@ block content
                     input(type='password' id='mal-password' placeholder='mal password')
                   .mal-error.error
                 .field
+                  p.tcenter Sync Type:
+                  ul.sync-type-list
+                    li
+                      label(class='radio')
+                        input(type='radio' name='sync-type' checked)
+                        span Update
+                    li
+                      label(class='radio')
+                        input(type='radio' name='sync-type')
+                        span Full
+                .field
                   p.control.tcenter
                     button.button#submit Submit
   .section.hidden#sync
