@@ -1,4 +1,4 @@
-FROM node:7.10
+FROM node:9.8
 LABEL maintainer="Grayson Gilmore (gilmoreg@live.com)"
 
 # Prevent npm install from running unless package.json changes
