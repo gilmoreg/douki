@@ -374,11 +374,6 @@ var Ani2Sync = function () {
     errors += 1;
   };
 
-  /* const display = (res) => {
-      $(`#${mal}`).classList.add('added');
-    } else return null;
-  }; */
-
   var listAnime = function listAnime(a) {
     $('#results').innerHTML += '<li id="al-' + a.id + '">' + a.title + '</li>';
   };
@@ -536,6 +531,9 @@ var Ani2Sync = function () {
   $('#reset').on('click', Ani2Sync.restart);
   $('#help').on('click', function () {
     $('#helpModal').classList.add('is-active');
+  });
+  $('#sync-help').on('click', function () {
+    $('#syncTypeModal').classList.add('is-active');
   });
   Array.from($$('.modal-background')).forEach(function (e) {
     e.on('click', function () {

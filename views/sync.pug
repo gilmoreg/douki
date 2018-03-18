@@ -23,7 +23,7 @@ block content
                     input(type='password' id='mal-password' placeholder='mal password')
                   .mal-error.error
                 .field
-                  p.tcenter Sync Type:
+                  p.tcenter Sync Type: #[i(id='sync-help' class='fa fa-question-circle-o' aria-hidden='true')]
                   ul.sync-type-list
                     li
                       label(class='radio')
@@ -70,4 +70,13 @@ block content
         p This is to ensure that only the owners of MyAnimeList accounts can modify their lists.
         h4.tcenter Is it secure?
         p Douki uses the same technology that MAL does for security. Your credentials will be passed along to MAL to make sure you are a valid user, and then immediately discarded.
+    button.modal-close
+  .modal#syncTypeModal
+    .modal-background
+    .modal-content
+      .box(style='max-width: 400px; margin: 0 auto')
+        h4.tcenter Update
+        p The default sync type. Douki will only modify items which do not already exist or have changed on Anilist since the last sync. This is the best option even for your first sync. However, it will miss changes to "rewatch" or "reread" values (due to an error on MAL's side).
+        h4.tcenter Full
+        p Douki will sync every item in your lists regardless of whether they have changed. The only use for this is if you have changed a rewatch or reread value on Anilist and you want it to be updated on MAL.
     button.modal-close

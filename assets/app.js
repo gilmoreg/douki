@@ -39,11 +39,6 @@ const Ani2Sync = (() => {
     errors += 1;
   };
 
-  /* const display = (res) => {
-      $(`#${mal}`).classList.add('added');
-    } else return null;
-  }; */
-
   const listAnime = (a) => {
     $('#results').innerHTML += `<li id="al-${a.id}">${a.title}</li>`;
   };
@@ -191,6 +186,9 @@ const Ani2Sync = (() => {
   $('#reset').on('click', Ani2Sync.restart);
   $('#help').on('click', () => {
     $('#helpModal').classList.add('is-active');
+  });
+  $('#sync-help').on('click', () => {
+    $('#syncTypeModal').classList.add('is-active');
   });
   Array.from($$('.modal-background')).forEach((e) => {
     e.on('click', () => $('.is-active').classList.remove('is-active'));
