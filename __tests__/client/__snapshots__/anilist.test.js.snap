@@ -4,9 +4,9 @@ exports[`Client side Anilist getList should return a valid list 1`] = `
 Array [
   Object {
     "completedAt": Object {
-      "day": null,
-      "month": null,
-      "year": null,
+      "day": 0,
+      "month": 0,
+      "year": 0,
     },
     "id": 0,
     "progress": 12,
@@ -24,9 +24,9 @@ Array [
   },
   Object {
     "completedAt": Object {
-      "day": null,
-      "month": null,
-      "year": null,
+      "day": 0,
+      "month": 0,
+      "year": 0,
     },
     "id": 1,
     "progress": 0,
@@ -34,9 +34,9 @@ Array [
     "repeat": 0,
     "score": 0,
     "startedAt": Object {
-      "day": null,
-      "month": null,
-      "year": null,
+      "day": 0,
+      "month": 0,
+      "year": 0,
     },
     "status": "CURRENT",
     "title": "test",
@@ -44,9 +44,9 @@ Array [
   },
   Object {
     "completedAt": Object {
-      "day": null,
-      "month": null,
-      "year": null,
+      "day": 0,
+      "month": 0,
+      "year": 0,
     },
     "id": 0,
     "progress": 12,
@@ -64,9 +64,9 @@ Array [
   },
   Object {
     "completedAt": Object {
-      "day": null,
-      "month": null,
-      "year": null,
+      "day": 0,
+      "month": 0,
+      "year": 0,
     },
     "id": 1,
     "progress": 0,
@@ -74,9 +74,9 @@ Array [
     "repeat": 1,
     "score": 0,
     "startedAt": Object {
-      "day": null,
-      "month": null,
-      "year": null,
+      "day": 0,
+      "month": 0,
+      "year": 0,
     },
     "status": "CURRENT",
     "title": "test",
