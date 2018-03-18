@@ -162,6 +162,12 @@ const Ani2Sync = (() => {
         .then(() => {
           getSyncList(aniUser, malUser, syncType)
             .then((list) => {
+              if (!list) throw new Error('No items found');
+              if (list.length === 0) {
+                $('.anilist-error').innerHTML = 'No changes detected since your last sync.';
+                setTimeout(() => reset(), 3000);
+                return null;
+              }
               // Clear old results
               reset();
               // Switch views
