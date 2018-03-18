@@ -7,7 +7,6 @@ const Mal = require('./mal');
 const Ani2Sync = (() => {
   let total = 0;
   let errors = 0;
-  let malItems = {};
 
   // For errors related to bad credentials, API errors etc.
   const error = (msg) => {
@@ -64,7 +63,7 @@ const Ani2Sync = (() => {
   };
 
   // Returns true if item has changed and needs to be updated
-  const changed = (alItem) => {
+  const changed = (alItem, malItems) => {
     const malItem = malItems[alItem.id];
     if (!malItem) {
       // Item does not exist yet, must update
@@ -129,52 +128,57 @@ const Ani2Sync = (() => {
     .catch(err => error(err));
   };
 
+  const validateMalCredentials = (malUser, malPass) =>
+    Mal.check(malUser, malPass)
+      .then((res) => {
+        if (res) return Promise.resolve();
+        // Mal auth check returned false
+        $('.mal-error').innerHTML = 'Invaild MAL credentials.';
+        setTimeout(() => reset(), 3000);
+        return Promise.reject();
+      });
+
+  const getSyncList = (aniUser, malUser, syncType) =>
+    Anilist.getList(aniUser)
+      .then((alList) => {
+        if (!alList || !alList.length) {
+          $('.anilist-error').innerHTML = `Anilist.co returned no results for ${aniUser}.`;
+          setTimeout(() => reset(), 3000);
+          return Promise.reject();
+        }
+
+        if (syncType === 'all') {
+          return Promise.resolve(alList);
+        }
+
+        return Mal.getList(malUser)
+          .then(malItems => alList.filter(item => changed(item, malItems)));
+      });
+
   return {
     sync: (event) => {
       event.preventDefault();
+      const aniUser = $('#anilist-username').value.trim();
       const malUser = $('#mal-username').value.trim();
       const malPass = $('#mal-password').value.trim();
+      const syncType = $('input[name="sync-type"]:checked').value;
       $('#submit').classList.add('is-loading');
-      Mal.check(malUser, malPass)
-      .then((res) => {
-        if (res) {
-          const aniUser = $('#anilist-username').value.trim();
-          Anilist.getList(aniUser)
-          .then((alList) => {
-            if (alList && alList.length) {
-              // We have good inputs on all counts; let's go
-              Mal.getList(malUser)
-                .then((malList) => {
-                  malItems = malList;
-                  const list = alList.filter(item => changed(item));
-                  debugger;
-                });
-
+      return validateMalCredentials(malUser, malPass)
+        .then(() => {
+          getSyncList(aniUser, malUser, syncType)
+            .then((list) => {
               // Clear old results
-              // reset();
-              // // Switch views
-              // $('#credentials').classList.add('hidden');
-              // $('#sync').classList.remove('hidden');
-              // // Track total items in namespace for progress meter
-              // total = list.length;
-              // // Start recursive handler
-              // return handle(list);
-            }
-            // Anilist returned nothing
-            $('.anilist-error').innerHTML = `Anilist.co returned no results for ${aniUser}.`;
-            setTimeout(() => reset(), 3000);
-            return error('Anilist.co returned no results.');
-          })
-          .catch(err => error(err));
-        } else {
-          // Mal auth check returned false
-          $('.mal-error').innerHTML = 'Invaild MAL credentials.';
-          setTimeout(() => reset(), 3000);
-          return error('Invaild MAL credentials.');
-        }
-        return null;
-      })
-      .catch(err => error(err));
+              reset();
+              // Switch views
+              $('#credentials').classList.add('hidden');
+              $('#sync').classList.remove('hidden');
+              // Track total items in namespace for progress meter
+              total = list.length;
+              // Start recursive handler
+              return handle(list);
+            });
+        })
+        .catch(err => error(err));
     },
     restart: () => {
       reset();

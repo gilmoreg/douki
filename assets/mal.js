@@ -59,7 +59,7 @@ const Mal = (() => {
     },
 
     getList: (user) => {
-      const fetchAnimeList = getMalAppInfoList(user, 'anime'); // TODO error messages
+      const fetchAnimeList = getMalAppInfoList(user, 'anime');
       const fetchMangaList = getMalAppInfoList(user, 'manga');
       return Promise.all([fetchAnimeList, fetchMangaList])
         .then((lists) => {
@@ -73,10 +73,6 @@ const Mal = (() => {
             hashTable[manga.id] = manga;
           });
           return hashTable;
-        })
-        .catch((error) => {
-          console.error(error);
-          debugger; // TODO error message
         });
     },
 

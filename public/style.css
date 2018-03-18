@@ -59,7 +59,8 @@ main {
 .sync-type-list {
   list-style: none !important;
   text-align: left;
-  margin-left: 6rem !important;
+  width: 200px;
+  margin: 0 auto !important;
 }
 
 .sync-type-list li span {

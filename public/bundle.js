@@ -289,7 +289,7 @@ var Mal = function () {
     },
 
     getList: function getList(user) {
-      var fetchAnimeList = getMalAppInfoList(user, 'anime'); // TODO error messages
+      var fetchAnimeList = getMalAppInfoList(user, 'anime');
       var fetchMangaList = getMalAppInfoList(user, 'manga');
       return Promise.all([fetchAnimeList, fetchMangaList]).then(function (lists) {
         var hashTable = {};
@@ -302,9 +302,6 @@ var Mal = function () {
           hashTable[manga.id] = manga;
         });
         return hashTable;
-      }).catch(function (error) {
-        console.error(error);
-        debugger; // TODO error message
       });
     },
 
@@ -348,7 +345,6 @@ var Mal = __webpack_require__(72);
 var Ani2Sync = function () {
   var total = 0;
   var errors = 0;
-  var malItems = {};
 
   // For errors related to bad credentials, API errors etc.
   var error = function error(msg) {
@@ -402,7 +398,7 @@ var Ani2Sync = function () {
   };
 
   // Returns true if item has changed and needs to be updated
-  var changed = function changed(alItem) {
+  var changed = function changed(alItem, malItems) {
     var malItem = malItems[alItem.id];
     if (!malItem) {
       // Item does not exist yet, must update
@@ -471,54 +467,60 @@ var Ani2Sync = function () {
     });
   };
 
+  var validateMalCredentials = function validateMalCredentials(malUser, malPass) {
+    return Mal.check(malUser, malPass).then(function (res) {
+      if (res) return Promise.resolve();
+      // Mal auth check returned false
+      $('.mal-error').innerHTML = 'Invaild MAL credentials.';
+      setTimeout(function () {
+        return reset();
+      }, 3000);
+      return Promise.reject();
+    });
+  };
+
+  var getSyncList = function getSyncList(aniUser, malUser, syncType) {
+    return Anilist.getList(aniUser).then(function (alList) {
+      if (!alList || !alList.length) {
+        $('.anilist-error').innerHTML = 'Anilist.co returned no results for ' + aniUser + '.';
+        setTimeout(function () {
+          return reset();
+        }, 3000);
+        return Promise.reject();
+      }
+
+      if (syncType === 'all') {
+        return Promise.resolve(alList);
+      }
+
+      return Mal.getList(malUser).then(function (malItems) {
+        return alList.filter(function (item) {
+          return changed(item, malItems);
+        });
+      });
+    });
+  };
+
   return {
     sync: function sync(event) {
       event.preventDefault();
+      var aniUser = $('#anilist-username').value.trim();
       var malUser = $('#mal-username').value.trim();
       var malPass = $('#mal-password').value.trim();
+      var syncType = $('input[name="sync-type"]:checked').value;
       $('#submit').classList.add('is-loading');
-      Mal.check(malUser, malPass).then(function (res) {
-        if (res) {
-          var aniUser = $('#anilist-username').value.trim();
-          Anilist.getList(aniUser).then(function (alList) {
-            if (alList && alList.length) {
-              // We have good inputs on all counts; let's go
-              Mal.getList(malUser).then(function (malList) {
-                malItems = malList;
-                var list = alList.filter(function (item) {
-                  return changed(item);
-                });
-                debugger;
-              });
-
-              // Clear old results
-              // reset();
-              // // Switch views
-              // $('#credentials').classList.add('hidden');
-              // $('#sync').classList.remove('hidden');
-              // // Track total items in namespace for progress meter
-              // total = list.length;
-              // // Start recursive handler
-              // return handle(list);
-            }
-            // Anilist returned nothing
-            $('.anilist-error').innerHTML = 'Anilist.co returned no results for ' + aniUser + '.';
-            setTimeout(function () {
-              return reset();
-            }, 3000);
-            return error('Anilist.co returned no results.');
-          }).catch(function (err) {
-            return error(err);
-          });
-        } else {
-          // Mal auth check returned false
-          $('.mal-error').innerHTML = 'Invaild MAL credentials.';
-          setTimeout(function () {
-            return reset();
-          }, 3000);
-          return error('Invaild MAL credentials.');
-        }
-        return null;
+      return validateMalCredentials(malUser, malPass).then(function () {
+        getSyncList(aniUser, malUser, syncType).then(function (list) {
+          // Clear old results
+          reset();
+          // Switch views
+          $('#credentials').classList.add('hidden');
+          $('#sync').classList.remove('hidden');
+          // Track total items in namespace for progress meter
+          total = list.length;
+          // Start recursive handler
+          return handle(list);
+        });
       }).catch(function (err) {
         return error(err);
       });
