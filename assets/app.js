@@ -59,7 +59,7 @@ const Ani2Sync = (() => {
 
   // Returns true if item has changed and needs to be updated
   const changed = (alItem, malItems) => {
-    const malItem = malItems[alItem.id];
+    const malItem = malItems[alItem.type][alItem.id];
     if (!malItem) {
       // Item does not exist yet, must update
       return true;

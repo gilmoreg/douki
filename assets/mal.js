@@ -63,14 +63,17 @@ const Mal = (() => {
       const fetchMangaList = getMalAppInfoList(user, 'manga');
       return Promise.all([fetchAnimeList, fetchMangaList])
         .then((lists) => {
-          const hashTable = {};
+          const hashTable = {
+            anime: {},
+            manga: {},
+          };
           lists[0].forEach((item) => {
             const anime = sanitizeAnimeListing(item);
-            hashTable[anime.id] = anime;
+            hashTable.anime[anime.id] = anime;
           });
           lists[1].forEach((item) => {
             const manga = sanitizeMangaListing(item);
-            hashTable[manga.id] = manga;
+            hashTable.manga[manga.id] = manga;
           });
           return hashTable;
         });
