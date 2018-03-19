@@ -26,7 +26,7 @@ app.use((req, res, next) => {
 });
 
 // In production forward http to https
-if (process.env.NODE_ENV !== 'development') {
+if (process.env.NODE_ENV === 'production') {
   app.use((req, res, next) => {
     if (req.headers['x-forwarded-proto'] !== 'https') {
       return res.redirect(301, 'https://www.douki.moe/');
