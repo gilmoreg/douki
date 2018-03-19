@@ -41,6 +41,17 @@ app.use((req, res, next) => {
   next();
 });
 
+// Forward old domain requests to new domain
+app.use((req, res, next) => {
+  const host = req.get('Host');
+  switch (host) {
+    case 'douki.herokuapp.com':
+    case 'douki.gilmoreg.com':
+      return res.redirect(301, 'https://www.douki.moe/');
+    default:
+      return next();
+  }
+});
 app.use(router);
 
 // Handle errors
