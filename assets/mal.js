@@ -54,8 +54,7 @@ const Mal = (() => {
             return true;
           }
           return false;
-        })
-        .catch(err => Error(err));
+        });
     },
 
     getList: (user) => {
@@ -63,6 +62,7 @@ const Mal = (() => {
       const fetchMangaList = getMalAppInfoList(user, 'manga');
       return Promise.all([fetchAnimeList, fetchMangaList])
         .then((lists) => {
+          if (!lists[0] || !lists[1]) throw new Error(`Unable to retrieve MAL lists for user ${user}`);
           const hashTable = {
             anime: {},
             manga: {},
@@ -90,8 +90,7 @@ const Mal = (() => {
       })
       .then(res => res.text())
       // Strip off leading and tailing double quotes
-      .then(text => text.replace(/"/g, ''))
-      .catch(err => Error(err)),
+      .then(text => text.replace(/"/g, '')),
   };
 })();
 

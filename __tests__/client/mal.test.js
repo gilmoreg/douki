@@ -30,30 +30,46 @@ describe('Client side MAL', () => {
     });
   });
 
-  it('add should add an anime', (done) => {
-    fetchMock.mock('*', fakes.malAddSuccess);
-    Mal.add('auth', 'test')
-    .then((res) => {
-      expect(res).toMatchSnapshot();
-      done();
-    });
+  it('add should add an anime', () => {
+    fetchMock.mock('/mal/add', fakes.malAddSuccess);
+    return Mal.add('auth', 'test')
+      .then((res) => {
+        expect(res).toBe('Created');
+      });
   });
 
-  it('should handle an error from Google Cloud proxy', (done) => {
+  it('check should handle an error from Google Cloud proxy', () => {
     fetchMock.mock('*', { throws: 'Error' });
-    Mal.check('test', 'test')
-    .then((res) => {
-      expect(res).toMatchSnapshot();
-      done();
-    });
+    return Mal.check('test', 'test')
+      .catch((res) => {
+        expect(res).toBe('Error');
+      });
   });
 
-  it('should handle an error from MAL', (done) => {
+  it('add should handle an error from MAL', () => {
     fetchMock.mock('*', { throws: 'Error' });
-    Mal.add('auth', 'test')
-    .then((res) => {
-      expect(res).toMatchSnapshot();
-      done();
-    });
+    return Mal.add('auth', 'test')
+      .catch((res) => {
+        expect(res).toBe('Error');
+      });
+  });
+
+  it('getList should return a list with valid username', () => {
+    fetchMock.mock(/.+malAppInfoProxy.+anime/, fakes.malAppInfoAnimeSuccess);
+    fetchMock.mock(/.+malAppInfoProxy.+manga/, fakes.malAppInfoMangaSuccess);
+    return Mal.getList('test')
+      .then((res) => {
+        expect(res.anime).toBeDefined();
+        expect(res.manga).toBeDefined();
+      });
+  });
+
+  it('getList should throw on invalid username', () => {
+    fetchMock.mock(/.+malAppInfoProxy.+anime/, fakes.malAppInfoFailure);
+    fetchMock.mock(/.+malAppInfoProxy.+manga/, fakes.malAppInfoFailure);
+    return Mal.getList('test')
+      .catch((err) => {
+        expect(err.message).toEqual('Unable to retrieve MAL lists for user test');
+      });
   });
 });

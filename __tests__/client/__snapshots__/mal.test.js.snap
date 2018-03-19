@@ -1,7 +1,0 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`Client side MAL add should add an anime 1`] = `"Created"`;
-
-exports[`Client side MAL should handle an error from Google Cloud proxy 1`] = `[Error: Error]`;
-
-exports[`Client side MAL should handle an error from MAL 1`] = `[Error: Error]`;

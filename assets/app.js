@@ -179,7 +179,11 @@ const Ani2Sync = (() => {
               return handle(list);
             });
         })
-        .catch(err => error(err));
+        .catch((err) => {
+          $('.anilist-error').innerHTML = err.message;
+          setTimeout(() => reset(), 3000);
+          return null;
+        });
     },
     restart: () => {
       reset();
