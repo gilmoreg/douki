@@ -8,11 +8,6 @@ const Ani2Sync = (() => {
   let total = 0;
   let errors = 0;
 
-  // For errors related to bad credentials, API errors etc.
-  const error = (msg) => {
-    console.error(msg);
-  };
-
   const reset = () => {
     $('#credentials').classList.remove('hidden');
     $('#sync').classList.add('hidden');
@@ -24,6 +19,13 @@ const Ani2Sync = (() => {
     $('#submit').classList.remove('is-loading');
     total = 0;
     errors = 0;
+  };
+
+  const error = (msg) => {
+    console.error(msg);
+    $('.anilist-error').innerHTML = msg;
+    setTimeout(() => reset(), 3000);
+    return null;
   };
 
   const notFound = (title) => {
@@ -147,7 +149,8 @@ const Ani2Sync = (() => {
         }
 
         return Mal.getList(malUser)
-          .then(malItems => alList.filter(item => changed(item, malItems)));
+          .then(malItems => alList.filter(item => changed(item, malItems)))
+          .catch(err => Promise.reject(err));
       });
 
   return {
@@ -179,11 +182,7 @@ const Ani2Sync = (() => {
               return handle(list);
             });
         })
-        .catch((err) => {
-          $('.anilist-error').innerHTML = err.message;
-          setTimeout(() => reset(), 3000);
-          return null;
-        });
+        .catch(err => error(err.message));
     },
     restart: () => {
       reset();

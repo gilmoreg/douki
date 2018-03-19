@@ -62,11 +62,13 @@ const Mal = (() => {
       const fetchMangaList = getMalAppInfoList(user, 'manga');
       return Promise.all([fetchAnimeList, fetchMangaList])
         .then((lists) => {
-          if (!lists[0] || !lists[1]) throw new Error(`Unable to retrieve MAL lists for user ${user}`);
           const hashTable = {
             anime: {},
             manga: {},
           };
+          // Either an error or a new MAL account; either way, sync everything
+          if (!lists[0] || !lists[1]) return hashTable;
+
           lists[0].forEach((item) => {
             const anime = sanitizeAnimeListing(item);
             hashTable.anime[anime.id] = anime;
