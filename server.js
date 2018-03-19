@@ -25,6 +25,16 @@ app.use((req, res, next) => {
   }
 });
 
+// In production forward http to https
+if (process.env.NODE_ENV !== 'development') {
+  app.use((req, res, next) => {
+    if (req.headers['x-forwarded-proto'] !== 'https') {
+      return res.redirect(301, 'https://www.douki.moe/');
+    }
+    return next();
+  });
+}
+
 app.use(compression({ level: 9, threshold: 0 }));
 app.use(cors({
   origin: `${process.env.CORS_ORIGIN || '*'}`,
