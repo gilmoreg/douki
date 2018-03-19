@@ -12,21 +12,19 @@ describe('Client side MAL', () => {
     fetchMock.restore();
   });
 
-  it('check with valid credentials', (done) => {
+  it('check with valid credentials', () => {
     fetchMock.mock('*', fakes.malValidCheckResponse);
-    Mal.check('test', 'test')
+    return Mal.check('test', 'test')
     .then((res) => {
       expect(res).toEqual(true);
-      done();
     });
   });
 
-  it('check with invalid credentials', (done) => {
+  it('check with invalid credentials', () => {
     fetchMock.mock('*', fakes.malInvalidCheckResponse);
-    Mal.check('test', 'test')
+    return Mal.check('test', 'test')
     .then((res) => {
       expect(res).toEqual(false);
-      done();
     });
   });
 
