@@ -66,17 +66,18 @@ const Mal = (() => {
             anime: {},
             manga: {},
           };
-          // Either an error or a new MAL account; either way, sync everything
-          if (!lists[0] || !lists[1]) return hashTable;
-
-          lists[0].forEach((item) => {
-            const anime = sanitizeAnimeListing(item);
-            hashTable.anime[anime.id] = anime;
-          });
-          lists[1].forEach((item) => {
-            const manga = sanitizeMangaListing(item);
-            hashTable.manga[manga.id] = manga;
-          });
+          if (lists[0] && Array.isArray(lists[0])) {
+            lists[0].forEach((item) => {
+              const anime = sanitizeAnimeListing(item);
+              hashTable.anime[anime.id] = anime;
+            });
+          }
+          if (lists[1] && Array.isArray(lists[1])) {
+            lists[1].forEach((item) => {
+              const manga = sanitizeMangaListing(item);
+              hashTable.manga[manga.id] = manga;
+            });
+          }
           return hashTable;
         });
     },
