@@ -3,22 +3,24 @@ const Anilist = (() => {
     Anilist response takes the following form:
     data: {
       anime: {
-        statusLists: {
-          completed: [],
-          planning: [],
+        lists: [
+          { entries: [] },
+          { entries: [] },
           etc.
         },
-        customLists: { etc. },
       },
       manga: {
-        statusLists: { etc. },
-        customLists: { etc. },
+        lists: [
+          { entries: [] },
+          { entries: [] },
+          etc.
+        },
       }
     }
     'data' is stripped off by the fetch function, and flatten() is called once for
     anime and once for manga
 
-    flatten() combines the statusLists and customLists, and all of the lists embedded in them,
+    flatten() combines the lists (completed, planning, all custom lists, etc)
     and creates one big flat array of items
   */
   const flatten = obj =>
@@ -51,95 +53,54 @@ const Anilist = (() => {
     anilistCall(`
       query ($userName: String) {
         anime: MediaListCollection(userName: $userName, type: ANIME) {
-          statusLists {
-            status
-            score(format:POINT_10)
-            progress
-            startedAt {
-              year
-              month
-              day
-            }
-            completedAt {
-              year
-              month
-              day
-            }
-            repeat
-            media {
-              idMal
-              title {
-                romaji
+          lists {
+            entries {
+              status
+              score(format:POINT_10)
+              progress
+              startedAt {
+                year
+                month
+                day
               }
-            }
-          },
-          customLists {
-            status
-            score(format:POINT_10)
-            progress
-            startedAt {
-              year
-              month
-              day
-            }
-            completedAt {
-              year
-              month
-              day
-            }
-            repeat
-            media {
-              idMal
-              title {
-                romaji
+              completedAt {
+                year
+                month
+                day
+              }
+              repeat
+              media {
+                idMal
+                title {
+                  romaji
+                }
               }
             }
           }
         },
         manga: MediaListCollection(userName: $userName, type: MANGA) {
-          statusLists {
-            status
-            score(format:POINT_10)
-            progress
-            progressVolumes
-            startedAt {
-              year
-              month
-              day
-            }
-            completedAt {
-              year
-              month
-              day
-            }
-            repeat
-            media {
-              idMal
-              title {
-                romaji
+          lists {
+            entries {
+              status
+              score(format:POINT_10)
+              progress
+              progressVolumes
+              startedAt {
+                year
+                month
+                day
               }
-            }
-          },
-          customLists {
-            status
-            score(format:POINT_10)
-            progress
-            progressVolumes
-            startedAt {
-              year
-              month
-              day
-            }
-            completedAt {
-              year
-              month
-              day
-            }
-            repeat
-            media {
-              idMal
-              title {
-                romaji
+              completedAt {
+                year
+                month
+                day
+              }
+              repeat
+              media {
+                idMal
+                title {
+                  romaji
+                }
               }
             }
           }
@@ -149,8 +110,8 @@ const Anilist = (() => {
     .then(res => res.json())
     .then(res => res.data)
     .then(res => ({
-      anime: uniqify(flatten(res.anime)),
-      manga: uniqify(flatten(res.manga)),
+      anime: uniqify(flatten(res.anime.lists)),
+      manga: uniqify(flatten(res.manga.lists)),
     }));
 
   const sanitize = (item, type) => ({
