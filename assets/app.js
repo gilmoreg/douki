@@ -67,26 +67,30 @@ const Ani2Sync = (() => {
       return true;
     }
 
-    const matchFields = ['progress', 'status', 'score'];
-    if (matchFields.some(field => malItem[field] !== alItem[field])) return true;
+    if (malItem.score !== alItem.score || malItem.status !== malItem.status) return true;
+
+    // Since MAL and AL differ sometimes on how many episodes/chapters a work has,
+    // if they're both marked completed progress doesn't matter
+    if (malItem.progress !== alItem.progress && malItem.status !== 'completed') return true;
 
     const dateMatchFields = ['year', 'month', 'day'];
     if (alItem.startedAt) {
       if (!malItem.startedAt) return true;
       if (dateMatchFields.some(field =>
-        alItem.startedAt[field] !== malItem.startedAt[field])) return true;
+          alItem.startedAt[field] !== malItem.startedAt[field])) return true;
     }
 
     if (alItem.completedAt) {
       if (!malItem.completedAt) return true;
       if (dateMatchFields.some(field =>
-        alItem.completedAt[field] !== malItem.completedAt[field])) return true;
+          alItem.completedAt[field] !== malItem.completedAt[field])) return true;
     }
 
     // Since this one can be undefined, it must be checked separately
+    // Again if MAL and AL differ on the number of volumes, this won't matter if both are marked completed
     if (alItem.progressVolumes) {
       if (!malItem.progressVolumes) return true;
-      if (malItem.progressVolumes !== alItem.progressVolumes) return true;
+      if (malItem.progressVolumes !== alItem.progressVolumes && malItem.status !== 'completed') return true;
     }
 
     // No changes detected
@@ -103,55 +107,55 @@ const Ani2Sync = (() => {
     // add anime to results to be marked success/fail later
     listAnime(item);
     Mal.add(item)
-    .then((message) => {
-      // this is the response from /mal/add - Created or Updated or an error
-      if (message) {
-        if (message === 'Created' || message === 'Updated') {
-          markSuccess(item.id);
+      .then((message) => {
+        // this is the response from /mal/add - Created or Updated or an error
+        if (message) {
+          if (message === 'Created' || message === 'Updated') {
+            markSuccess(item.id);
+          } else {
+            markFail(item.id);
+            malError(`${item.title}: ${message}`);
+            if (message === 'Invalid ID') notFound(item.title);
+          }
         } else {
+          // Empty response from MAL means item not found
           markFail(item.id);
           malError(`${item.title}: ${message}`);
-          if (message === 'Invalid ID') notFound(item.title);
+          notFound(item.title);
         }
-      } else {
-        // Empty response from MAL means item not found
-        markFail(item.id);
-        malError(`${item.title}: ${message}`);
-        notFound(item.title);
-      }
-      // Recursively call until list is empty
-      handle(newList);
-    })
-    .catch(err => error(err));
+        // Recursively call until list is empty
+        handle(newList);
+      })
+      .catch(err => error(err));
   };
 
   const validateMalCredentials = (malUser, malPass) =>
     Mal.check(malUser, malPass)
-      .then((res) => {
-        if (res) return Promise.resolve();
-        // Mal auth check returned false
-        $('.mal-error').innerHTML = 'Invaild MAL credentials.';
-        setTimeout(() => reset(), 3000);
-        return Promise.reject();
-      });
+    .then((res) => {
+      if (res) return Promise.resolve();
+      // Mal auth check returned false
+      $('.mal-error').innerHTML = 'Invaild MAL credentials.';
+      setTimeout(() => reset(), 3000);
+      return Promise.reject();
+    });
 
   const getSyncList = (aniUser, malUser, syncType) =>
     Anilist.getList(aniUser)
-      .then((alList) => {
-        if (!alList || !alList.length) {
-          $('.anilist-error').innerHTML = `Anilist.co returned no results for ${aniUser}.`;
-          setTimeout(() => reset(), 3000);
-          return Promise.reject();
-        }
+    .then((alList) => {
+      if (!alList || !alList.length) {
+        $('.anilist-error').innerHTML = `Anilist.co returned no results for ${aniUser}.`;
+        setTimeout(() => reset(), 3000);
+        return Promise.reject();
+      }
 
-        if (syncType === 'all') {
-          return Promise.resolve(alList);
-        }
+      if (syncType === 'all') {
+        return Promise.resolve(alList);
+      }
 
-        return Mal.getList(malUser)
-          .then(malItems => alList.filter(item => changed(item, malItems)))
-          .catch(err => Promise.reject(err));
-      });
+      return Mal.getList(malUser)
+        .then(malItems => alList.filter(item => changed(item, malItems)))
+        .catch(err => Promise.reject(err));
+    });
 
   return {
     sync: (event) => {
