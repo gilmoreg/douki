@@ -24,7 +24,7 @@ const Anilist = (() => {
     and creates one big flat array of items
   */
   const flatten = obj =>
-  // Outer reduce concats arrays built by inner reduce
+    // Outer reduce concats arrays built by inner reduce
     Object.keys(obj).reduce((accumulator, list) =>
       // Inner reduce builds an array out of the lists
       accumulator.concat(Object.keys(obj[list]).reduce((acc2, item) =>
@@ -138,14 +138,14 @@ const Anilist = (() => {
   return {
     getList: username =>
       fetchList(username)
-        .then(lists => [
-          ...lists.anime.map(item => sanitize(item, 'anime')),
-          ...lists.manga.map(item => sanitize(item, 'manga')),
-        ])
-        .catch((err) => {
-          console.error('Anilist getList error', err);
-          return `No data found for user ${username}`;
-        }),
+      .then(lists => [
+        ...lists.anime.map(item => sanitize(item, 'anime')).filter(item => item.id),
+        ...lists.manga.map(item => sanitize(item, 'manga')).filter(item => item.id),
+      ])
+      .catch((err) => {
+        console.error('Anilist getList error', err);
+        return `No data found for user ${username}`;
+      }),
   };
 })();
 
