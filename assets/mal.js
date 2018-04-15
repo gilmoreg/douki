@@ -66,14 +66,15 @@ const Mal = (() => {
             anime: {},
             manga: {},
           };
-          if (lists[0] && Array.isArray(lists[0])) {
-            lists[0].forEach((item) => {
+          const [animeList, mangaList] = lists;
+          if (animeList && Array.isArray(animeList)) {
+            animeList.forEach((item) => {
               const anime = sanitizeAnimeListing(item);
               hashTable.anime[anime.id] = anime;
             });
           }
-          if (lists[1] && Array.isArray(lists[1])) {
-            lists[1].forEach((item) => {
+          if (mangaList && Array.isArray(mangaList)) {
+            mangaList.forEach((item) => {
               const manga = sanitizeMangaListing(item);
               hashTable.manga[manga.id] = manga;
             });
@@ -85,7 +86,10 @@ const Mal = (() => {
     add: anilist =>
       fetch('/mal/add', {
         method: 'post',
-        body: JSON.stringify({ auth, anilist }),
+        body: JSON.stringify({
+          auth,
+          anilist
+        }),
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json',

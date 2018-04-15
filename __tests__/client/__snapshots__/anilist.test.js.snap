@@ -8,26 +8,6 @@ Array [
       "month": 0,
       "year": 0,
     },
-    "id": 0,
-    "progress": 12,
-    "progressVolumes": undefined,
-    "repeat": 0,
-    "score": 10,
-    "startedAt": Object {
-      "day": 1,
-      "month": 1,
-      "year": 2017,
-    },
-    "status": "COMPLETED",
-    "title": "test",
-    "type": "anime",
-  },
-  Object {
-    "completedAt": Object {
-      "day": 0,
-      "month": 0,
-      "year": 0,
-    },
     "id": 1,
     "progress": 0,
     "progressVolumes": undefined,
@@ -41,26 +21,6 @@ Array [
     "status": "CURRENT",
     "title": "test",
     "type": "anime",
-  },
-  Object {
-    "completedAt": Object {
-      "day": 0,
-      "month": 0,
-      "year": 0,
-    },
-    "id": 0,
-    "progress": 12,
-    "progressVolumes": 1,
-    "repeat": 0,
-    "score": 10,
-    "startedAt": Object {
-      "day": 1,
-      "month": 1,
-      "year": 2017,
-    },
-    "status": "COMPLETED",
-    "title": "test",
-    "type": "manga",
   },
   Object {
     "completedAt": Object {
